@@ -156,6 +156,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/check_and_insert_recommend_area:
+        get:
+            tags:
+                - App
+            operationId: App_CheckAndInsertRecommendArea
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CheckAndInsertRecommendAreaReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/config:
         get:
             tags:
@@ -1169,6 +1187,9 @@ components:
                     type: string
                 path:
                     type: string
+        CheckAndInsertRecommendAreaReply:
+            type: object
+            properties: {}
         DepositReply:
             type: object
             properties: {}

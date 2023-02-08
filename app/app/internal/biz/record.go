@@ -63,7 +63,7 @@ type LocationRepo interface {
 	GetMyStopLocationLast(ctx context.Context, userId int64) (*Location, error)
 	GetMyLocationRunningLast(ctx context.Context, userId int64) (*Location, error)
 	GetLocationsByUserId(ctx context.Context, userId int64) ([]*Location, error)
-	GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64) ([]*Location, error)
+	GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64, locationRowConfig int64) ([]*Location, error)
 	GetRewardLocationByIds(ctx context.Context, ids ...int64) (map[int64]*Location, error)
 	UpdateLocation(ctx context.Context, id int64, status string, current int64, stopDate time.Time) error
 	GetLocations(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
@@ -121,12 +121,13 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 		recommendNeedVip4  int64
 		recommendNeedVip5  int64
 		timeAgain          int64
+		locationRowConfig  int64
 	)
 	// 配置
 	configs, _ = ruc.configRepo.GetConfigByKeys(ctx, "recommend_need", "recommend_need_one",
 		"recommend_need_two", "recommend_need_three", "recommend_need_four", "recommend_need_five", "recommend_need_six",
 		"recommend_need_vip1", "recommend_need_vip2",
-		"recommend_need_vip3", "recommend_need_vip4", "recommend_need_vip5", "time_again")
+		"recommend_need_vip3", "recommend_need_vip4", "recommend_need_vip5", "time_again", "location_row")
 	if nil != configs {
 		for _, vConfig := range configs {
 			if "recommend_need" == vConfig.KeyName {
@@ -153,6 +154,8 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 				recommendNeedVip5, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			} else if "time_again" == vConfig.KeyName {
 				timeAgain, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "location_row" == vConfig.KeyName {
+				locationRowConfig, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			}
 		}
 	}
@@ -242,28 +245,28 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 		}
 
 		// todo
-		if "50000000000000000000" == v.Amount {
+		if "1000000000000000000" == v.Amount {
 			locationCurrentLevel = 1
-			locationCurrentMax = 2500000000000
-			currentValue = 500000000000
-			dhbAmount = 500000000000
-		} else if "100000000000000000000" == v.Amount {
-			locationCurrentLevel = 2
 			locationCurrentMax = 5000000000000
 			currentValue = 1000000000000
 			dhbAmount = 1000000000000
-		} else if "300000000000000000000" == v.Amount {
-			locationCurrentLevel = 3
+		} else if "3000000000000000000" == v.Amount {
+			locationCurrentLevel = 2
 			locationCurrentMax = 15000000000000
 			currentValue = 3000000000000
 			dhbAmount = 3000000000000
+		} else if "5000000000000000000" == v.Amount {
+			locationCurrentLevel = 3
+			locationCurrentMax = 25000000000000
+			currentValue = 5000000000000
+			dhbAmount = 5000000000000
 		} else {
 			continue
 		}
 		amount = currentValue
 
 		// 占位分红人
-		rewardLocations, err = ruc.locationRepo.GetRewardLocationByRowOrCol(ctx, locationRow, locationCol)
+		rewardLocations, err = ruc.locationRepo.GetRewardLocationByRowOrCol(ctx, locationRow, locationCol, locationRowConfig)
 
 		// 推荐人
 		userRecommend, err = ruc.userRecommendRepo.GetUserRecommendByUserId(ctx, v.UserId)
@@ -798,15 +801,15 @@ func (ruc *RecordUseCase) AdminLocationInsert(ctx context.Context, userId int64,
 	}
 
 	// todo
-	if 50 == amount {
+	if 100 == amount {
 		locationCurrentLevel = 1
-		locationCurrentMax = 2500000000000
-	} else if 100 == amount {
-		locationCurrentLevel = 2
 		locationCurrentMax = 5000000000000
 	} else if 300 == amount {
-		locationCurrentLevel = 3
+		locationCurrentLevel = 2
 		locationCurrentMax = 15000000000000
+	} else if 500 == amount {
+		locationCurrentLevel = 3
+		locationCurrentMax = 25000000000000
 	} else {
 		return false, errors.New(500, "ERROR", "输入金额错误，重试")
 	}

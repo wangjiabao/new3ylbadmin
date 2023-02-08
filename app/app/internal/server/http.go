@@ -22,7 +22,7 @@ func NewHTTPServer(c *conf.Server, app *service.AppService, logger log.Logger) *
 			recovery.Recovery(),
 			selector.Server( // jwt 验证
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
-					return []byte("5e68c8bddab801eee9681436e43c40bf"), nil
+					return []byte("77037723115d7687c63b258b3cb1d19b"), nil
 				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256)),
 			).Match(NewWhiteListMatcher()).Build(),
 		),
@@ -59,6 +59,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 	whiteList["/api.App/AdminWithdrawEth"] = struct{}{}
 	whiteList["/api.App/AdminFee"] = struct{}{}
 	whiteList["/api.App/AdminDailyFee"] = struct{}{}
+	whiteList["/api.App/CheckAndInsertRecommendArea"] = struct{}{}
 	//whiteList["/api.App/AdminAll"] = struct{}{}
 	//whiteList["/api.App/AdminConfigUpdate"] = struct{}{}
 	//whiteList["/api.App/AdminConfig"] = struct{}{}

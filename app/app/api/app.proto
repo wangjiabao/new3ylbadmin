@@ -231,6 +231,12 @@ service App {
 			body: "send_body"
 		};
 	};
+
+	rpc CheckAndInsertRecommendArea (CheckAndInsertRecommendAreaRequest) returns (CheckAndInsertRecommendAreaReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/check_and_insert_recommend_area"
+		};
+	};
 }
 
 message EthAuthorizeRequest {
@@ -671,6 +677,14 @@ message AuthAdminDeleteRequest {
 }
 
 message AuthAdminDeleteReply {
+
+}
+
+message CheckAndInsertRecommendAreaRequest {
+
+}
+
+message CheckAndInsertRecommendAreaReply {
 
 }
 

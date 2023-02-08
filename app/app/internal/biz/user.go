@@ -49,6 +49,12 @@ type UserInfo struct {
 	HistoryRecommend int64
 }
 
+type UserRecommendArea struct {
+	ID            int64
+	RecommendCode string
+	Num           int64
+}
+
 type UserRecommend struct {
 	ID            int64
 	UserId        int64
@@ -183,6 +189,8 @@ type UserRecommendRepo interface {
 	CreateUserRecommend(ctx context.Context, u *User, recommendUser *UserRecommend) (*UserRecommend, error)
 	GetUserRecommendByCode(ctx context.Context, code string) ([]*UserRecommend, error)
 	GetUserRecommendLikeCode(ctx context.Context, code string) ([]*UserRecommend, error)
+	GetUserRecommends(ctx context.Context) ([]*UserRecommend, error)
+	CreateUserRecommendArea(ctx context.Context, recommendAreas []*UserRecommendArea) (bool, error)
 }
 
 type UserCurrentMonthRecommendRepo interface {
@@ -306,194 +314,7 @@ func (uuc *UserUseCase) GetExistUserByAddressOrCreate(ctx context.Context, u *Us
 }
 
 func (uuc *UserUseCase) UserInfo(ctx context.Context, user *User) (*v1.UserInfoReply, error) {
-	var (
-		myUser                     *User
-		userInfo                   *UserInfo
-		locations                  []*Location
-		userBalance                *UserBalance
-		userRecommend              *UserRecommend
-		userRecommends             []*UserRecommend
-		userRewards                []*Reward
-		rewardLocations            []*Location
-		userCurrentMonthRecommends []*UserCurrentMonthRecommend
-		userRewardTotal            int64
-		encodeString               string
-		myUserRecommendUserId      int64
-		myRecommendUser            *User
-		myRow                      int64
-		rowNum                     int64
-		colNum                     int64
-		myCol                      int64
-		recommendTeamNum           int64
-		recommendTotal             int64
-		locationTotal              int64
-		feeTotal                   int64
-		myCode                     string
-		inviteUserAddress          string
-		amount                     string
-		status                     = "no"
-		currentMonthRecommendNum   int64
-		configs                    []*Config
-		myLastStopLocation         *Location
-		myLastLocationCurrent      int64
-		hasRunningLocation         bool
-		level1Dhb                  string
-		level2Dhb                  string
-		level3Dhb                  string
-		userCount                  string
-		err                        error
-	)
-
-	myUser, err = uuc.repo.GetUserById(ctx, user.ID)
-	if nil != err {
-		return nil, err
-	}
-
-	userInfo, err = uuc.uiRepo.GetUserInfoByUserId(ctx, myUser.ID)
-	if nil != err {
-		return nil, err
-	}
-
-	locations, err = uuc.locationRepo.GetLocationsByUserId(ctx, myUser.ID)
-	if nil != locations && 0 < len(locations) {
-		status = "stop"
-		for _, v := range locations {
-			if "running" == v.Status {
-				status = "running"
-				if 0 == v.Current {
-					status = "yes"
-				}
-				hasRunningLocation = true
-				amount = fmt.Sprintf("%.2f", float64(v.CurrentMax-v.Current)/float64(10000000000))
-				myCol = v.Col
-				myRow = v.Row
-				break
-			}
-		}
-	}
-
-	now := time.Now().UTC().Add(8 * time.Hour)
-	myLastStopLocation, err = uuc.locationRepo.GetMyStopLocationLast(ctx, myUser.ID) // 冻结
-	if nil != myLastStopLocation && now.Before(myLastStopLocation.StopDate.Add(24*time.Hour)) && !hasRunningLocation {
-		myLastLocationCurrent = myLastStopLocation.Current - myLastStopLocation.CurrentMax // 补上
-	}
-
-	userBalance, err = uuc.ubRepo.GetUserBalance(ctx, myUser.ID)
-	if nil != err {
-		return nil, err
-	}
-
-	userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, myUser.ID)
-	if nil == userRecommend {
-		return nil, err
-	}
-
-	myCode = "D" + strconv.FormatInt(myUser.ID, 10)
-	codeByte := []byte(myCode)
-	encodeString = base64.StdEncoding.EncodeToString(codeByte)
-
-	if "" != userRecommend.RecommendCode {
-		tmpRecommendUserIds := strings.Split(userRecommend.RecommendCode, "D")
-		if 2 <= len(tmpRecommendUserIds) {
-			myUserRecommendUserId, _ = strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-1], 10, 64) // 最后一位是直推人
-		}
-		myRecommendUser, err = uuc.repo.GetUserById(ctx, myUserRecommendUserId)
-		if nil != err {
-			return nil, err
-		}
-		inviteUserAddress = myRecommendUser.Address
-		myCode = userRecommend.RecommendCode + myCode
-	}
-
-	// 团队
-	userRecommends, err = uuc.urRepo.GetUserRecommendLikeCode(ctx, myCode)
-	if nil != userRecommends {
-		recommendTeamNum = int64(len(userRecommends))
-	}
-
-	// 累计奖励
-	userRewards, err = uuc.ubRepo.GetUserRewardByUserId(ctx, myUser.ID)
-	if nil != userRewards {
-		for _, vUserReward := range userRewards {
-			userRewardTotal += vUserReward.Amount
-			if "recommend" == vUserReward.Reason || "recommend_vip" == vUserReward.Reason {
-				recommendTotal += vUserReward.Amount
-			} else if "location" == vUserReward.Reason {
-				locationTotal += vUserReward.Amount
-			} else if "fee" == vUserReward.Reason {
-				feeTotal += vUserReward.Amount
-			}
-		}
-	}
-
-	// 位置
-	if 0 < myRow && 0 < myCol {
-		rewardLocations, err = uuc.locationRepo.GetRewardLocationByRowOrCol(ctx, myRow, myCol)
-		if nil != rewardLocations {
-			for _, vRewardLocation := range rewardLocations {
-				if myRow == vRewardLocation.Row && myCol == vRewardLocation.Col { // 跳过自己
-					continue
-				}
-				if myRow == vRewardLocation.Row {
-					colNum++
-				}
-				if myCol == vRewardLocation.Col {
-					rowNum++
-				}
-			}
-		}
-	}
-
-	// 当月推荐人数
-	userCurrentMonthRecommends, err = uuc.userCurrentMonthRecommendRepo.GetUserCurrentMonthRecommendByUserId(ctx, myUser.ID)
-	if nil != userCurrentMonthRecommends {
-		for _, vUserCurrentMonthRecommend := range userCurrentMonthRecommends {
-			if vUserCurrentMonthRecommend.Date.After(time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)) {
-				currentMonthRecommendNum++
-			}
-		}
-	}
-
-	// 配置
-	configs, err = uuc.configRepo.GetConfigByKeys(ctx, "user_count")
-	if nil != configs {
-		for _, vConfig := range configs {
-			if "user_count" == vConfig.KeyName {
-				userCount = vConfig.Value
-			}
-		}
-	}
-
-	return &v1.UserInfoReply{
-		Address:                  myUser.Address,
-		Level:                    userInfo.Vip,
-		Status:                   status,
-		Amount:                   amount,
-		BalanceUsdt:              fmt.Sprintf("%.2f", float64(userBalance.BalanceUsdt)/float64(10000000000)),
-		BalanceDhb:               fmt.Sprintf("%.2f", float64(userBalance.BalanceDhb)/float64(10000000000)),
-		InviteUrl:                encodeString,
-		InviteUserAddress:        inviteUserAddress,
-		RecommendNum:             userInfo.HistoryRecommend,
-		RecommendTeamNum:         recommendTeamNum,
-		Total:                    fmt.Sprintf("%.2f", float64(userRewardTotal)/float64(10000000000)),
-		Row:                      rowNum,
-		Col:                      colNum,
-		CurrentMonthRecommendNum: currentMonthRecommendNum,
-		RecommendTotal:           fmt.Sprintf("%.2f", float64(recommendTotal)/float64(10000000000)),
-		FeeTotal:                 fmt.Sprintf("%.2f", float64(feeTotal)/float64(10000000000)),
-		LocationTotal:            fmt.Sprintf("%.2f", float64(locationTotal)/float64(10000000000)),
-		Level1Dhb:                level1Dhb,
-		Level2Dhb:                level2Dhb,
-		Level3Dhb:                level3Dhb,
-		Usdt:                     "0x55d398326f99059fF775485246999027B3197955",
-		Dhb:                      "0xb7864be857e00796e6f79e057b3ef1032cbe4a06",
-		Account:                  "0x636F2deAAb4C9A8F3c808D23F16f456009C4e9Fd",
-		//Usdt:                     "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd",
-		//Dhb:                      "0x96BD81715c69eE013405B4005Ba97eA1f420fd87",
-		//Account:                  "0xe865f2e5ff04b8b7952d1c0d9163a91f313b158f",
-		AmountB:   fmt.Sprintf("%.2f", float64(myLastLocationCurrent)/float64(10000000000)),
-		UserCount: userCount,
-	}, nil
+	return &v1.UserInfoReply{}, nil
 }
 
 func (uuc *UserUseCase) RewardList(ctx context.Context, req *v1.RewardListRequest, user *User) (*v1.RewardListReply, error) {
@@ -1882,13 +1703,14 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 		recommendNeedFive   int64
 		recommendNeedSix    int64
 		tmpRecommendUserIds []string
+		locationRowConfig   int64
 		err                 error
 	)
 	// 配置
 	configs, _ = uuc.configRepo.GetConfigByKeys(ctx, "recommend_need", "recommend_need_one",
 		"recommend_need_two", "recommend_need_three", "recommend_need_four", "recommend_need_five", "recommend_need_six",
 		"recommend_need_vip1", "recommend_need_vip2",
-		"recommend_need_vip3", "recommend_need_vip4", "recommend_need_vip5", "time_again")
+		"recommend_need_vip3", "recommend_need_vip4", "recommend_need_vip5", "time_again", "location_row")
 	if nil != configs {
 		for _, vConfig := range configs {
 			if "recommend_need" == vConfig.KeyName {
@@ -1913,6 +1735,8 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 				recommendNeedVip4, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			} else if "recommend_need_vip5" == vConfig.KeyName {
 				recommendNeedVip5, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "location_row" == vConfig.KeyName {
+				locationRowConfig, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			}
 		}
 	}
@@ -1983,7 +1807,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 			return nil, err
 		}
 		// 占位分红人
-		rewardLocations, err = uuc.locationRepo.GetRewardLocationByRowOrCol(ctx, myLocationLast.Row, myLocationLast.Col)
+		rewardLocations, err = uuc.locationRepo.GetRewardLocationByRowOrCol(ctx, myLocationLast.Row, myLocationLast.Col, locationRowConfig)
 
 		// 推荐人
 		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, withdraw.UserId)
@@ -2361,4 +2185,63 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 	//_, _ = uuc.locationRepo.UnLockGlobalWithdraw(ctx)
 
 	return &v1.AdminWithdrawReply{}, nil
+}
+
+func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminWithdrawRequest) (*v1.AdminWithdrawReply, error) {
+
+	return &v1.AdminWithdrawReply{}, nil
+}
+
+func (uuc *UserUseCase) CheckAndInsertRecommendArea(ctx context.Context, req *v1.CheckAndInsertRecommendAreaRequest) (*v1.CheckAndInsertRecommendAreaReply, error) {
+
+	var (
+		userRecommends         []*UserRecommend
+		userRecommendAreaCodes []string
+		userRecommendAreas     []*UserRecommendArea
+		err                    error
+	)
+	userRecommends, err = uuc.urRepo.GetUserRecommends(ctx)
+	if nil != err {
+		return &v1.CheckAndInsertRecommendAreaReply{}, nil
+	}
+
+	for _, vUserRecommends := range userRecommends {
+		tmp := vUserRecommends.RecommendCode + "D" + strconv.FormatInt(vUserRecommends.UserId, 10)
+		tmpNoHas := true
+		for k, vUserRecommendAreaCodes := range userRecommendAreaCodes {
+			if strings.HasPrefix(vUserRecommendAreaCodes, tmp) {
+				tmpNoHas = false
+			} else if strings.HasPrefix(tmp, vUserRecommendAreaCodes) {
+				userRecommendAreaCodes[k] = tmp
+				tmpNoHas = false
+			}
+		}
+
+		if tmpNoHas {
+			userRecommendAreaCodes = append(userRecommendAreaCodes, tmp)
+		}
+	}
+
+	fmt.Println(userRecommendAreaCodes)
+
+	userRecommendAreas = make([]*UserRecommendArea, 0)
+	for _, vUserRecommendAreaCodes := range userRecommendAreaCodes {
+		userRecommendAreas = append(userRecommendAreas, &UserRecommendArea{
+			RecommendCode: vUserRecommendAreaCodes,
+			Num:           int64(len(strings.Split(vUserRecommendAreaCodes, "D")) - 1),
+		})
+	}
+
+	if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		_, err = uuc.urRepo.CreateUserRecommendArea(ctx, userRecommendAreas)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return &v1.CheckAndInsertRecommendAreaReply{}, nil
 }

@@ -394,16 +394,16 @@ func (lr *LocationRepo) UpdateLocationRowAndCol(ctx context.Context, id int64) e
 }
 
 // GetRewardLocationByRowOrCol .
-func (lr *LocationRepo) GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64) ([]*biz.Location, error) {
+func (lr *LocationRepo) GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64, locationRowConfig int64) ([]*biz.Location, error) {
 	var (
 		rowMin    int64 = 1
 		rowMax    int64
 		locations []*Location
 	)
-	if row > 25 {
-		rowMin = row - 25
+	if row > locationRowConfig {
+		rowMin = row - locationRowConfig
 	}
-	rowMax = row + 25
+	rowMax = row + locationRowConfig
 
 	if err := lr.data.db.Table("location").
 		Where("status=?", "running").

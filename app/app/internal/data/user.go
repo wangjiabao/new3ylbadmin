@@ -61,6 +61,15 @@ type UserBalance struct {
 	UpdatedAt   time.Time `gorm:"type:datetime;not null"`
 }
 
+type UserRecommendArea struct {
+	ID            int64     `gorm:"primarykey;type:int"`
+	RecommendCode string    `gorm:"type:varchar(10000);not null"`
+	Version       int64     `gorm:"type:int;not null"`
+	Num           int64     `gorm:"type:int;not null"`
+	CreatedAt     time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt     time.Time `gorm:"type:datetime;not null"`
+}
+
 type Withdraw struct {
 	ID              int64     `gorm:"primarykey;type:int"`
 	UserId          int64     `gorm:"type:int"`
@@ -744,6 +753,28 @@ func (ur *UserRecommendRepo) GetUserRecommendLikeCode(ctx context.Context, code 
 	return res, nil
 }
 
+// GetUserRecommends .
+func (ur *UserRecommendRepo) GetUserRecommends(ctx context.Context) ([]*biz.UserRecommend, error) {
+	var userRecommends []*UserRecommend
+	res := make([]*biz.UserRecommend, 0)
+	if err := ur.data.db.Table("user_recommend").Find(&userRecommends).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.NotFound("USER_RECOMMEND_NOT_FOUND", "user recommend not found")
+		}
+
+		return nil, errors.New(500, "USER RECOMMEND ERROR", err.Error())
+	}
+
+	for _, userRecommend := range userRecommends {
+		res = append(res, &biz.UserRecommend{
+			UserId:        userRecommend.UserId,
+			RecommendCode: userRecommend.RecommendCode,
+		})
+	}
+
+	return res, nil
+}
+
 // CreateUserRecommend .
 func (ur *UserRecommendRepo) CreateUserRecommend(ctx context.Context, u *biz.User, recommendUser *biz.UserRecommend) (*biz.UserRecommend, error) {
 	var tmpRecommendCode string
@@ -768,6 +799,25 @@ func (ur *UserRecommendRepo) CreateUserRecommend(ctx context.Context, u *biz.Use
 		UserId:        userRecommend.UserId,
 		RecommendCode: userRecommend.RecommendCode,
 	}, nil
+}
+
+// CreateUserRecommendArea .
+func (ur *UserRecommendRepo) CreateUserRecommendArea(ctx context.Context, recommendAreas []*biz.UserRecommendArea) (bool, error) {
+
+	// 业务上限制了错误的上一级未insert下一级优先insert的情况
+	var userRecommendArea []*UserRecommendArea
+	for _, v := range recommendAreas {
+		userRecommendArea = append(userRecommendArea, &UserRecommendArea{
+			RecommendCode: v.RecommendCode,
+			Num:           v.Num,
+		})
+	}
+	res := ur.data.DB(ctx).Table("user_recommend_area").Create(&userRecommendArea)
+	if res.Error != nil {
+		return false, errors.New(500, "CREATE_USER_RECOMMEND_AREA_ERROR", "用户推荐关系链路创建失败")
+	}
+
+	return true, nil
 }
 
 // CreateUserBalance .

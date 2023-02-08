@@ -56,6 +56,7 @@ type AppClient interface {
 	UserAuthList(ctx context.Context, in *UserAuthListRequest, opts ...grpc.CallOption) (*UserAuthListReply, error)
 	AuthAdminCreate(ctx context.Context, in *AuthAdminCreateRequest, opts ...grpc.CallOption) (*AuthAdminCreateReply, error)
 	AuthAdminDelete(ctx context.Context, in *AuthAdminDeleteRequest, opts ...grpc.CallOption) (*AuthAdminDeleteReply, error)
+	CheckAndInsertRecommendArea(ctx context.Context, in *CheckAndInsertRecommendAreaRequest, opts ...grpc.CallOption) (*CheckAndInsertRecommendAreaReply, error)
 }
 
 type appClient struct {
@@ -372,6 +373,15 @@ func (c *appClient) AuthAdminDelete(ctx context.Context, in *AuthAdminDeleteRequ
 	return out, nil
 }
 
+func (c *appClient) CheckAndInsertRecommendArea(ctx context.Context, in *CheckAndInsertRecommendAreaRequest, opts ...grpc.CallOption) (*CheckAndInsertRecommendAreaReply, error) {
+	out := new(CheckAndInsertRecommendAreaReply)
+	err := c.cc.Invoke(ctx, "/api.App/CheckAndInsertRecommendArea", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility
@@ -410,6 +420,7 @@ type AppServer interface {
 	UserAuthList(context.Context, *UserAuthListRequest) (*UserAuthListReply, error)
 	AuthAdminCreate(context.Context, *AuthAdminCreateRequest) (*AuthAdminCreateReply, error)
 	AuthAdminDelete(context.Context, *AuthAdminDeleteRequest) (*AuthAdminDeleteReply, error)
+	CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -518,6 +529,9 @@ func (UnimplementedAppServer) AuthAdminCreate(context.Context, *AuthAdminCreateR
 }
 func (UnimplementedAppServer) AuthAdminDelete(context.Context, *AuthAdminDeleteRequest) (*AuthAdminDeleteReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuthAdminDelete not implemented")
+}
+func (UnimplementedAppServer) CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAndInsertRecommendArea not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 
@@ -1144,6 +1158,24 @@ func _App_AuthAdminDelete_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_CheckAndInsertRecommendArea_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAndInsertRecommendAreaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).CheckAndInsertRecommendArea(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/CheckAndInsertRecommendArea",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).CheckAndInsertRecommendArea(ctx, req.(*CheckAndInsertRecommendAreaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1286,6 +1318,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AuthAdminDelete",
 			Handler:    _App_AuthAdminDelete_Handler,
+		},
+		{
+			MethodName: "CheckAndInsertRecommendArea",
+			Handler:    _App_CheckAndInsertRecommendArea_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
