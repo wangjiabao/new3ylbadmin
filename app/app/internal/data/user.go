@@ -775,6 +775,40 @@ func (ur *UserRecommendRepo) GetUserRecommends(ctx context.Context) ([]*biz.User
 	return res, nil
 }
 
+// GetUserRecommendLowAreas .
+func (ur *UserRecommendRepo) GetUserRecommendLowAreas(ctx context.Context) ([]*biz.UserRecommendArea, error) {
+	var firstRecommendArea *UserRecommendArea
+	if err := ur.data.db.Order("num desc").Table("user_recommend_area").First(&firstRecommendArea).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New(500, "USER RECOMMEND NOT FOUND", err.Error())
+		}
+
+		return nil, errors.New(500, "USER RECOMMEND ERROR", err.Error())
+	}
+
+	var userRecommendAreas []*UserRecommendArea
+	res := make([]*biz.UserRecommendArea, 0)
+	if err := ur.data.db.Table("user_recommend_area").Find(&userRecommendAreas).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.NotFound("USER_RECOMMEND_NOT_FOUND", "user recommend not found")
+		}
+
+		return nil, errors.New(500, "USER RECOMMEND ERROR", err.Error())
+	}
+
+	for _, userRecommendArea := range userRecommendAreas {
+		if firstRecommendArea.ID == userRecommendArea.ID {
+			continue
+		}
+		res = append(res, &biz.UserRecommendArea{
+			RecommendCode: userRecommendArea.RecommendCode,
+			Num:           userRecommendArea.Num,
+		})
+	}
+
+	return res, nil
+}
+
 // CreateUserRecommend .
 func (ur *UserRecommendRepo) CreateUserRecommend(ctx context.Context, u *biz.User, recommendUser *biz.UserRecommend) (*biz.UserRecommend, error) {
 	var tmpRecommendCode string
@@ -1606,6 +1640,45 @@ func (ub *UserBalanceRepo) UserDailyFee(ctx context.Context, userId int64, amoun
 	reward.BalanceRecordId = userBalanceRecode.ID
 	reward.Type = "system_reward_daily" // 本次分红的行为类型
 	reward.Reason = "fee_daily"         // 给我分红的理由
+	err = ub.data.DB(ctx).Table("reward").Create(&reward).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return userBalanceRecode.ID, nil
+}
+
+// UserDailyRecommendArea .
+func (ub *UserBalanceRepo) UserDailyRecommendArea(ctx context.Context, userId int64, amount int64) (int64, error) {
+	var err error
+	if err = ub.data.DB(ctx).Table("user_balance").
+		Where("user_id=?", userId).
+		Updates(map[string]interface{}{"balance_usdt": gorm.Expr("balance_usdt + ?", amount)}).Error; nil != err {
+		return 0, errors.NotFound("user balance err", "user balance not found")
+	}
+
+	var userBalance UserBalance
+	err = ub.data.DB(ctx).Where(&UserBalance{UserId: userId}).Table("user_balance").First(&userBalance).Error
+	if err != nil {
+		return 0, err
+	}
+
+	var userBalanceRecode UserBalanceRecord
+	userBalanceRecode.Balance = userBalance.BalanceUsdt
+	userBalanceRecode.UserId = userBalance.UserId
+	userBalanceRecode.Type = "reward"
+	userBalanceRecode.Amount = amount
+	err = ub.data.DB(ctx).Table("user_balance_record").Create(&userBalanceRecode).Error
+	if err != nil {
+		return 0, err
+	}
+
+	var reward Reward
+	reward.UserId = userBalance.UserId
+	reward.Amount = amount
+	reward.BalanceRecordId = userBalanceRecode.ID
+	reward.Type = "system_reward_daily"    // 本次分红的行为类型
+	reward.Reason = "daily_recommend_area" // 给我分红的理由
 	err = ub.data.DB(ctx).Table("reward").Create(&reward).Error
 	if err != nil {
 		return 0, err

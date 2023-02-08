@@ -76,6 +76,7 @@ type LocationRepo interface {
 	UnLockGlobalWithdraw(ctx context.Context) (bool, error)
 	GetLockGlobalLocation(ctx context.Context) (*GlobalLock, error)
 	GetLocationUserCount(ctx context.Context) int64
+	GetLocationByIds(ctx context.Context, userIds ...int64) ([]*Location, error)
 }
 
 func NewRecordUseCase(

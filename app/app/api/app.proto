@@ -237,6 +237,12 @@ service App {
 			get: "/api/admin_dhb/check_and_insert_recommend_area"
 		};
 	};
+
+	rpc AdminDailyRecommendReward (AdminDailyRecommendRewardRequest) returns (AdminDailyRecommendRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/daily_recommend_reward"
+		};
+	};
 }
 
 message EthAuthorizeRequest {
@@ -685,6 +691,14 @@ message CheckAndInsertRecommendAreaRequest {
 }
 
 message CheckAndInsertRecommendAreaReply {
+
+}
+
+message AdminDailyRecommendRewardRequest {
+
+}
+
+message AdminDailyRecommendRewardReply {
 
 }
 

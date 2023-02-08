@@ -148,6 +148,7 @@ type UserBalanceRepo interface {
 	SystemFee(ctx context.Context, amount int64, locationId int64) error
 	UserFee(ctx context.Context, userId int64, amount int64) (int64, error)
 	UserDailyFee(ctx context.Context, userId int64, amount int64) (int64, error)
+	UserDailyRecommendArea(ctx context.Context, userId int64, amount int64) (int64, error)
 	RecommendWithdrawReward(ctx context.Context, userId int64, amount int64, locationId int64) (int64, error)
 	RecommendWithdrawTopReward(ctx context.Context, userId int64, amount int64, locationId int64, vip int64) (int64, error)
 	NormalRecommendReward(ctx context.Context, userId int64, amount int64, locationId int64) (int64, error)
@@ -191,6 +192,7 @@ type UserRecommendRepo interface {
 	GetUserRecommendLikeCode(ctx context.Context, code string) ([]*UserRecommend, error)
 	GetUserRecommends(ctx context.Context) ([]*UserRecommend, error)
 	CreateUserRecommendArea(ctx context.Context, recommendAreas []*UserRecommendArea) (bool, error)
+	GetUserRecommendLowAreas(ctx context.Context) ([]*UserRecommendArea, error)
 }
 
 type UserCurrentMonthRecommendRepo interface {
@@ -2187,9 +2189,349 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 	return &v1.AdminWithdrawReply{}, nil
 }
 
-func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminWithdrawRequest) (*v1.AdminWithdrawReply, error) {
+func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminDailyRecommendRewardRequest) (*v1.AdminDailyRecommendRewardReply, error) {
 
-	return &v1.AdminWithdrawReply{}, nil
+	var (
+		userLocations          []*Location
+		userRecommendAreas     []*UserRecommendArea
+		userRecommendAreaCodes []string
+		configs                []*Config
+		recommendAreaOne       int64
+		recommendAreaOneRate   int64
+		recommendAreaTwo       int64
+		recommendAreaTwoRate   int64
+		recommendAreaThree     int64
+		recommendAreaThreeRate int64
+		recommendAreaFour      int64
+		recommendAreaFourRate  int64
+		fee                    int64
+		err                    error
+	)
+
+	// 获取到全部小区
+	userRecommendAreas, _ = uuc.urRepo.GetUserRecommendLowAreas(ctx)
+	if nil != err {
+		return nil, err
+	}
+
+	for _, vUserRecommendAreas := range userRecommendAreas {
+		tmpNoHas := true
+		for k, vUserRecommendAreaCodes := range userRecommendAreaCodes {
+			if strings.HasPrefix(vUserRecommendAreaCodes, vUserRecommendAreas.RecommendCode) {
+				tmpNoHas = false
+			} else if strings.HasPrefix(vUserRecommendAreas.RecommendCode, vUserRecommendAreaCodes) {
+				userRecommendAreaCodes[k] = vUserRecommendAreas.RecommendCode
+				tmpNoHas = false
+			}
+		}
+
+		if tmpNoHas {
+			userRecommendAreaCodes = append(userRecommendAreaCodes, vUserRecommendAreas.RecommendCode)
+		}
+	}
+	if 0 >= len(userRecommendAreaCodes) {
+		return &v1.AdminDailyRecommendRewardReply{}, nil
+	}
+
+	// 全网手续费
+	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx)
+	if nil != err {
+		return nil, err
+	}
+	for _, userLocation := range userLocations {
+		fee += userLocation.CurrentMax / 5
+	}
+	if 0 >= fee {
+		return &v1.AdminDailyRecommendRewardReply{}, nil
+	}
+
+	configs, _ = uuc.configRepo.GetConfigByKeys(ctx, "recommend_area_one",
+		"recommend_area_one_rate", "recommend_area_two_rate", "recommend_area_three_rate", "recommend_area_four_rate",
+		"recommend_area_two", "recommend_area_three", "recommend_area_four")
+	if nil != configs {
+		for _, vConfig := range configs {
+			if "recommend_area_one" == vConfig.KeyName {
+				recommendAreaOne, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_one_rate" == vConfig.KeyName {
+				recommendAreaOneRate, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_two" == vConfig.KeyName {
+				recommendAreaTwo, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_two_rate" == vConfig.KeyName {
+				recommendAreaTwoRate, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_three" == vConfig.KeyName {
+				recommendAreaThree, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_three_rate" == vConfig.KeyName {
+				recommendAreaThreeRate, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_four" == vConfig.KeyName {
+				recommendAreaFour, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_area_four_rate" == vConfig.KeyName {
+				recommendAreaFourRate, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			}
+		}
+	}
+
+	level1 := make(map[int64]int64, 0)
+	level2 := make(map[int64]int64, 0)
+	level3 := make(map[int64]int64, 0)
+	level4 := make(map[int64]int64, 0)
+
+	for _, vUserRecommendAreaCodes := range userRecommendAreaCodes {
+		var tmpUserIds []int64
+		tmpCodes := strings.Split(vUserRecommendAreaCodes, "D")
+		for _, vTmpCode := range tmpCodes {
+			tmpUserId, _ := strconv.ParseInt(vTmpCode, 10, 64)
+			if tmpUserId > 0 {
+				tmpUserIds = append(tmpUserIds, tmpUserId)
+			}
+		}
+
+		var (
+			tmpAreaLocations []*Location
+			tmpAreaAmount    int64
+		)
+
+		tmpAreaLocations, err = uuc.locationRepo.GetLocationByIds(ctx, tmpUserIds...)
+		for _, vTmpAreaLocations := range tmpAreaLocations {
+			tmpAreaAmount += vTmpAreaLocations.CurrentMax / 5
+		}
+
+		fmt.Println(tmpAreaAmount)
+		// 比较级别
+		if tmpAreaAmount/10000000000 >= recommendAreaOne*10000 {
+			for _, vTmpUserIds := range tmpUserIds {
+				level1[vTmpUserIds] = vTmpUserIds
+			}
+		}
+
+		if tmpAreaAmount/10000000000 >= recommendAreaTwo*10000 {
+			for _, vTmpUserIds := range tmpUserIds {
+				level2[vTmpUserIds] = vTmpUserIds
+			}
+		}
+
+		if tmpAreaAmount/10000000000 >= recommendAreaThree*10000 {
+			for _, vTmpUserIds := range tmpUserIds {
+				level3[vTmpUserIds] = vTmpUserIds
+			}
+		}
+
+		if tmpAreaAmount/10000000000 >= recommendAreaFour*10000 {
+			for _, vTmpUserIds := range tmpUserIds {
+				level4[vTmpUserIds] = vTmpUserIds
+			}
+		}
+	}
+
+	// 分红
+	fee /= 100000
+	fmt.Println(fee)
+	if 0 < len(level1) {
+		feeLevel1 := fee * 100 / recommendAreaOneRate / int64(len(level1))
+		feeLevel1 *= 100000
+		for _, vLevel1 := range level1 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel1)
+				if nil == myLocationLast { // 无占位信息
+					return err
+				}
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpCurrent := myLocationLast.Current
+				tmpBalanceAmount := feeLevel1
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel1
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
+
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
+						return err
+					}
+
+					if 0 < tmpBalanceAmount && "running" == tmpCurrentStatus && tmpCurrent < myLocationLast.CurrentMax { // 这次还能分红
+						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
+						rewardAmount := tmpBalanceAmount
+						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
+							rewardAmount = tmpCurrentAmount
+						}
+
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel1, rewardAmount)
+						if nil != err {
+							return err
+						}
+					}
+				}
+
+				return nil
+			}); nil != err {
+				return nil, err
+			}
+		}
+	}
+
+	// 分红
+	if 0 < len(level2) {
+		feeLevel2 := fee * 100 / recommendAreaTwoRate / int64(len(level2))
+
+		for _, vLevel2 := range level2 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel2)
+				if nil == myLocationLast { // 无占位信息
+					return err
+				}
+
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpCurrent := myLocationLast.Current
+				tmpBalanceAmount := feeLevel2
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel2
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
+
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
+						return err
+					}
+
+					if 0 < tmpBalanceAmount && "running" == tmpCurrentStatus && tmpCurrent < myLocationLast.CurrentMax { // 这次还能分红
+						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
+						rewardAmount := tmpBalanceAmount
+						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
+							rewardAmount = tmpCurrentAmount
+						}
+
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel2, rewardAmount)
+						if nil != err {
+							return err
+						}
+					}
+				}
+
+				return nil
+			}); nil != err {
+				return nil, err
+			}
+		}
+	}
+
+	// 分红
+	if 0 < len(level3) {
+		feeLevel3 := fee * 100 / recommendAreaThreeRate / int64(len(level3))
+
+		for _, vLevel3 := range level3 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel3)
+				if nil == myLocationLast { // 无占位信息
+					return err
+				}
+
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpCurrent := myLocationLast.Current
+				tmpBalanceAmount := feeLevel3
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel3
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
+
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
+						return err
+					}
+
+					if 0 < tmpBalanceAmount && "running" == tmpCurrentStatus && tmpCurrent < myLocationLast.CurrentMax { // 这次还能分红
+						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
+						rewardAmount := tmpBalanceAmount
+						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
+							rewardAmount = tmpCurrentAmount
+						}
+
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel3, rewardAmount)
+						if nil != err {
+							return err
+						}
+					}
+				}
+
+				return nil
+			}); nil != err {
+				return nil, err
+			}
+		}
+	}
+
+	// 分红
+	if 0 < len(level4) {
+		feeLevel4 := fee * 100 / recommendAreaFourRate / int64(len(level4))
+
+		for _, vLevel4 := range level4 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel4)
+				if nil == myLocationLast { // 无占位信息
+					return err
+				}
+
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpCurrent := myLocationLast.Current
+				tmpBalanceAmount := feeLevel4
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel4
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
+
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
+						return err
+					}
+
+					if 0 < tmpBalanceAmount && "running" == tmpCurrentStatus && tmpCurrent < myLocationLast.CurrentMax { // 这次还能分红
+						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
+						rewardAmount := tmpBalanceAmount
+						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
+							rewardAmount = tmpCurrentAmount
+						}
+
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel4, rewardAmount)
+						if nil != err {
+							return err
+						}
+					}
+				}
+
+				return nil
+			}); nil != err {
+				return nil, err
+			}
+		}
+	}
+
+	return &v1.AdminDailyRecommendRewardReply{}, nil
 }
 
 func (uuc *UserUseCase) CheckAndInsertRecommendArea(ctx context.Context, req *v1.CheckAndInsertRecommendAreaRequest) (*v1.CheckAndInsertRecommendAreaReply, error) {
@@ -2221,8 +2563,6 @@ func (uuc *UserUseCase) CheckAndInsertRecommendArea(ctx context.Context, req *v1
 			userRecommendAreaCodes = append(userRecommendAreaCodes, tmp)
 		}
 	}
-
-	fmt.Println(userRecommendAreaCodes)
 
 	userRecommendAreas = make([]*UserRecommendArea, 0)
 	for _, vUserRecommendAreaCodes := range userRecommendAreaCodes {

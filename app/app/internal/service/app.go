@@ -510,6 +510,10 @@ func (a *AppService) CheckAndInsertRecommendArea(ctx context.Context, req *v1.Ch
 	return a.uuc.CheckAndInsertRecommendArea(ctx, req)
 }
 
+func (a *AppService) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminDailyRecommendRewardRequest) (*v1.AdminDailyRecommendRewardReply, error) {
+	return a.uuc.AdminDailyRecommendReward(ctx, req)
+}
+
 func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdrawEthRequest) (*v1.AdminWithdrawEthReply, error) {
 	var (
 		withdraw     *biz.Withdraw
