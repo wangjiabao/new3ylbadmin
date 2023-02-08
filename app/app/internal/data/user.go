@@ -399,11 +399,11 @@ func (u *UserRepo) GetUserCountToday(ctx context.Context) (int64, error) {
 		startDate = now.AddDate(0, 0, -1)
 		endDate = now
 	}
-	todayStart := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 16, 0, 0, 0, time.UTC)
-	todayEnd := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 15, 59, 59, 0, time.UTC)
+	todayStart := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 14, 0, 0, 0, time.UTC)
+	todayEnd := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 14, 0, 0, 0, time.UTC)
 
 	if err := u.data.db.Table("user").
-		Where("created_at>=?", todayStart).Where("created_at<=?", todayEnd).Count(&count).Error; err != nil {
+		Where("created_at>=?", todayStart).Where("created_at<?", todayEnd).Count(&count).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return count, errors.NotFound("USER_NOT_FOUND", "user not found")
 		}
