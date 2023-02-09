@@ -160,7 +160,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 			}
 		}
 	}
-
 	for _, v := range ethUserRecord {
 		fmt.Println(v)
 		var (
@@ -642,6 +641,21 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 
 				}
 
+			}
+
+			// 修改用户推荐人区数据，修改自身区数据
+			_, err = ruc.userRecommendRepo.UpdateUserAreaSelfAmount(ctx, v.UserId, currentValue/10000000000)
+			if nil != err {
+				return err
+			}
+			for _, vTmpRecommendUserIds := range tmpRecommendUserIds {
+				vTmpRecommendUserId, _ := strconv.ParseInt(vTmpRecommendUserIds, 10, 64)
+				if vTmpRecommendUserId > 0 {
+					_, err = ruc.userRecommendRepo.UpdateUserAreaAmount(ctx, vTmpRecommendUserId, currentValue/10000000000)
+					if nil != err {
+						return err
+					}
+				}
 			}
 
 			_, err = ruc.userBalanceRepo.Deposit(ctx, v.UserId, currentValue, dhbAmount) // 充值

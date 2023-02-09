@@ -124,6 +124,14 @@ type Pagination struct {
 	PageSize int
 }
 
+type UserArea struct {
+	ID         int64
+	UserId     int64
+	Amount     int64
+	SelfAmount int64
+	Level      int64
+}
+
 type UserSortRecommendReward struct {
 	UserId int64
 	Total  int64
@@ -193,6 +201,11 @@ type UserRecommendRepo interface {
 	GetUserRecommends(ctx context.Context) ([]*UserRecommend, error)
 	CreateUserRecommendArea(ctx context.Context, recommendAreas []*UserRecommendArea) (bool, error)
 	GetUserRecommendLowAreas(ctx context.Context) ([]*UserRecommendArea, error)
+	UpdateUserAreaAmount(ctx context.Context, userId int64, amount int64) (bool, error)
+	UpdateUserAreaSelfAmount(ctx context.Context, userId int64, amount int64) (bool, error)
+	UpdateUserAreaLevel(ctx context.Context, userId int64, level int64) (bool, error)
+	GetUserAreas(ctx context.Context, userIds []int64) ([]*UserArea, error)
+	GetUserArea(ctx context.Context, userId int64) (*UserArea, error)
 }
 
 type UserCurrentMonthRecommendRepo interface {
@@ -221,6 +234,7 @@ type UserRepo interface {
 	GetUserByUserIds(ctx context.Context, userIds ...int64) (map[int64]*User, error)
 	GetAdmins(ctx context.Context) ([]*Admin, error)
 	GetUsers(ctx context.Context, b *Pagination, address string, isLocation bool, vip int64) ([]*User, error, int64)
+	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetUserCount(ctx context.Context) (int64, error)
 	GetUserCountToday(ctx context.Context) (int64, error)
 	CreateAdminAuth(ctx context.Context, adminId int64, authId int64) (bool, error)
@@ -2192,9 +2206,8 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminDailyRecommendRewardRequest) (*v1.AdminDailyRecommendRewardReply, error) {
 
 	var (
+		users                  []*User
 		userLocations          []*Location
-		userRecommendAreas     []*UserRecommendArea
-		userRecommendAreaCodes []string
 		configs                []*Config
 		recommendAreaOne       int64
 		recommendAreaOneRate   int64
@@ -2207,31 +2220,6 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		fee                    int64
 		err                    error
 	)
-
-	// 获取到全部小区
-	userRecommendAreas, _ = uuc.urRepo.GetUserRecommendLowAreas(ctx)
-	if nil != err {
-		return nil, err
-	}
-
-	for _, vUserRecommendAreas := range userRecommendAreas {
-		tmpNoHas := true
-		for k, vUserRecommendAreaCodes := range userRecommendAreaCodes {
-			if strings.HasPrefix(vUserRecommendAreaCodes, vUserRecommendAreas.RecommendCode) {
-				tmpNoHas = false
-			} else if strings.HasPrefix(vUserRecommendAreas.RecommendCode, vUserRecommendAreaCodes) {
-				userRecommendAreaCodes[k] = vUserRecommendAreas.RecommendCode
-				tmpNoHas = false
-			}
-		}
-
-		if tmpNoHas {
-			userRecommendAreaCodes = append(userRecommendAreaCodes, vUserRecommendAreas.RecommendCode)
-		}
-	}
-	if 0 >= len(userRecommendAreaCodes) {
-		return &v1.AdminDailyRecommendRewardReply{}, nil
-	}
 
 	// 全网手续费
 	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx)
@@ -2270,63 +2258,102 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		}
 	}
 
+	users, err = uuc.repo.GetAllUsers(ctx)
+	if nil != err {
+		return nil, err
+	}
+
 	level1 := make(map[int64]int64, 0)
 	level2 := make(map[int64]int64, 0)
 	level3 := make(map[int64]int64, 0)
 	level4 := make(map[int64]int64, 0)
 
-	for _, vUserRecommendAreaCodes := range userRecommendAreaCodes {
-		var tmpUserIds []int64
-		tmpCodes := strings.Split(vUserRecommendAreaCodes, "D")
-		for _, vTmpCode := range tmpCodes {
-			tmpUserId, _ := strconv.ParseInt(vTmpCode, 10, 64)
-			if tmpUserId > 0 {
-				tmpUserIds = append(tmpUserIds, tmpUserId)
-			}
+	for _, user := range users {
+		var userArea *UserArea
+		userArea, err = uuc.urRepo.GetUserArea(ctx, user.ID)
+		if nil != err {
+			continue
 		}
 
+		if userArea.Level > 0 {
+			if userArea.Level >= 1 {
+				level1[user.ID] = user.ID
+			}
+			if userArea.Level >= 2 {
+				level2[user.ID] = user.ID
+			}
+			if userArea.Level >= 3 {
+				level3[user.ID] = user.ID
+			}
+			if userArea.Level >= 4 {
+				level4[user.ID] = user.ID
+			}
+			continue
+		}
+
+		var userRecommend *UserRecommend
+		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, user.ID)
+		if nil != err {
+			continue
+		}
+
+		// 伞下业绩
 		var (
-			tmpAreaLocations []*Location
-			tmpAreaAmount    int64
+			myRecommendUsers   []*UserRecommend
+			userAreas          []*UserArea
+			maxAreaAmount      int64
+			areaAmount         int64
+			myRecommendUserIds []int64
 		)
+		myCode := userRecommend.RecommendCode + "D" + strconv.FormatInt(user.ID, 10)
+		myRecommendUsers, err = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
+		if nil == err {
+			// 找直推
+			for _, vMyRecommendUsers := range myRecommendUsers {
+				myRecommendUserIds = append(myRecommendUserIds, vMyRecommendUsers.UserId)
+			}
+		}
+		if 0 < len(myRecommendUserIds) {
+			userAreas, err = uuc.urRepo.GetUserAreas(ctx, myRecommendUserIds)
+			if nil == err {
+				var (
+					tmpTotalAreaAmount int64
+				)
+				for _, vUserAreas := range userAreas {
+					tmpAreaAmount := vUserAreas.Amount + vUserAreas.SelfAmount
+					tmpTotalAreaAmount += tmpAreaAmount
+					if tmpAreaAmount > maxAreaAmount {
+						maxAreaAmount = tmpAreaAmount
+					}
+				}
 
-		tmpAreaLocations, err = uuc.locationRepo.GetLocationByIds(ctx, tmpUserIds...)
-		for _, vTmpAreaLocations := range tmpAreaLocations {
-			tmpAreaAmount += vTmpAreaLocations.CurrentMax / 5
+				areaAmount = tmpTotalAreaAmount - maxAreaAmount
+			}
 		}
 
-		fmt.Println(tmpAreaAmount)
 		// 比较级别
-		if tmpAreaAmount/10000000000 >= recommendAreaOne*10000 {
-			for _, vTmpUserIds := range tmpUserIds {
-				level1[vTmpUserIds] = vTmpUserIds
-			}
+		if areaAmount >= recommendAreaOne*10000 {
+			level1[user.ID] = user.ID
 		}
 
-		if tmpAreaAmount/10000000000 >= recommendAreaTwo*10000 {
-			for _, vTmpUserIds := range tmpUserIds {
-				level2[vTmpUserIds] = vTmpUserIds
-			}
+		if areaAmount >= recommendAreaTwo*10000 {
+			level2[user.ID] = user.ID
 		}
 
-		if tmpAreaAmount/10000000000 >= recommendAreaThree*10000 {
-			for _, vTmpUserIds := range tmpUserIds {
-				level3[vTmpUserIds] = vTmpUserIds
-			}
+		if areaAmount >= recommendAreaThree*10000 {
+			level3[user.ID] = user.ID
 		}
 
-		if tmpAreaAmount/10000000000 >= recommendAreaFour*10000 {
-			for _, vTmpUserIds := range tmpUserIds {
-				level4[vTmpUserIds] = vTmpUserIds
-			}
+		if areaAmount >= recommendAreaFour*10000 {
+			level4[user.ID] = user.ID
 		}
 	}
-
+	fmt.Println(level4, level3, level2, level1)
 	// 分红
 	fee /= 100000
 	fmt.Println(fee)
 	if 0 < len(level1) {
-		feeLevel1 := fee * 100 / recommendAreaOneRate / int64(len(level1))
+		feeLevel1 := fee * recommendAreaOneRate / 100 / int64(len(level1))
 		feeLevel1 *= 100000
 		for _, vLevel1 := range level1 {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
@@ -2370,15 +2397,15 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 
 				return nil
 			}); nil != err {
-				return nil, err
+				continue
 			}
 		}
 	}
 
 	// 分红
 	if 0 < len(level2) {
-		feeLevel2 := fee * 100 / recommendAreaTwoRate / int64(len(level2))
-
+		feeLevel2 := fee * recommendAreaTwoRate / 100 / int64(len(level2))
+		feeLevel2 *= 100000
 		for _, vLevel2 := range level2 {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 				var myLocationLast *Location
@@ -2422,15 +2449,15 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 
 				return nil
 			}); nil != err {
-				return nil, err
+				continue
 			}
 		}
 	}
 
 	// 分红
 	if 0 < len(level3) {
-		feeLevel3 := fee * 100 / recommendAreaThreeRate / int64(len(level3))
-
+		feeLevel3 := fee * recommendAreaThreeRate / 100 / int64(len(level3))
+		feeLevel3 *= 100000
 		for _, vLevel3 := range level3 {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 				var myLocationLast *Location
@@ -2474,15 +2501,15 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 
 				return nil
 			}); nil != err {
-				return nil, err
+				continue
 			}
 		}
 	}
 
 	// 分红
 	if 0 < len(level4) {
-		feeLevel4 := fee * 100 / recommendAreaFourRate / int64(len(level4))
-
+		feeLevel4 := fee * recommendAreaFourRate / 100 / int64(len(level4))
+		feeLevel4 *= 100000
 		for _, vLevel4 := range level4 {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 				var myLocationLast *Location
@@ -2526,7 +2553,7 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 
 				return nil
 			}); nil != err {
-				return nil, err
+				continue
 			}
 		}
 	}
