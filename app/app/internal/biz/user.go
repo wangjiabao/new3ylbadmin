@@ -2332,19 +2332,19 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		}
 
 		// 比较级别
-		if areaAmount >= recommendAreaOne*10000 {
+		if areaAmount >= recommendAreaOne {
 			level1[user.ID] = user.ID
 		}
 
-		if areaAmount >= recommendAreaTwo*10000 {
+		if areaAmount >= recommendAreaTwo {
 			level2[user.ID] = user.ID
 		}
 
-		if areaAmount >= recommendAreaThree*10000 {
+		if areaAmount >= recommendAreaThree {
 			level3[user.ID] = user.ID
 		}
 
-		if areaAmount >= recommendAreaFour*10000 {
+		if areaAmount >= recommendAreaFour {
 			level4[user.ID] = user.ID
 		}
 	}
