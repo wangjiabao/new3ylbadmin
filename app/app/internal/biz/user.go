@@ -641,6 +641,46 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 	userCurrentMonthRecommendCount, err = uuc.userCurrentMonthRecommendRepo.GetUserCurrentMonthRecommendCountByUserIds(ctx, userIds...)
 
 	for _, v := range users {
+		// 伞下业绩
+		var (
+			userRecommend      *UserRecommend
+			myRecommendUsers   []*UserRecommend
+			userAreas          []*UserArea
+			maxAreaAmount      int64
+			areaAmount         int64
+			myRecommendUserIds []int64
+		)
+
+		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, v.ID)
+		if nil != err {
+			return res, nil
+		}
+		myCode := userRecommend.RecommendCode + "D" + strconv.FormatInt(v.ID, 10)
+		myRecommendUsers, err = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
+		if nil == err {
+			// 找直推
+			for _, vMyRecommendUsers := range myRecommendUsers {
+				myRecommendUserIds = append(myRecommendUserIds, vMyRecommendUsers.UserId)
+			}
+		}
+		if 0 < len(myRecommendUserIds) {
+			userAreas, err = uuc.urRepo.GetUserAreas(ctx, myRecommendUserIds)
+			if nil == err {
+				var (
+					tmpTotalAreaAmount int64
+				)
+				for _, vUserAreas := range userAreas {
+					tmpAreaAmount := vUserAreas.Amount + vUserAreas.SelfAmount
+					tmpTotalAreaAmount += tmpAreaAmount
+					if tmpAreaAmount > maxAreaAmount {
+						maxAreaAmount = tmpAreaAmount
+					}
+				}
+
+				areaAmount = tmpTotalAreaAmount - maxAreaAmount
+			}
+		}
+
 		if _, ok := userBalances[v.ID]; !ok {
 			continue
 		}
@@ -663,6 +703,8 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 			BalanceDhb:       fmt.Sprintf("%.2f", float64(userBalances[v.ID].BalanceDhb)/float64(10000000000)),
 			Vip:              userInfos[v.ID].Vip,
 			MonthRecommend:   tmpCount,
+			AreaAmount:       areaAmount,
+			AreaMaxAmount:    maxAreaAmount,
 			HistoryRecommend: userInfos[v.ID].HistoryRecommend,
 		})
 	}
