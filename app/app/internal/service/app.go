@@ -494,6 +494,14 @@ func (a *AppService) AdminVipUpdate(ctx context.Context, req *v1.AdminVipUpdateR
 	return a.uuc.AdminVipUpdate(ctx, req)
 }
 
+func (a *AppService) AdminUndoUpdate(ctx context.Context, req *v1.AdminUndoUpdateRequest) (*v1.AdminUndoUpdateReply, error) {
+	return a.uuc.AdminUndoUpdate(ctx, req)
+}
+
+func (a *AppService) AdminAreaLevelUpdate(ctx context.Context, req *v1.AdminAreaLevelUpdateRequest) (*v1.AdminAreaLevelUpdateReply, error) {
+	return a.uuc.AdminAreaLevelUpdate(ctx, req)
+}
+
 func (a *AppService) AdminLocationInsert(ctx context.Context, req *v1.AdminLocationInsertRequest) (*v1.AdminLocationInsertReply, error) {
 	_, err := a.ruc.AdminLocationInsert(ctx, req.SendBody.UserId, req.SendBody.Amount)
 	if nil != err {

@@ -924,6 +924,16 @@ func (ur *UserRecommendRepo) UpdateUserAreaLevel(ctx context.Context, userId int
 	return true, nil
 }
 
+// UndoUser .
+func (u *UserRepo) UndoUser(ctx context.Context, userId int64, undo int64) (bool, error) {
+	res := u.data.DB(ctx).Table("user").Where("id=?", userId).Updates(map[string]interface{}{"undo": undo})
+	if res.Error != nil {
+		return false, errors.New(500, "CREATE_USER_ERROR", "用户修改失败")
+	}
+
+	return true, nil
+}
+
 // GetUserAreas .
 func (ur *UserRecommendRepo) GetUserAreas(ctx context.Context, userIds []int64) ([]*biz.UserArea, error) {
 

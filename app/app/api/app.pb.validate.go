@@ -6543,6 +6543,473 @@ var _ interface {
 	ErrorName() string
 } = AdminVipUpdateReplyValidationError{}
 
+// Validate checks the field values on AdminUndoUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminUndoUpdateRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminUndoUpdateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminUndoUpdateRequestMultiError, or nil if none found.
+func (m *AdminUndoUpdateRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminUndoUpdateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSendBody()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminUndoUpdateRequestValidationError{
+					field:  "SendBody",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminUndoUpdateRequestValidationError{
+					field:  "SendBody",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSendBody()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminUndoUpdateRequestValidationError{
+				field:  "SendBody",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AdminUndoUpdateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminUndoUpdateRequestMultiError is an error wrapping multiple validation
+// errors returned by AdminUndoUpdateRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AdminUndoUpdateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminUndoUpdateRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminUndoUpdateRequestMultiError) AllErrors() []error { return m }
+
+// AdminUndoUpdateRequestValidationError is the validation error returned by
+// AdminUndoUpdateRequest.Validate if the designated constraints aren't met.
+type AdminUndoUpdateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminUndoUpdateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminUndoUpdateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminUndoUpdateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminUndoUpdateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminUndoUpdateRequestValidationError) ErrorName() string {
+	return "AdminUndoUpdateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminUndoUpdateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminUndoUpdateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminUndoUpdateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminUndoUpdateRequestValidationError{}
+
+// Validate checks the field values on AdminUndoUpdateReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminUndoUpdateReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminUndoUpdateReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminUndoUpdateReplyMultiError, or nil if none found.
+func (m *AdminUndoUpdateReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminUndoUpdateReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminUndoUpdateReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminUndoUpdateReplyMultiError is an error wrapping multiple validation
+// errors returned by AdminUndoUpdateReply.ValidateAll() if the designated
+// constraints aren't met.
+type AdminUndoUpdateReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminUndoUpdateReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminUndoUpdateReplyMultiError) AllErrors() []error { return m }
+
+// AdminUndoUpdateReplyValidationError is the validation error returned by
+// AdminUndoUpdateReply.Validate if the designated constraints aren't met.
+type AdminUndoUpdateReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminUndoUpdateReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminUndoUpdateReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminUndoUpdateReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminUndoUpdateReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminUndoUpdateReplyValidationError) ErrorName() string {
+	return "AdminUndoUpdateReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminUndoUpdateReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminUndoUpdateReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminUndoUpdateReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminUndoUpdateReplyValidationError{}
+
+// Validate checks the field values on AdminAreaLevelUpdateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminAreaLevelUpdateRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminAreaLevelUpdateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminAreaLevelUpdateRequestMultiError, or nil if none found.
+func (m *AdminAreaLevelUpdateRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminAreaLevelUpdateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetSendBody()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AdminAreaLevelUpdateRequestValidationError{
+					field:  "SendBody",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AdminAreaLevelUpdateRequestValidationError{
+					field:  "SendBody",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetSendBody()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AdminAreaLevelUpdateRequestValidationError{
+				field:  "SendBody",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AdminAreaLevelUpdateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminAreaLevelUpdateRequestMultiError is an error wrapping multiple
+// validation errors returned by AdminAreaLevelUpdateRequest.ValidateAll() if
+// the designated constraints aren't met.
+type AdminAreaLevelUpdateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminAreaLevelUpdateRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminAreaLevelUpdateRequestMultiError) AllErrors() []error { return m }
+
+// AdminAreaLevelUpdateRequestValidationError is the validation error returned
+// by AdminAreaLevelUpdateRequest.Validate if the designated constraints
+// aren't met.
+type AdminAreaLevelUpdateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminAreaLevelUpdateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminAreaLevelUpdateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminAreaLevelUpdateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminAreaLevelUpdateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminAreaLevelUpdateRequestValidationError) ErrorName() string {
+	return "AdminAreaLevelUpdateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminAreaLevelUpdateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminAreaLevelUpdateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminAreaLevelUpdateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminAreaLevelUpdateRequestValidationError{}
+
+// Validate checks the field values on AdminAreaLevelUpdateReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminAreaLevelUpdateReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminAreaLevelUpdateReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminAreaLevelUpdateReplyMultiError, or nil if none found.
+func (m *AdminAreaLevelUpdateReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminAreaLevelUpdateReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminAreaLevelUpdateReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminAreaLevelUpdateReplyMultiError is an error wrapping multiple validation
+// errors returned by AdminAreaLevelUpdateReply.ValidateAll() if the
+// designated constraints aren't met.
+type AdminAreaLevelUpdateReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminAreaLevelUpdateReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminAreaLevelUpdateReplyMultiError) AllErrors() []error { return m }
+
+// AdminAreaLevelUpdateReplyValidationError is the validation error returned by
+// AdminAreaLevelUpdateReply.Validate if the designated constraints aren't met.
+type AdminAreaLevelUpdateReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminAreaLevelUpdateReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminAreaLevelUpdateReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminAreaLevelUpdateReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminAreaLevelUpdateReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminAreaLevelUpdateReplyValidationError) ErrorName() string {
+	return "AdminAreaLevelUpdateReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminAreaLevelUpdateReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminAreaLevelUpdateReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminAreaLevelUpdateReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminAreaLevelUpdateReplyValidationError{}
+
 // Validate checks the field values on AdminLocationInsertRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -10918,6 +11385,222 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminVipUpdateRequest_SendBodyValidationError{}
+
+// Validate checks the field values on AdminUndoUpdateRequest_SendBody with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminUndoUpdateRequest_SendBody) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminUndoUpdateRequest_SendBody with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// AdminUndoUpdateRequest_SendBodyMultiError, or nil if none found.
+func (m *AdminUndoUpdateRequest_SendBody) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminUndoUpdateRequest_SendBody) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserId
+
+	// no validation rules for Undo
+
+	if len(errors) > 0 {
+		return AdminUndoUpdateRequest_SendBodyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminUndoUpdateRequest_SendBodyMultiError is an error wrapping multiple
+// validation errors returned by AdminUndoUpdateRequest_SendBody.ValidateAll()
+// if the designated constraints aren't met.
+type AdminUndoUpdateRequest_SendBodyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminUndoUpdateRequest_SendBodyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminUndoUpdateRequest_SendBodyMultiError) AllErrors() []error { return m }
+
+// AdminUndoUpdateRequest_SendBodyValidationError is the validation error
+// returned by AdminUndoUpdateRequest_SendBody.Validate if the designated
+// constraints aren't met.
+type AdminUndoUpdateRequest_SendBodyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminUndoUpdateRequest_SendBodyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminUndoUpdateRequest_SendBodyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminUndoUpdateRequest_SendBodyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminUndoUpdateRequest_SendBodyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminUndoUpdateRequest_SendBodyValidationError) ErrorName() string {
+	return "AdminUndoUpdateRequest_SendBodyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminUndoUpdateRequest_SendBodyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminUndoUpdateRequest_SendBody.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminUndoUpdateRequest_SendBodyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminUndoUpdateRequest_SendBodyValidationError{}
+
+// Validate checks the field values on AdminAreaLevelUpdateRequest_SendBody
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *AdminAreaLevelUpdateRequest_SendBody) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminAreaLevelUpdateRequest_SendBody
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AdminAreaLevelUpdateRequest_SendBodyMultiError, or nil if none found.
+func (m *AdminAreaLevelUpdateRequest_SendBody) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminAreaLevelUpdateRequest_SendBody) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserId
+
+	// no validation rules for Level
+
+	if len(errors) > 0 {
+		return AdminAreaLevelUpdateRequest_SendBodyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminAreaLevelUpdateRequest_SendBodyMultiError is an error wrapping multiple
+// validation errors returned by
+// AdminAreaLevelUpdateRequest_SendBody.ValidateAll() if the designated
+// constraints aren't met.
+type AdminAreaLevelUpdateRequest_SendBodyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminAreaLevelUpdateRequest_SendBodyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminAreaLevelUpdateRequest_SendBodyMultiError) AllErrors() []error { return m }
+
+// AdminAreaLevelUpdateRequest_SendBodyValidationError is the validation error
+// returned by AdminAreaLevelUpdateRequest_SendBody.Validate if the designated
+// constraints aren't met.
+type AdminAreaLevelUpdateRequest_SendBodyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) ErrorName() string {
+	return "AdminAreaLevelUpdateRequest_SendBodyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminAreaLevelUpdateRequest_SendBodyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminAreaLevelUpdateRequest_SendBody.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminAreaLevelUpdateRequest_SendBodyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminAreaLevelUpdateRequest_SendBodyValidationError{}
 
 // Validate checks the field values on AdminLocationInsertRequest_SendBody with
 // the rules defined in the proto definition for this message. If any rules

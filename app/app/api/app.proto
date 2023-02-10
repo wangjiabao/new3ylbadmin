@@ -159,6 +159,20 @@ service App {
 		};
 	};
 
+	rpc AdminUndoUpdate (AdminUndoUpdateRequest) returns (AdminUndoUpdateReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/undo_update"
+			body: "send_body"
+		};
+	};
+
+	rpc AdminAreaLevelUpdate (AdminAreaLevelUpdateRequest) returns (AdminAreaLevelUpdateReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/level_update"
+			body: "send_body"
+		};
+	};
+
 	rpc AdminLocationInsert (AdminLocationInsertRequest) returns (AdminLocationInsertReply) {
 		option (google.api.http) = {
 			post: "/api/admin_dhb/location_insert"
@@ -633,6 +647,32 @@ message AdminVipUpdateRequest {
 }
 
 message AdminVipUpdateReply {
+
+}
+
+message AdminUndoUpdateRequest {
+	message SendBody{
+		int64 user_id = 1;
+		int64 undo = 2;
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminUndoUpdateReply {
+
+}
+
+message AdminAreaLevelUpdateRequest {
+	message SendBody{
+		int64 user_id = 1;
+		int64 level = 2;
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminAreaLevelUpdateReply {
 
 }
 

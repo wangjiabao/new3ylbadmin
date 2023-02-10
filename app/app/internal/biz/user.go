@@ -225,6 +225,7 @@ type UserInfoRepo interface {
 
 type UserRepo interface {
 	GetUserById(ctx context.Context, Id int64) (*User, error)
+	UndoUser(ctx context.Context, userId int64, undo int64) (bool, error)
 	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
 	GetAdminById(ctx context.Context, id int64) (*Admin, error)
 	GetUserByAddresses(ctx context.Context, Addresses ...string) (map[string]*User, error)
@@ -714,6 +715,43 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 
 func (uuc *UserUseCase) GetUserByUserIds(ctx context.Context, userIds ...int64) (map[int64]*User, error) {
 	return uuc.repo.GetUserByUserIds(ctx, userIds...)
+}
+
+func (uuc *UserUseCase) AdminUndoUpdate(ctx context.Context, req *v1.AdminUndoUpdateRequest) (*v1.AdminUndoUpdateReply, error) {
+	var (
+		err  error
+		undo int64
+	)
+
+	res := &v1.AdminUndoUpdateReply{}
+
+	if 1 == req.SendBody.Undo {
+		undo = 1
+	} else {
+		undo = 0
+	}
+
+	_, err = uuc.repo.UndoUser(ctx, req.SendBody.UserId, undo)
+	if nil != err {
+		return res, err
+	}
+
+	return res, nil
+}
+
+func (uuc *UserUseCase) AdminAreaLevelUpdate(ctx context.Context, req *v1.AdminAreaLevelUpdateRequest) (*v1.AdminAreaLevelUpdateReply, error) {
+	var (
+		err error
+	)
+
+	res := &v1.AdminAreaLevelUpdateReply{}
+
+	_, err = uuc.urRepo.UpdateUserAreaLevel(ctx, req.SendBody.UserId, req.SendBody.Level)
+	if nil != err {
+		return res, err
+	}
+
+	return res, nil
 }
 
 func (uuc *UserUseCase) AdminLocationList(ctx context.Context, req *v1.AdminLocationListRequest) (*v1.AdminLocationListReply, error) {

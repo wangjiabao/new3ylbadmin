@@ -45,6 +45,8 @@ type AppClient interface {
 	AdminConfig(ctx context.Context, in *AdminConfigRequest, opts ...grpc.CallOption) (*AdminConfigReply, error)
 	AdminConfigUpdate(ctx context.Context, in *AdminConfigUpdateRequest, opts ...grpc.CallOption) (*AdminConfigUpdateReply, error)
 	AdminVipUpdate(ctx context.Context, in *AdminVipUpdateRequest, opts ...grpc.CallOption) (*AdminVipUpdateReply, error)
+	AdminUndoUpdate(ctx context.Context, in *AdminUndoUpdateRequest, opts ...grpc.CallOption) (*AdminUndoUpdateReply, error)
+	AdminAreaLevelUpdate(ctx context.Context, in *AdminAreaLevelUpdateRequest, opts ...grpc.CallOption) (*AdminAreaLevelUpdateReply, error)
 	AdminLocationInsert(ctx context.Context, in *AdminLocationInsertRequest, opts ...grpc.CallOption) (*AdminLocationInsertReply, error)
 	AdminBalanceUpdate(ctx context.Context, in *AdminBalanceUpdateRequest, opts ...grpc.CallOption) (*AdminBalanceUpdateReply, error)
 	AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...grpc.CallOption) (*AdminLoginReply, error)
@@ -275,6 +277,24 @@ func (c *appClient) AdminVipUpdate(ctx context.Context, in *AdminVipUpdateReques
 	return out, nil
 }
 
+func (c *appClient) AdminUndoUpdate(ctx context.Context, in *AdminUndoUpdateRequest, opts ...grpc.CallOption) (*AdminUndoUpdateReply, error) {
+	out := new(AdminUndoUpdateReply)
+	err := c.cc.Invoke(ctx, "/api.App/AdminUndoUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminAreaLevelUpdate(ctx context.Context, in *AdminAreaLevelUpdateRequest, opts ...grpc.CallOption) (*AdminAreaLevelUpdateReply, error) {
+	out := new(AdminAreaLevelUpdateReply)
+	err := c.cc.Invoke(ctx, "/api.App/AdminAreaLevelUpdate", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminLocationInsert(ctx context.Context, in *AdminLocationInsertRequest, opts ...grpc.CallOption) (*AdminLocationInsertReply, error) {
 	out := new(AdminLocationInsertReply)
 	err := c.cc.Invoke(ctx, "/api.App/AdminLocationInsert", in, out, opts...)
@@ -419,6 +439,8 @@ type AppServer interface {
 	AdminConfig(context.Context, *AdminConfigRequest) (*AdminConfigReply, error)
 	AdminConfigUpdate(context.Context, *AdminConfigUpdateRequest) (*AdminConfigUpdateReply, error)
 	AdminVipUpdate(context.Context, *AdminVipUpdateRequest) (*AdminVipUpdateReply, error)
+	AdminUndoUpdate(context.Context, *AdminUndoUpdateRequest) (*AdminUndoUpdateReply, error)
+	AdminAreaLevelUpdate(context.Context, *AdminAreaLevelUpdateRequest) (*AdminAreaLevelUpdateReply, error)
 	AdminLocationInsert(context.Context, *AdminLocationInsertRequest) (*AdminLocationInsertReply, error)
 	AdminBalanceUpdate(context.Context, *AdminBalanceUpdateRequest) (*AdminBalanceUpdateReply, error)
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
@@ -507,6 +529,12 @@ func (UnimplementedAppServer) AdminConfigUpdate(context.Context, *AdminConfigUpd
 }
 func (UnimplementedAppServer) AdminVipUpdate(context.Context, *AdminVipUpdateRequest) (*AdminVipUpdateReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminVipUpdate not implemented")
+}
+func (UnimplementedAppServer) AdminUndoUpdate(context.Context, *AdminUndoUpdateRequest) (*AdminUndoUpdateReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUndoUpdate not implemented")
+}
+func (UnimplementedAppServer) AdminAreaLevelUpdate(context.Context, *AdminAreaLevelUpdateRequest) (*AdminAreaLevelUpdateReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminAreaLevelUpdate not implemented")
 }
 func (UnimplementedAppServer) AdminLocationInsert(context.Context, *AdminLocationInsertRequest) (*AdminLocationInsertReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminLocationInsert not implemented")
@@ -974,6 +1002,42 @@ func _App_AdminVipUpdate_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminUndoUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUndoUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminUndoUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/AdminUndoUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminUndoUpdate(ctx, req.(*AdminUndoUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminAreaLevelUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminAreaLevelUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminAreaLevelUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/AdminAreaLevelUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminAreaLevelUpdate(ctx, req.(*AdminAreaLevelUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminLocationInsert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminLocationInsertRequest)
 	if err := dec(in); err != nil {
@@ -1306,6 +1370,14 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminVipUpdate",
 			Handler:    _App_AdminVipUpdate_Handler,
+		},
+		{
+			MethodName: "AdminUndoUpdate",
+			Handler:    _App_AdminUndoUpdate_Handler,
+		},
+		{
+			MethodName: "AdminAreaLevelUpdate",
+			Handler:    _App_AdminAreaLevelUpdate_Handler,
 		},
 		{
 			MethodName: "AdminLocationInsert",

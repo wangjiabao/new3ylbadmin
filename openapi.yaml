@@ -323,6 +323,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/level_update:
+        post:
+            tags:
+                - App
+            operationId: App_AdminAreaLevelUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminAreaLevelUpdateRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminAreaLevelUpdateReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/location_all_list:
         get:
             tags:
@@ -495,6 +519,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminRewardListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/undo_update:
+        post:
+            tags:
+                - App
+            operationId: App_AdminUndoUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminUndoUpdateRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUndoUpdateReply'
                 default:
                     description: Default error response
                     content:
@@ -849,6 +897,18 @@ components:
                     type: string
                 allSystemRewardAndFee:
                     type: string
+        AdminAreaLevelUpdateReply:
+            type: object
+            properties: {}
+        AdminAreaLevelUpdateRequest_SendBody:
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int64
+                level:
+                    type: integer
+                    format: int64
         AdminBalanceUpdateReply:
             type: object
             properties: {}
@@ -1068,6 +1128,18 @@ components:
                     type: string
                 reason:
                     type: string
+        AdminUndoUpdateReply:
+            type: object
+            properties: {}
+        AdminUndoUpdateRequest_SendBody:
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int64
+                undo:
+                    type: integer
+                    format: int64
         AdminUserListReply:
             type: object
             properties:

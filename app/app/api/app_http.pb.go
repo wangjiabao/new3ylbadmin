@@ -20,6 +20,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationAppAdminAll = "/api.App/AdminAll"
+const OperationAppAdminAreaLevelUpdate = "/api.App/AdminAreaLevelUpdate"
 const OperationAppAdminBalanceUpdate = "/api.App/AdminBalanceUpdate"
 const OperationAppAdminChangePassword = "/api.App/AdminChangePassword"
 const OperationAppAdminConfig = "/api.App/AdminConfig"
@@ -35,6 +36,7 @@ const OperationAppAdminLocationList = "/api.App/AdminLocationList"
 const OperationAppAdminLogin = "/api.App/AdminLogin"
 const OperationAppAdminMonthRecommend = "/api.App/AdminMonthRecommend"
 const OperationAppAdminRewardList = "/api.App/AdminRewardList"
+const OperationAppAdminUndoUpdate = "/api.App/AdminUndoUpdate"
 const OperationAppAdminUserList = "/api.App/AdminUserList"
 const OperationAppAdminUserRecommend = "/api.App/AdminUserRecommend"
 const OperationAppAdminVipUpdate = "/api.App/AdminVipUpdate"
@@ -58,6 +60,7 @@ const OperationAppWithdrawList = "/api.App/WithdrawList"
 
 type AppHTTPServer interface {
 	AdminAll(context.Context, *AdminAllRequest) (*AdminAllReply, error)
+	AdminAreaLevelUpdate(context.Context, *AdminAreaLevelUpdateRequest) (*AdminAreaLevelUpdateReply, error)
 	AdminBalanceUpdate(context.Context, *AdminBalanceUpdateRequest) (*AdminBalanceUpdateReply, error)
 	AdminChangePassword(context.Context, *AdminChangePasswordRequest) (*AdminChangePasswordReply, error)
 	AdminConfig(context.Context, *AdminConfigRequest) (*AdminConfigReply, error)
@@ -73,6 +76,7 @@ type AppHTTPServer interface {
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
 	AdminMonthRecommend(context.Context, *AdminMonthRecommendRequest) (*AdminMonthRecommendReply, error)
 	AdminRewardList(context.Context, *AdminRewardListRequest) (*AdminRewardListReply, error)
+	AdminUndoUpdate(context.Context, *AdminUndoUpdateRequest) (*AdminUndoUpdateReply, error)
 	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
 	AdminUserRecommend(context.Context, *AdminUserRecommendRequest) (*AdminUserRecommendReply, error)
 	AdminVipUpdate(context.Context, *AdminVipUpdateRequest) (*AdminVipUpdateReply, error)
@@ -120,6 +124,8 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/config", _App_AdminConfig0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/config_update", _App_AdminConfigUpdate0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/vip_update", _App_AdminVipUpdate0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/undo_update", _App_AdminUndoUpdate0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/level_update", _App_AdminAreaLevelUpdate0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/location_insert", _App_AdminLocationInsert0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/balance_update", _App_AdminBalanceUpdate0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/login", _App_AdminLogin0_HTTP_Handler(srv))
@@ -581,6 +587,50 @@ func _App_AdminVipUpdate0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _App_AdminUndoUpdate0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminUndoUpdateRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminUndoUpdate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminUndoUpdate(ctx, req.(*AdminUndoUpdateRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminUndoUpdateReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminAreaLevelUpdate0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminAreaLevelUpdateRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminAreaLevelUpdate)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminAreaLevelUpdate(ctx, req.(*AdminAreaLevelUpdateRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminAreaLevelUpdateReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminLocationInsert0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminLocationInsertRequest
@@ -851,6 +901,7 @@ func _App_AdminDailyRecommendReward0_HTTP_Handler(srv AppHTTPServer) func(ctx ht
 
 type AppHTTPClient interface {
 	AdminAll(ctx context.Context, req *AdminAllRequest, opts ...http.CallOption) (rsp *AdminAllReply, err error)
+	AdminAreaLevelUpdate(ctx context.Context, req *AdminAreaLevelUpdateRequest, opts ...http.CallOption) (rsp *AdminAreaLevelUpdateReply, err error)
 	AdminBalanceUpdate(ctx context.Context, req *AdminBalanceUpdateRequest, opts ...http.CallOption) (rsp *AdminBalanceUpdateReply, err error)
 	AdminChangePassword(ctx context.Context, req *AdminChangePasswordRequest, opts ...http.CallOption) (rsp *AdminChangePasswordReply, err error)
 	AdminConfig(ctx context.Context, req *AdminConfigRequest, opts ...http.CallOption) (rsp *AdminConfigReply, err error)
@@ -866,6 +917,7 @@ type AppHTTPClient interface {
 	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
 	AdminMonthRecommend(ctx context.Context, req *AdminMonthRecommendRequest, opts ...http.CallOption) (rsp *AdminMonthRecommendReply, err error)
 	AdminRewardList(ctx context.Context, req *AdminRewardListRequest, opts ...http.CallOption) (rsp *AdminRewardListReply, err error)
+	AdminUndoUpdate(ctx context.Context, req *AdminUndoUpdateRequest, opts ...http.CallOption) (rsp *AdminUndoUpdateReply, err error)
 	AdminUserList(ctx context.Context, req *AdminUserListRequest, opts ...http.CallOption) (rsp *AdminUserListReply, err error)
 	AdminUserRecommend(ctx context.Context, req *AdminUserRecommendRequest, opts ...http.CallOption) (rsp *AdminUserRecommendReply, err error)
 	AdminVipUpdate(ctx context.Context, req *AdminVipUpdateRequest, opts ...http.CallOption) (rsp *AdminVipUpdateReply, err error)
@@ -903,6 +955,19 @@ func (c *AppHTTPClientImpl) AdminAll(ctx context.Context, in *AdminAllRequest, o
 	opts = append(opts, http.Operation(OperationAppAdminAll))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminAreaLevelUpdate(ctx context.Context, in *AdminAreaLevelUpdateRequest, opts ...http.CallOption) (*AdminAreaLevelUpdateReply, error) {
+	var out AdminAreaLevelUpdateReply
+	pattern := "/api/admin_dhb/level_update"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminAreaLevelUpdate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1098,6 +1163,19 @@ func (c *AppHTTPClientImpl) AdminRewardList(ctx context.Context, in *AdminReward
 	opts = append(opts, http.Operation(OperationAppAdminRewardList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminUndoUpdate(ctx context.Context, in *AdminUndoUpdateRequest, opts ...http.CallOption) (*AdminUndoUpdateReply, error) {
+	var out AdminUndoUpdateReply
+	pattern := "/api/admin_dhb/undo_update"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminUndoUpdate))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
