@@ -1635,10 +1635,10 @@ func (ub *UserBalanceRepo) SystemWithdrawReward(ctx context.Context, amount int6
 }
 
 // GetSystemYesterdayDailyReward .
-func (ub *UserBalanceRepo) GetSystemYesterdayDailyReward(ctx context.Context) (*biz.Reward, error) {
+func (ub *UserBalanceRepo) GetSystemYesterdayDailyReward(ctx context.Context, day int) (*biz.Reward, error) {
 	var reward Reward
 
-	now := time.Now().UTC().AddDate(0, 0, -1)
+	now := time.Now().UTC().AddDate(0, 0, day)
 	var startDate time.Time
 	var endDate time.Time
 	if 14 <= now.Hour() {

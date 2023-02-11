@@ -509,6 +509,7 @@ message AdminFeeReply {
 }
 
 message AdminDailyFeeRequest {
+	int32 day = 1;
 }
 
 message AdminDailyFeeReply {
@@ -737,7 +738,7 @@ message CheckAndInsertRecommendAreaReply {
 }
 
 message AdminDailyRecommendRewardRequest {
-
+	int32 day = 1;
 }
 
 message AdminDailyRecommendRewardReply {

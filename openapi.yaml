@@ -256,6 +256,12 @@ paths:
             tags:
                 - App
             operationId: App_AdminDailyFee
+            parameters:
+                - name: day
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -274,6 +280,12 @@ paths:
             tags:
                 - App
             operationId: App_AdminDailyRecommendReward
+            parameters:
+                - name: day
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK

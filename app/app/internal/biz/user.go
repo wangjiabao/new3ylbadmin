@@ -152,7 +152,7 @@ type UserBalanceRepo interface {
 	SystemWithdrawReward(ctx context.Context, amount int64, locationId int64) error
 	SystemReward(ctx context.Context, amount int64, locationId int64) error
 	SystemDailyReward(ctx context.Context, amount int64, locationId int64) error
-	GetSystemYesterdayDailyReward(ctx context.Context) (*Reward, error)
+	GetSystemYesterdayDailyReward(ctx context.Context, day int) (*Reward, error)
 	SystemFee(ctx context.Context, amount int64, locationId int64) error
 	UserFee(ctx context.Context, userId int64, amount int64) (int64, error)
 	UserDailyFee(ctx context.Context, userId int64, amount int64) (int64, error)
@@ -1636,6 +1636,7 @@ func (uuc *UserUseCase) AdminFeeDaily(ctx context.Context, req *v1.AdminDailyFee
 		fee                      int64
 		reward                   *Reward
 		myLocationLast           *Location
+		day                      = -1
 		err                      error
 	)
 
@@ -1644,8 +1645,12 @@ func (uuc *UserUseCase) AdminFeeDaily(ctx context.Context, req *v1.AdminDailyFee
 		return nil, err
 	}
 
+	if 1 == req.Day {
+		day = 0
+	}
+
 	// 全网手续费
-	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx)
+	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx, day)
 	if nil != err {
 		return nil, err
 	}
@@ -1655,7 +1660,7 @@ func (uuc *UserUseCase) AdminFeeDaily(ctx context.Context, req *v1.AdminDailyFee
 	}
 
 	// 昨日剩余全网手续费
-	reward, _ = uuc.ubRepo.GetSystemYesterdayDailyReward(ctx)
+	reward, _ = uuc.ubRepo.GetSystemYesterdayDailyReward(ctx, day)
 	rewardAmount := int64(0)
 	if nil != reward {
 		rewardAmount = reward.Amount
@@ -2298,11 +2303,16 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		recommendAreaFour      int64
 		recommendAreaFourRate  int64
 		fee                    int64
+		day                    = -1
 		err                    error
 	)
 
+	if 1 == req.Day {
+		day = 0
+	}
+
 	// 全网手续费
-	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx)
+	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx, day)
 	if nil != err {
 		return nil, err
 	}
