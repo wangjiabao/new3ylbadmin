@@ -327,7 +327,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 					}
 
 					tmpCurrentStatus := vRewardLocations.Status // 现在还在运行中
-					tmpCurrent := vRewardLocations.Current
 
 					tmpBalanceAmount := tmpAmount
 					vRewardLocations.Status = "running"
@@ -347,13 +346,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						amount -= tmpBalanceAmount // 扣除
 
 						if 0 < tmpBalanceAmount { // 这次还能分红
-							tmpCurrentAmount := vRewardLocations.CurrentMax - tmpCurrent // 最大可分红额度
-							rewardAmount := tmpBalanceAmount
-							if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-								rewardAmount = tmpCurrentAmount
-							}
-
-							_, err = ruc.userBalanceRepo.LocationReward(ctx, vRewardLocations.UserId, rewardAmount, currentLocation.ID, vRewardLocations.ID, locationType, tmpCurrentStatus) // 分红信息修改
+							_, err = ruc.userBalanceRepo.LocationReward(ctx, vRewardLocations.UserId, tmpBalanceAmount, currentLocation.ID, vRewardLocations.ID, locationType, tmpCurrentStatus) // 分红信息修改
 							if nil != err {
 								return err
 							}
