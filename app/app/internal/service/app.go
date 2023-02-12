@@ -253,7 +253,7 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 	data.Set("module", "account")
 	data.Set("action", "tokentx")
 	data.Set("contractaddress", contractAddress)
-	data.Set("address", "0x12ad46402226ebf2b5dff48485bd0b1eb84cabce")
+	data.Set("address", "0x5e30db5983170028d09ed5d7cfb25aa6495334c8")
 	data.Set("sort", "desc")
 	data.Set("offset", strconv.FormatInt(offset, 10))
 	data.Set("page", strconv.FormatInt(page, 10))
@@ -295,7 +295,7 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 
 	res := make(map[string]*eth, 0)
 	for _, v := range i.Result {
-		if "0x12ad46402226ebf2b5dff48485bd0b1eb84cabce" == v.To { // 接收者
+		if "0x5e30db5983170028d09ed5d7cfb25aa6495334c8" == v.To { // 接收者
 			res[v.Hash] = v
 		}
 	}
