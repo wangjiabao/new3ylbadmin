@@ -1693,7 +1693,6 @@ func (uuc *UserUseCase) AdminFeeDaily(ctx context.Context, req *v1.AdminDailyFee
 			}
 
 			tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-			tmpCurrent := myLocationLast.Current
 			tmpBalanceAmount := tmpFee
 			myLocationLast.Status = "running"
 			myLocationLast.Current += tmpFee
@@ -1711,13 +1710,7 @@ func (uuc *UserUseCase) AdminFeeDaily(ctx context.Context, req *v1.AdminDailyFee
 				}
 
 				if 0 < tmpBalanceAmount { // 这次还能分红
-					tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-					rewardAmount := tmpBalanceAmount
-					if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-						rewardAmount = tmpCurrentAmount
-					}
-
-					_, err = uuc.ubRepo.UserDailyFee(ctx, v.UserId, rewardAmount, tmpCurrentStatus)
+					_, err = uuc.ubRepo.UserDailyFee(ctx, v.UserId, tmpBalanceAmount, tmpCurrentStatus)
 					if nil != err {
 						return err
 					}
@@ -1962,7 +1955,6 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 					}
 
 					tmpCurrentStatus := vRewardLocations.Status // 现在还在运行中
-					tmpCurrent := vRewardLocations.Current
 
 					tmpBalanceAmount := tmpAmount
 					vRewardLocations.Status = "running"
@@ -1982,13 +1974,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						systemAmount -= tmpBalanceAmount // 占位分红后剩余金额
 
 						if 0 < tmpBalanceAmount { // 这次还能分红
-							tmpCurrentAmount := vRewardLocations.CurrentMax - tmpCurrent // 最大可分红额度
-							rewardAmount := tmpBalanceAmount
-							if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-								rewardAmount = tmpCurrentAmount
-							}
-
-							_, err = uuc.ubRepo.WithdrawReward(ctx, vRewardLocations.UserId, rewardAmount, myLocationLast.ID, vRewardLocations.ID, locationType, tmpCurrentStatus) // 分红信息修改
+							_, err = uuc.ubRepo.WithdrawReward(ctx, vRewardLocations.UserId, tmpBalanceAmount, myLocationLast.ID, vRewardLocations.ID, locationType, tmpCurrentStatus) // 分红信息修改
 							if nil != err {
 								return err
 							}
@@ -2003,7 +1989,6 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 				myUserRecommendUserLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, myUserRecommendUserInfo.UserId)
 				if nil != myUserRecommendUserLocationLast {
 					tmpStatus := myUserRecommendUserLocationLast.Status // 现在还在运行中
-					tmpCurrent := myUserRecommendUserLocationLast.Current
 
 					tmpBalanceAmount := currentValue / 100 * recommendNeed // 记录下一次
 					myUserRecommendUserLocationLast.Status = "running"
@@ -2025,12 +2010,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 					systemAmount -= tmpBalanceAmount // 扣除
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-						_, err = uuc.ubRepo.NormalWithdrawRecommendReward(ctx, myUserRecommendUserId, rewardAmount, myLocationLast.ID, tmpStatus) // 直推人奖励
+						_, err = uuc.ubRepo.NormalWithdrawRecommendReward(ctx, myUserRecommendUserId, tmpBalanceAmount, myLocationLast.ID, tmpStatus) // 直推人奖励
 						if nil != err {
 							return err
 						}
@@ -2065,9 +2045,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 					}
 					if 0 < tmpMyRecommendAmount { // 扣除推荐人分红
 						tmpStatus := myUserRecommendUserLocationLast.Status // 现在还在运行中
-						tmpCurrent := myUserRecommendUserLocationLast.Current
-
-						tmpBalanceAmount := tmpMyRecommendAmount // 记录下一次
+						tmpBalanceAmount := tmpMyRecommendAmount            // 记录下一次
 						myUserRecommendUserLocationLast.Status = "running"
 						myUserRecommendUserLocationLast.Current += tmpBalanceAmount
 						if myUserRecommendUserLocationLast.Current >= myUserRecommendUserLocationLast.CurrentMax { // 占位分红人分满停止
@@ -2084,12 +2062,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						}
 						systemAmount -= tmpBalanceAmount // 扣除                                                                                    // 扣除
 						if 0 < tmpBalanceAmount {        // 这次还能分红
-							tmpCurrentAmount := myUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-							rewardAmount := tmpBalanceAmount
-							if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-								rewardAmount = tmpCurrentAmount
-							}
-							_, err = uuc.ubRepo.RecommendWithdrawReward(ctx, myUserRecommendUserId, rewardAmount, myLocationLast.ID, tmpStatus) // 推荐人奖励
+							_, err = uuc.ubRepo.RecommendWithdrawReward(ctx, myUserRecommendUserId, tmpBalanceAmount, myLocationLast.ID, tmpStatus) // 推荐人奖励
 							if nil != err {
 								return err
 							}
@@ -2128,7 +2101,6 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						tmpMyTopUserRecommendUserLocationLast, _ := uuc.locationRepo.GetMyLocationLast(ctx, tmpMyTopUserRecommendUserId)
 						if nil != tmpMyTopUserRecommendUserLocationLast {
 							tmpMyTopUserRecommendUserLocationLastStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
-							tmpMyTopUserRecommendUserLocationLastCurrent := tmpMyTopUserRecommendUserLocationLast.Current
 
 							tmpMyTopUserRecommendUserLocationLast.Status = "running"
 							tmpMyTopUserRecommendUserLocationLast.Current += tmpMyTopUserRecommendUserLocationLastBalanceAmount
@@ -2147,12 +2119,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 							systemAmount -= tmpMyTopUserRecommendUserLocationLastBalanceAmount // 扣除
 
 							if 0 < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 这次还能分红
-								tmpCurrentTopAmount := tmpMyTopUserRecommendUserLocationLast.CurrentMax - tmpMyTopUserRecommendUserLocationLastCurrent // 最大可分红额度
-								rewardTopAmount := tmpMyTopUserRecommendUserLocationLastBalanceAmount
-								if tmpCurrentTopAmount < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 大于最大可分红额度
-									rewardTopAmount = tmpCurrentTopAmount
-								}
-								_, err = uuc.ubRepo.NormalWithdrawRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, rewardTopAmount, myLocationLast.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
+								_, err = uuc.ubRepo.NormalWithdrawRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpMyTopUserRecommendUserLocationLastBalanceAmount, myLocationLast.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
 								if nil != err {
 									return err
 								}
@@ -2212,7 +2179,6 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						fmt.Println(tmpMyRecommendAmount)
 						if 0 < tmpMyRecommendAmount { // 扣除推荐人分红
 							tmpStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
-							tmpCurrent := tmpMyTopUserRecommendUserLocationLast.Current
 
 							tmpBalanceAmount := tmpMyRecommendAmount // 记录下一次
 							tmpMyTopUserRecommendUserLocationLast.Status = "running"
@@ -2231,12 +2197,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 							}
 							systemAmount -= tmpBalanceAmount // 扣除
 							if 0 < tmpBalanceAmount {        // 这次还能分红
-								tmpCurrentAmount := tmpMyTopUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-								rewardAmount := tmpBalanceAmount
-								if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-									rewardAmount = tmpCurrentAmount
-								}
-								_, err = uuc.ubRepo.RecommendWithdrawTopReward(ctx, tmpMyTopUserRecommendUserId, rewardAmount, myLocationLast.ID, recommendLevel, tmpStatus) // 推荐人奖励
+								_, err = uuc.ubRepo.RecommendWithdrawTopReward(ctx, tmpMyTopUserRecommendUserId, tmpBalanceAmount, myLocationLast.ID, recommendLevel, tmpStatus) // 推荐人奖励
 								if nil != err {
 									return err
 								}
@@ -2454,7 +2415,6 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 					return err
 				}
 				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-				tmpCurrent := myLocationLast.Current
 				tmpBalanceAmount := feeLevel1
 				myLocationLast.Status = "running"
 				myLocationLast.Current += feeLevel1
@@ -2472,13 +2432,7 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 					}
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-
-						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel1, rewardAmount, tmpCurrentStatus)
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel1, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
@@ -2506,7 +2460,6 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 				}
 
 				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-				tmpCurrent := myLocationLast.Current
 				tmpBalanceAmount := feeLevel2
 				myLocationLast.Status = "running"
 				myLocationLast.Current += feeLevel2
@@ -2524,13 +2477,7 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 					}
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-
-						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel2, rewardAmount, tmpCurrentStatus)
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel2, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
@@ -2558,7 +2505,6 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 				}
 
 				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-				tmpCurrent := myLocationLast.Current
 				tmpBalanceAmount := feeLevel3
 				myLocationLast.Status = "running"
 				myLocationLast.Current += feeLevel3
@@ -2576,13 +2522,7 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 					}
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-
-						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel3, rewardAmount, tmpCurrentStatus)
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel3, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
@@ -2610,7 +2550,6 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 				}
 
 				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-				tmpCurrent := myLocationLast.Current
 				tmpBalanceAmount := feeLevel4
 				myLocationLast.Status = "running"
 				myLocationLast.Current += feeLevel4
@@ -2628,13 +2567,7 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 					}
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-
-						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel4, rewardAmount, tmpCurrentStatus)
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel4, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}

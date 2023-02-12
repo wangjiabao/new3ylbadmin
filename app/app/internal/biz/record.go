@@ -397,7 +397,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 				myUserRecommendUserLocationLast, err = ruc.locationRepo.GetMyLocationLast(ctx, myUserRecommendUserInfo.UserId)
 				if nil != myUserRecommendUserLocationLast {
 					tmpStatus := myUserRecommendUserLocationLast.Status // 现在还在运行中
-					tmpCurrent := myUserRecommendUserLocationLast.Current
 
 					tmpBalanceAmount := currentValue / 100 * recommendNeed // 记录下一次
 					myUserRecommendUserLocationLast.Status = "running"
@@ -417,12 +416,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 					amount -= tmpBalanceAmount // 扣除
 
 					if 0 < tmpBalanceAmount { // 这次还能分红
-						tmpCurrentAmount := myUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-						rewardAmount := tmpBalanceAmount
-						if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-							rewardAmount = tmpCurrentAmount
-						}
-						_, err = ruc.userBalanceRepo.NormalRecommendReward(ctx, myUserRecommendUserId, rewardAmount, currentLocation.ID, tmpStatus) // 直推人奖励
+						_, err = ruc.userBalanceRepo.NormalRecommendReward(ctx, myUserRecommendUserId, tmpBalanceAmount, currentLocation.ID, tmpStatus) // 直推人奖励
 						if nil != err {
 							return err
 						}
@@ -457,7 +451,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 					}
 					if 0 < tmpMyRecommendAmount { // 扣除推荐人分红
 						tmpStatus := myUserRecommendUserLocationLast.Status // 现在还在运行中
-						tmpCurrent := myUserRecommendUserLocationLast.Current
 
 						tmpBalanceAmount := tmpMyRecommendAmount // 记录下一次
 						myUserRecommendUserLocationLast.Status = "running"
@@ -476,12 +469,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						}
 						amount -= tmpBalanceAmount // 扣除
 						if 0 < tmpBalanceAmount {  // 这次还能分红
-							tmpCurrentAmount := myUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-							rewardAmount := tmpBalanceAmount
-							if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-								rewardAmount = tmpCurrentAmount
-							}
-							_, err = ruc.userBalanceRepo.RecommendReward(ctx, myUserRecommendUserId, rewardAmount, currentLocation.ID, tmpStatus) // 推荐人奖励
+							_, err = ruc.userBalanceRepo.RecommendReward(ctx, myUserRecommendUserId, tmpBalanceAmount, currentLocation.ID, tmpStatus) // 推荐人奖励
 							if nil != err {
 								return err
 							}
@@ -520,7 +508,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						tmpMyTopUserRecommendUserLocationLast, _ := ruc.locationRepo.GetMyLocationLast(ctx, tmpMyTopUserRecommendUserId)
 						if nil != tmpMyTopUserRecommendUserLocationLast {
 							tmpMyTopUserRecommendUserLocationLastStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
-							tmpMyTopUserRecommendUserLocationLastCurrent := tmpMyTopUserRecommendUserLocationLast.Current
 
 							tmpMyTopUserRecommendUserLocationLast.Status = "running"
 							tmpMyTopUserRecommendUserLocationLast.Current += tmpMyTopUserRecommendUserLocationLastBalanceAmount
@@ -539,12 +526,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 							amount -= tmpMyTopUserRecommendUserLocationLastBalanceAmount // 扣除
 
 							if 0 < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 这次还能分红
-								tmpCurrentTopAmount := tmpMyTopUserRecommendUserLocationLast.CurrentMax - tmpMyTopUserRecommendUserLocationLastCurrent // 最大可分红额度
-								rewardTopAmount := tmpMyTopUserRecommendUserLocationLastBalanceAmount
-								if tmpCurrentTopAmount < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 大于最大可分红额度
-									rewardTopAmount = tmpCurrentTopAmount
-								}
-								_, err = ruc.userBalanceRepo.NormalRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, rewardTopAmount, currentLocation.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
+								_, err = ruc.userBalanceRepo.NormalRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpMyTopUserRecommendUserLocationLastBalanceAmount, currentLocation.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
 								if nil != err {
 									return err
 								}
@@ -605,7 +587,6 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						fmt.Println(tmpMyRecommendAmount)
 						if 0 < tmpMyRecommendAmount { // 扣除推荐人分红
 							tmpStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
-							tmpCurrent := tmpMyTopUserRecommendUserLocationLast.Current
 
 							tmpBalanceAmount := tmpMyRecommendAmount // 记录下一次
 							tmpMyTopUserRecommendUserLocationLast.Status = "running"
@@ -624,12 +605,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 							}
 							amount -= tmpBalanceAmount // 扣除
 							if 0 < tmpBalanceAmount {  // 这次还能分红
-								tmpCurrentAmount := tmpMyTopUserRecommendUserLocationLast.CurrentMax - tmpCurrent // 最大可分红额度
-								rewardAmount := tmpBalanceAmount
-								if tmpCurrentAmount < tmpBalanceAmount { // 大于最大可分红额度
-									rewardAmount = tmpCurrentAmount
-								}
-								_, err = ruc.userBalanceRepo.RecommendTopReward(ctx, tmpMyTopUserRecommendUserId, rewardAmount, currentLocation.ID, recommendLevel, tmpStatus) // 推荐人奖励
+								_, err = ruc.userBalanceRepo.RecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpBalanceAmount, currentLocation.ID, recommendLevel, tmpStatus) // 推荐人奖励
 								if nil != err {
 									return err
 								}
