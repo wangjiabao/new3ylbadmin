@@ -197,11 +197,11 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 			//	continue
 			//}
 
-			if "1000000000000000000" == vDepositUsdtResult.Value {
+			if "100000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "3000000000000000000" == vDepositUsdtResult.Value {
+			} else if "300000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "5000000000000000000" == vDepositUsdtResult.Value {
+			} else if "500000000000000000000" == vDepositUsdtResult.Value {
 
 			} else {
 				continue
@@ -572,7 +572,7 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 			continue
 		}
 
-		withDrawAmount := strconv.FormatInt(withdraw.RelAmount, 10) + "000000" // 补八个0.系统基础1是10个0
+		withDrawAmount := strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
 
 		for i := 0; i < 3; i++ {
 			//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
