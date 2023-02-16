@@ -792,13 +792,13 @@ func (ruc *RecordUseCase) AdminLocationInsert(ctx context.Context, userId int64,
 	}
 
 	// todo
-	if 100 == amount {
+	if 50 == amount {
 		locationCurrentLevel = 1
 		locationCurrentMax = 5000000000000
-	} else if 300 == amount {
+	} else if 100 == amount {
 		locationCurrentLevel = 2
 		locationCurrentMax = 15000000000000
-	} else if 500 == amount {
+	} else if 300 == amount {
 		locationCurrentLevel = 3
 		locationCurrentMax = 25000000000000
 	} else {
