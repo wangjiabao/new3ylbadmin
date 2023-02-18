@@ -2733,13 +2733,13 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 			tmpRecommendUserIds     []string
 			myUserRecommendUserId   int64
 			myUserRecommendUserInfo *UserInfo
-			myLocations             []*Location
+			//myLocations             []*Location
 		)
 
-		myLocations, err = uuc.locationRepo.GetLocationsByUserId(ctx, v.UserId)
-		if nil == myLocations { // 查询异常跳过本次循环
-			continue
-		}
+		//myLocations, err = uuc.locationRepo.GetLocationsByUserId(ctx, v.UserId)
+		//if nil == myLocations { // 查询异常跳过本次循环
+		//	continue
+		//}
 
 		// 推荐人
 		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, v.UserId)
@@ -2758,39 +2758,39 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 
 		// 推荐人
 		if nil != myUserRecommendUserInfo {
-			if 0 == len(myLocations) { // vip 等级调整，被推荐人首次入单
-				myUserRecommendUserInfo.HistoryRecommend += 1
-				if myUserRecommendUserInfo.HistoryRecommend >= 10 {
-					myUserRecommendUserInfo.Vip = 5
-				} else if myUserRecommendUserInfo.HistoryRecommend >= 8 {
-					myUserRecommendUserInfo.Vip = 4
-				} else if myUserRecommendUserInfo.HistoryRecommend >= 6 {
-					myUserRecommendUserInfo.Vip = 3
-				} else if myUserRecommendUserInfo.HistoryRecommend >= 4 {
-					myUserRecommendUserInfo.Vip = 2
-				} else if myUserRecommendUserInfo.HistoryRecommend >= 2 {
-					myUserRecommendUserInfo.Vip = 1
-				}
-				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-					_, err = uuc.uiRepo.UpdateUserInfo(ctx, myUserRecommendUserInfo) // 推荐人信息修改
-					if nil != err {
-						return err
-					}
-
-					_, err = uuc.userCurrentMonthRecommendRepo.CreateUserCurrentMonthRecommend(ctx, &UserCurrentMonthRecommend{ // 直推人本月推荐人数
-						UserId:          myUserRecommendUserId,
-						RecommendUserId: v.UserId,
-						Date:            time.Now().UTC().Add(8 * time.Hour),
-					})
-					if nil != err {
-						return err
-					}
-
-					return nil
-				}); nil != err {
-					continue
-				}
+			//if 0 == len(myLocations) { // vip 等级调整，被推荐人首次入单
+			myUserRecommendUserInfo.HistoryRecommend += 1
+			if myUserRecommendUserInfo.HistoryRecommend >= 10 {
+				myUserRecommendUserInfo.Vip = 5
+			} else if myUserRecommendUserInfo.HistoryRecommend >= 8 {
+				myUserRecommendUserInfo.Vip = 4
+			} else if myUserRecommendUserInfo.HistoryRecommend >= 6 {
+				myUserRecommendUserInfo.Vip = 3
+			} else if myUserRecommendUserInfo.HistoryRecommend >= 4 {
+				myUserRecommendUserInfo.Vip = 2
+			} else if myUserRecommendUserInfo.HistoryRecommend >= 2 {
+				myUserRecommendUserInfo.Vip = 1
 			}
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				_, err = uuc.uiRepo.UpdateUserInfo(ctx, myUserRecommendUserInfo) // 推荐人信息修改
+				if nil != err {
+					return err
+				}
+
+				_, err = uuc.userCurrentMonthRecommendRepo.CreateUserCurrentMonthRecommend(ctx, &UserCurrentMonthRecommend{ // 直推人本月推荐人数
+					UserId:          myUserRecommendUserId,
+					RecommendUserId: v.UserId,
+					Date:            time.Now().UTC().Add(8 * time.Hour),
+				})
+				if nil != err {
+					return err
+				}
+
+				return nil
+			}); nil != err {
+				continue
+			}
+			//}
 		}
 	}
 
