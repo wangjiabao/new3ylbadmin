@@ -160,6 +160,24 @@ paths:
         get:
             tags:
                 - App
+            operationId: App_CheckAdminUserArea
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CheckAdminUserAreaReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/check_and_insert_locations_recommend_user:
+        get:
+            tags:
+                - App
             operationId: App_CheckAndInsertLocationsRecommendUser
             responses:
                 "200":

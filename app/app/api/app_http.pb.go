@@ -116,7 +116,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/reward_list", _App_AdminRewardList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/user_list", _App_AdminUserList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAdminUserArea0_HTTP_Handler(srv))
-	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/check_and_insert_locations_recommend_user", _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_list", _App_AdminLocationList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_all_list", _App_AdminLocationAllList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
@@ -1360,7 +1360,7 @@ func (c *AppHTTPClientImpl) CheckAdminUserArea(ctx context.Context, in *CheckAdm
 
 func (c *AppHTTPClientImpl) CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...http.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error) {
 	var out CheckAndInsertLocationsRecommendUserReply
-	pattern := "/api/admin_dhb/check_admin_user_area"
+	pattern := "/api/admin_dhb/check_and_insert_locations_recommend_user"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppCheckAndInsertLocationsRecommendUser))
 	opts = append(opts, http.PathTemplate(pattern))
