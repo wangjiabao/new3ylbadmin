@@ -156,6 +156,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/check_admin_user_area:
+        get:
+            tags:
+                - App
+            operationId: App_CheckAndInsertLocationsRecommendUser
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CheckAndInsertLocationsRecommendUserReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/check_and_insert_recommend_area:
         get:
             tags:
@@ -1298,6 +1316,12 @@ components:
                     type: string
                 path:
                     type: string
+        CheckAdminUserAreaReply:
+            type: object
+            properties: {}
+        CheckAndInsertLocationsRecommendUserReply:
+            type: object
+            properties: {}
         CheckAndInsertRecommendAreaReply:
             type: object
             properties: {}

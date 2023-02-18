@@ -2392,6 +2392,422 @@ var _ interface {
 	ErrorName() string
 } = AdminRewardListReplyValidationError{}
 
+// Validate checks the field values on CheckAdminUserAreaRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckAdminUserAreaRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckAdminUserAreaRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckAdminUserAreaRequestMultiError, or nil if none found.
+func (m *CheckAdminUserAreaRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckAdminUserAreaRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return CheckAdminUserAreaRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckAdminUserAreaRequestMultiError is an error wrapping multiple validation
+// errors returned by CheckAdminUserAreaRequest.ValidateAll() if the
+// designated constraints aren't met.
+type CheckAdminUserAreaRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckAdminUserAreaRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckAdminUserAreaRequestMultiError) AllErrors() []error { return m }
+
+// CheckAdminUserAreaRequestValidationError is the validation error returned by
+// CheckAdminUserAreaRequest.Validate if the designated constraints aren't met.
+type CheckAdminUserAreaRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckAdminUserAreaRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckAdminUserAreaRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckAdminUserAreaRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckAdminUserAreaRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckAdminUserAreaRequestValidationError) ErrorName() string {
+	return "CheckAdminUserAreaRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckAdminUserAreaRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckAdminUserAreaRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckAdminUserAreaRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckAdminUserAreaRequestValidationError{}
+
+// Validate checks the field values on CheckAdminUserAreaReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckAdminUserAreaReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckAdminUserAreaReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckAdminUserAreaReplyMultiError, or nil if none found.
+func (m *CheckAdminUserAreaReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckAdminUserAreaReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return CheckAdminUserAreaReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckAdminUserAreaReplyMultiError is an error wrapping multiple validation
+// errors returned by CheckAdminUserAreaReply.ValidateAll() if the designated
+// constraints aren't met.
+type CheckAdminUserAreaReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckAdminUserAreaReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckAdminUserAreaReplyMultiError) AllErrors() []error { return m }
+
+// CheckAdminUserAreaReplyValidationError is the validation error returned by
+// CheckAdminUserAreaReply.Validate if the designated constraints aren't met.
+type CheckAdminUserAreaReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckAdminUserAreaReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckAdminUserAreaReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckAdminUserAreaReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckAdminUserAreaReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckAdminUserAreaReplyValidationError) ErrorName() string {
+	return "CheckAdminUserAreaReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckAdminUserAreaReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckAdminUserAreaReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckAdminUserAreaReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckAdminUserAreaReplyValidationError{}
+
+// Validate checks the field values on
+// CheckAndInsertLocationsRecommendUserRequest with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CheckAndInsertLocationsRecommendUserRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// CheckAndInsertLocationsRecommendUserRequest with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// CheckAndInsertLocationsRecommendUserRequestMultiError, or nil if none found.
+func (m *CheckAndInsertLocationsRecommendUserRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckAndInsertLocationsRecommendUserRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return CheckAndInsertLocationsRecommendUserRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckAndInsertLocationsRecommendUserRequestMultiError is an error wrapping
+// multiple validation errors returned by
+// CheckAndInsertLocationsRecommendUserRequest.ValidateAll() if the designated
+// constraints aren't met.
+type CheckAndInsertLocationsRecommendUserRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckAndInsertLocationsRecommendUserRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckAndInsertLocationsRecommendUserRequestMultiError) AllErrors() []error { return m }
+
+// CheckAndInsertLocationsRecommendUserRequestValidationError is the validation
+// error returned by CheckAndInsertLocationsRecommendUserRequest.Validate if
+// the designated constraints aren't met.
+type CheckAndInsertLocationsRecommendUserRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) ErrorName() string {
+	return "CheckAndInsertLocationsRecommendUserRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckAndInsertLocationsRecommendUserRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckAndInsertLocationsRecommendUserRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckAndInsertLocationsRecommendUserRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckAndInsertLocationsRecommendUserRequestValidationError{}
+
+// Validate checks the field values on
+// CheckAndInsertLocationsRecommendUserReply with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *CheckAndInsertLocationsRecommendUserReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on
+// CheckAndInsertLocationsRecommendUserReply with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in
+// CheckAndInsertLocationsRecommendUserReplyMultiError, or nil if none found.
+func (m *CheckAndInsertLocationsRecommendUserReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckAndInsertLocationsRecommendUserReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return CheckAndInsertLocationsRecommendUserReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckAndInsertLocationsRecommendUserReplyMultiError is an error wrapping
+// multiple validation errors returned by
+// CheckAndInsertLocationsRecommendUserReply.ValidateAll() if the designated
+// constraints aren't met.
+type CheckAndInsertLocationsRecommendUserReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckAndInsertLocationsRecommendUserReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckAndInsertLocationsRecommendUserReplyMultiError) AllErrors() []error { return m }
+
+// CheckAndInsertLocationsRecommendUserReplyValidationError is the validation
+// error returned by CheckAndInsertLocationsRecommendUserReply.Validate if the
+// designated constraints aren't met.
+type CheckAndInsertLocationsRecommendUserReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) ErrorName() string {
+	return "CheckAndInsertLocationsRecommendUserReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckAndInsertLocationsRecommendUserReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckAndInsertLocationsRecommendUserReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CheckAndInsertLocationsRecommendUserReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckAndInsertLocationsRecommendUserReplyValidationError{}
+
 // Validate checks the field values on AdminUserListRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

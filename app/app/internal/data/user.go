@@ -700,6 +700,19 @@ func (ub *UserBalanceRepo) UpdateBalance(ctx context.Context, userId int64, amou
 	return true, nil
 }
 
+// CreateUserArea .
+func (ur *UserRecommendRepo) CreateUserArea(ctx context.Context, u *biz.User) (bool, error) {
+	// 业务上限制了错误的上一级未insert下一级优先insert的情况
+	var userArea UserArea
+	userArea.UserId = u.ID
+	res := ur.data.DB(ctx).Table("user_area").Create(&userArea)
+	if res.Error != nil {
+		return false, errors.New(500, "CREATE_USER_AREA_ERROR", "用户区信息创建失败")
+	}
+
+	return true, nil
+}
+
 // UpdateAdminPassword .
 func (u *UserRepo) UpdateAdminPassword(ctx context.Context, account string, password string) (*biz.Admin, error) {
 	var admin Admin

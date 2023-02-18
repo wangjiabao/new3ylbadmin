@@ -46,6 +46,8 @@ const OperationAppAdminWithdrawList = "/api.App/AdminWithdrawList"
 const OperationAppAuthAdminCreate = "/api.App/AuthAdminCreate"
 const OperationAppAuthAdminDelete = "/api.App/AuthAdminDelete"
 const OperationAppAuthList = "/api.App/AuthList"
+const OperationAppCheckAdminUserArea = "/api.App/CheckAdminUserArea"
+const OperationAppCheckAndInsertLocationsRecommendUser = "/api.App/CheckAndInsertLocationsRecommendUser"
 const OperationAppCheckAndInsertRecommendArea = "/api.App/CheckAndInsertRecommendArea"
 const OperationAppDeposit = "/api.App/Deposit"
 const OperationAppFeeRewardList = "/api.App/FeeRewardList"
@@ -86,6 +88,8 @@ type AppHTTPServer interface {
 	AuthAdminCreate(context.Context, *AuthAdminCreateRequest) (*AuthAdminCreateReply, error)
 	AuthAdminDelete(context.Context, *AuthAdminDeleteRequest) (*AuthAdminDeleteReply, error)
 	AuthList(context.Context, *AuthListRequest) (*AuthListReply, error)
+	CheckAdminUserArea(context.Context, *CheckAdminUserAreaRequest) (*CheckAdminUserAreaReply, error)
+	CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error)
 	CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error)
 	Deposit(context.Context, *DepositRequest) (*DepositReply, error)
 	FeeRewardList(context.Context, *FeeRewardListRequest) (*FeeRewardListReply, error)
@@ -111,6 +115,8 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/deposit", _App_Deposit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/reward_list", _App_AdminRewardList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/user_list", _App_AdminUserList0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAdminUserArea0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_list", _App_AdminLocationList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_all_list", _App_AdminLocationAllList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
@@ -330,6 +336,44 @@ func _App_AdminUserList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) 
 			return err
 		}
 		reply := out.(*AdminUserListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_CheckAdminUserArea0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CheckAdminUserAreaRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppCheckAdminUserArea)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CheckAdminUserArea(ctx, req.(*CheckAdminUserAreaRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CheckAdminUserAreaReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CheckAndInsertLocationsRecommendUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppCheckAndInsertLocationsRecommendUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CheckAndInsertLocationsRecommendUser(ctx, req.(*CheckAndInsertLocationsRecommendUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CheckAndInsertLocationsRecommendUserReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -927,6 +971,8 @@ type AppHTTPClient interface {
 	AuthAdminCreate(ctx context.Context, req *AuthAdminCreateRequest, opts ...http.CallOption) (rsp *AuthAdminCreateReply, err error)
 	AuthAdminDelete(ctx context.Context, req *AuthAdminDeleteRequest, opts ...http.CallOption) (rsp *AuthAdminDeleteReply, err error)
 	AuthList(ctx context.Context, req *AuthListRequest, opts ...http.CallOption) (rsp *AuthListReply, err error)
+	CheckAdminUserArea(ctx context.Context, req *CheckAdminUserAreaRequest, opts ...http.CallOption) (rsp *CheckAdminUserAreaReply, err error)
+	CheckAndInsertLocationsRecommendUser(ctx context.Context, req *CheckAndInsertLocationsRecommendUserRequest, opts ...http.CallOption) (rsp *CheckAndInsertLocationsRecommendUserReply, err error)
 	CheckAndInsertRecommendArea(ctx context.Context, req *CheckAndInsertRecommendAreaRequest, opts ...http.CallOption) (rsp *CheckAndInsertRecommendAreaReply, err error)
 	Deposit(ctx context.Context, req *DepositRequest, opts ...http.CallOption) (rsp *DepositReply, err error)
 	FeeRewardList(ctx context.Context, req *FeeRewardListRequest, opts ...http.CallOption) (rsp *FeeRewardListReply, err error)
@@ -1291,6 +1337,32 @@ func (c *AppHTTPClientImpl) AuthList(ctx context.Context, in *AuthListRequest, o
 	pattern := "/api/admin_dhb/auth_list"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAuthList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAreaRequest, opts ...http.CallOption) (*CheckAdminUserAreaReply, error) {
+	var out CheckAdminUserAreaReply
+	pattern := "/api/admin_dhb/check_admin_user_area"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppCheckAdminUserArea))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...http.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error) {
+	var out CheckAndInsertLocationsRecommendUserReply
+	pattern := "/api/admin_dhb/check_admin_user_area"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppCheckAndInsertLocationsRecommendUser))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

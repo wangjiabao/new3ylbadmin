@@ -206,6 +206,7 @@ type UserRecommendRepo interface {
 	UpdateUserAreaLevel(ctx context.Context, userId int64, level int64) (bool, error)
 	GetUserAreas(ctx context.Context, userIds []int64) ([]*UserArea, error)
 	GetUserArea(ctx context.Context, userId int64) (*UserArea, error)
+	CreateUserArea(ctx context.Context, u *User) (bool, error)
 }
 
 type UserCurrentMonthRecommendRepo interface {
@@ -2634,4 +2635,164 @@ func (uuc *UserUseCase) CheckAndInsertRecommendArea(ctx context.Context, req *v1
 	}
 
 	return &v1.CheckAndInsertRecommendAreaReply{}, nil
+}
+
+func (uuc *UserUseCase) CheckAdminUserArea(ctx context.Context, req *v1.CheckAdminUserAreaRequest) (*v1.CheckAdminUserAreaReply, error) {
+
+	var (
+		users []*User
+		err   error
+	)
+	users, err = uuc.repo.GetAllUsers(ctx)
+	if nil != err {
+		return nil, err
+	}
+
+	// 创建记录
+	for _, user := range users {
+		_, err = uuc.urRepo.CreateUserArea(ctx, user)
+	}
+
+	for _, user := range users {
+		var (
+			userRecommend                  *UserRecommend
+			userRecommends                 []*UserRecommend
+			myLocations                    []*Location
+			myRecommendUserLocations       []*Location
+			userRecommendsUserIds          []int64
+			myCode                         string
+			myLocationsAmount              int64
+			myRecommendUserLocationsAmount int64
+		)
+		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, user.ID)
+		if nil != err {
+			continue
+		}
+
+		// 我的伞下所有用户
+		myCode = userRecommend.RecommendCode + "D" + strconv.FormatInt(user.ID, 10)
+		userRecommends, err = uuc.urRepo.GetUserRecommendLikeCode(ctx, myCode)
+		if nil == err {
+			for _, vUserRecommends := range userRecommends {
+				userRecommendsUserIds = append(userRecommendsUserIds, vUserRecommends.UserId)
+			}
+		}
+		if 0 < len(userRecommendsUserIds) {
+			myRecommendUserLocations, err = uuc.locationRepo.GetLocationsByUserIds(ctx, userRecommendsUserIds)
+			if nil == err {
+				for _, vMyRecommendUserLocations := range myRecommendUserLocations {
+					myRecommendUserLocationsAmount += vMyRecommendUserLocations.CurrentMax / 50000000000
+				}
+			}
+		}
+
+		// 自己的
+		myLocations, err = uuc.locationRepo.GetLocationsByUserId(ctx, user.ID)
+		if nil == err {
+			for _, vMyLocations := range myLocations {
+				myLocationsAmount += vMyLocations.CurrentMax / 50000000000
+			}
+		}
+
+		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			if 0 < myLocationsAmount {
+				// 修改用户推荐人区数据，修改自身区数据
+				_, err = uuc.urRepo.UpdateUserAreaSelfAmount(ctx, user.ID, myLocationsAmount)
+				if nil != err {
+					return err
+				}
+
+			}
+
+			if 0 < myRecommendUserLocationsAmount {
+				_, err = uuc.urRepo.UpdateUserAreaAmount(ctx, user.ID, myRecommendUserLocationsAmount)
+				if nil != err {
+					return err
+				}
+			}
+			return nil
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	return &v1.CheckAdminUserAreaReply{}, nil
+}
+
+func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context, req *v1.CheckAndInsertLocationsRecommendUserRequest) (*v1.CheckAndInsertLocationsRecommendUserReply, error) {
+
+	var (
+		locations []*Location
+		err       error
+	)
+	locations, err = uuc.locationRepo.GetAllLocations(ctx)
+
+	for _, v := range locations {
+		var (
+			userRecommend           *UserRecommend
+			tmpRecommendUserIds     []string
+			myUserRecommendUserId   int64
+			myUserRecommendUserInfo *UserInfo
+			myLocations             []*Location
+		)
+
+		myLocations, err = uuc.locationRepo.GetLocationsByUserId(ctx, v.UserId)
+		if nil == myLocations { // 查询异常跳过本次循环
+			continue
+		}
+
+		// 推荐人
+		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, v.UserId)
+		if nil != err {
+			continue
+		}
+		if "" != userRecommend.RecommendCode {
+			tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+			if 2 <= len(tmpRecommendUserIds) {
+				myUserRecommendUserId, _ = strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-1], 10, 64) // 最后一位是直推人
+			}
+		}
+		if 0 < myUserRecommendUserId {
+			myUserRecommendUserInfo, err = uuc.uiRepo.GetUserInfoByUserId(ctx, myUserRecommendUserId)
+		}
+
+		// 推荐人
+		if nil != myUserRecommendUserInfo {
+			if 0 == len(myLocations) { // vip 等级调整，被推荐人首次入单
+				myUserRecommendUserInfo.HistoryRecommend += 1
+				if myUserRecommendUserInfo.HistoryRecommend >= 10 {
+					myUserRecommendUserInfo.Vip = 5
+				} else if myUserRecommendUserInfo.HistoryRecommend >= 8 {
+					myUserRecommendUserInfo.Vip = 4
+				} else if myUserRecommendUserInfo.HistoryRecommend >= 6 {
+					myUserRecommendUserInfo.Vip = 3
+				} else if myUserRecommendUserInfo.HistoryRecommend >= 4 {
+					myUserRecommendUserInfo.Vip = 2
+				} else if myUserRecommendUserInfo.HistoryRecommend >= 2 {
+					myUserRecommendUserInfo.Vip = 1
+				}
+				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+					_, err = uuc.uiRepo.UpdateUserInfo(ctx, myUserRecommendUserInfo) // 推荐人信息修改
+					if nil != err {
+						return err
+					}
+
+					_, err = uuc.userCurrentMonthRecommendRepo.CreateUserCurrentMonthRecommend(ctx, &UserCurrentMonthRecommend{ // 直推人本月推荐人数
+						UserId:          myUserRecommendUserId,
+						RecommendUserId: v.UserId,
+						Date:            time.Now().UTC().Add(8 * time.Hour),
+					})
+					if nil != err {
+						return err
+					}
+
+					return nil
+				}); nil != err {
+					continue
+				}
+			}
+		}
+	}
+
+	return &v1.CheckAndInsertLocationsRecommendUserReply{}, nil
 }

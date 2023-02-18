@@ -79,6 +79,18 @@ service App {
 		};
 	};
 
+	rpc CheckAdminUserArea (CheckAdminUserAreaRequest) returns (CheckAdminUserAreaReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/check_admin_user_area"
+		};
+	};
+
+	rpc CheckAndInsertLocationsRecommendUser (CheckAndInsertLocationsRecommendUserRequest) returns (CheckAndInsertLocationsRecommendUserReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/check_admin_user_area"
+		};
+	};
+
 	rpc AdminLocationList (AdminLocationListRequest) returns (AdminLocationListReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/location_list"
@@ -405,6 +417,20 @@ message AdminRewardListReply {
 		string reason = 6;
 	}
 	 int64 count = 2;
+}
+
+message CheckAdminUserAreaRequest {
+}
+
+message CheckAdminUserAreaReply {
+
+}
+
+message CheckAndInsertLocationsRecommendUserRequest {
+}
+
+message CheckAndInsertLocationsRecommendUserReply {
+
 }
 
 message AdminUserListRequest {

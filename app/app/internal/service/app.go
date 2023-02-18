@@ -426,6 +426,14 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *v1.AdminWithdrawReq
 	return a.uuc.AdminWithdraw(ctx, req)
 }
 
+func (a *AppService) CheckAdminUserArea(ctx context.Context, req *v1.CheckAdminUserAreaRequest) (*v1.CheckAdminUserAreaReply, error) {
+	return a.uuc.CheckAdminUserArea(ctx, req)
+}
+
+func (a *AppService) CheckAndInsertLocationsRecommendUser(ctx context.Context, req *v1.CheckAndInsertLocationsRecommendUserRequest) (*v1.CheckAndInsertLocationsRecommendUserReply, error) {
+	return a.uuc.CheckAndInsertLocationsRecommendUser(ctx, req)
+}
+
 func (a *AppService) AdminFee(ctx context.Context, req *v1.AdminFeeRequest) (*v1.AdminFeeReply, error) {
 	return a.uuc.AdminFee(ctx, req)
 }

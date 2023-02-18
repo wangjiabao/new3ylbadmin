@@ -32,6 +32,8 @@ type AppClient interface {
 	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositReply, error)
 	AdminRewardList(ctx context.Context, in *AdminRewardListRequest, opts ...grpc.CallOption) (*AdminRewardListReply, error)
 	AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error)
+	CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAreaRequest, opts ...grpc.CallOption) (*CheckAdminUserAreaReply, error)
+	CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...grpc.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error)
 	AdminLocationList(ctx context.Context, in *AdminLocationListRequest, opts ...grpc.CallOption) (*AdminLocationListReply, error)
 	AdminLocationAllList(ctx context.Context, in *AdminLocationAllListRequest, opts ...grpc.CallOption) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error)
@@ -154,6 +156,24 @@ func (c *appClient) AdminRewardList(ctx context.Context, in *AdminRewardListRequ
 func (c *appClient) AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error) {
 	out := new(AdminUserListReply)
 	err := c.cc.Invoke(ctx, "/api.App/AdminUserList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAreaRequest, opts ...grpc.CallOption) (*CheckAdminUserAreaReply, error) {
+	out := new(CheckAdminUserAreaReply)
+	err := c.cc.Invoke(ctx, "/api.App/CheckAdminUserArea", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...grpc.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error) {
+	out := new(CheckAndInsertLocationsRecommendUserReply)
+	err := c.cc.Invoke(ctx, "/api.App/CheckAndInsertLocationsRecommendUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -426,6 +446,8 @@ type AppServer interface {
 	Deposit(context.Context, *DepositRequest) (*DepositReply, error)
 	AdminRewardList(context.Context, *AdminRewardListRequest) (*AdminRewardListReply, error)
 	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
+	CheckAdminUserArea(context.Context, *CheckAdminUserAreaRequest) (*CheckAdminUserAreaReply, error)
+	CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error)
 	AdminLocationList(context.Context, *AdminLocationListRequest) (*AdminLocationListReply, error)
 	AdminLocationAllList(context.Context, *AdminLocationAllListRequest) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
@@ -490,6 +512,12 @@ func (UnimplementedAppServer) AdminRewardList(context.Context, *AdminRewardListR
 }
 func (UnimplementedAppServer) AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminUserList not implemented")
+}
+func (UnimplementedAppServer) CheckAdminUserArea(context.Context, *CheckAdminUserAreaRequest) (*CheckAdminUserAreaReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAdminUserArea not implemented")
+}
+func (UnimplementedAppServer) CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckAndInsertLocationsRecommendUser not implemented")
 }
 func (UnimplementedAppServer) AdminLocationList(context.Context, *AdminLocationListRequest) (*AdminLocationListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminLocationList not implemented")
@@ -764,6 +792,42 @@ func _App_AdminUserList_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AppServer).AdminUserList(ctx, req.(*AdminUserListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_CheckAdminUserArea_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAdminUserAreaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).CheckAdminUserArea(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/CheckAdminUserArea",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).CheckAdminUserArea(ctx, req.(*CheckAdminUserAreaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_CheckAndInsertLocationsRecommendUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckAndInsertLocationsRecommendUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).CheckAndInsertLocationsRecommendUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/CheckAndInsertLocationsRecommendUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).CheckAndInsertLocationsRecommendUser(ctx, req.(*CheckAndInsertLocationsRecommendUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1318,6 +1382,14 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminUserList",
 			Handler:    _App_AdminUserList_Handler,
+		},
+		{
+			MethodName: "CheckAdminUserArea",
+			Handler:    _App_CheckAdminUserArea_Handler,
+		},
+		{
+			MethodName: "CheckAndInsertLocationsRecommendUser",
+			Handler:    _App_CheckAndInsertLocationsRecommendUser_Handler,
 		},
 		{
 			MethodName: "AdminLocationList",
