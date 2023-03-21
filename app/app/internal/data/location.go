@@ -267,6 +267,36 @@ func (lr *LocationRepo) GetAllLocations(ctx context.Context) ([]*biz.Location, e
 	return res, nil
 }
 
+// GetAllLocationsAfter .
+func (lr *LocationRepo) GetAllLocationsAfter(ctx context.Context) ([]*biz.Location, error) {
+	var locations []*Location
+	res := make([]*biz.Location, 0)
+	if err := lr.data.db.Table("location").
+		Where("created_at>=?", "2023-03-21 14:00:00").
+		Order("id desc").Find(&locations).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "LOCATION ERROR", err.Error())
+	}
+
+	for _, location := range locations {
+		res = append(res, &biz.Location{
+			ID:           location.ID,
+			UserId:       location.UserId,
+			Status:       location.Status,
+			CurrentLevel: location.CurrentLevel,
+			Current:      location.Current,
+			CurrentMax:   location.CurrentMax,
+			Row:          location.Row,
+			Col:          location.Col,
+		})
+	}
+
+	return res, nil
+}
+
 // GetLocationsByUserId .
 func (lr *LocationRepo) GetLocationsByUserId(ctx context.Context, userId int64) ([]*biz.Location, error) {
 	var locations []*Location

@@ -1744,6 +1744,9 @@ func (uuc *UserUseCase) AdminAll(ctx context.Context, req *v1.AdminAllRequest) (
 		userRewardUsdtTotal             int64
 		systemRewardUsdtTotal           int64
 		userLocationCount               int64
+		userLocations                   []*Location
+		allLocationAmount               int64
+		err                             error
 	)
 	userCount, _ = uuc.repo.GetUserCount(ctx)
 	userTodayCount, _ = uuc.repo.GetUserCountToday(ctx)
@@ -1756,6 +1759,15 @@ func (uuc *UserUseCase) AdminAll(ctx context.Context, req *v1.AdminAllRequest) (
 	systemRewardUsdtTotal, _ = uuc.ubRepo.GetSystemRewardUsdtTotal(ctx)
 	userLocationCount = uuc.locationRepo.GetLocationUserCount(ctx)
 
+	// 全网手续费
+	userLocations, err = uuc.locationRepo.GetAllLocationsAfter(ctx)
+	if nil != err {
+		return nil, err
+	}
+	for _, userLocation := range userLocations {
+		allLocationAmount += userLocation.CurrentMax / 5
+	}
+
 	return &v1.AdminAllReply{
 		TodayTotalUser:        userTodayCount,
 		TotalUser:             userCount,
@@ -1766,7 +1778,7 @@ func (uuc *UserUseCase) AdminAll(ctx context.Context, req *v1.AdminAllRequest) (
 		TodayWithdraw:         fmt.Sprintf("%.2f", float64(userWithdrawUsdtTotalToday)/float64(10000000000)),
 		AllWithdraw:           fmt.Sprintf("%.2f", float64(userWithdrawUsdtTotal)/float64(10000000000)),
 		AllReward:             fmt.Sprintf("%.2f", float64(userRewardUsdtTotal)/float64(10000000000)),
-		AllSystemRewardAndFee: fmt.Sprintf("%.2f", float64(systemRewardUsdtTotal)/float64(10000000000)),
+		AllSystemRewardAndFee: fmt.Sprintf("%.2f", float64(systemRewardUsdtTotal-allLocationAmount/10)/float64(10000000000)),
 	}, nil
 }
 

@@ -78,6 +78,7 @@ type LocationRepo interface {
 	GetLocationUserCount(ctx context.Context) int64
 	GetLocationByIds(ctx context.Context, userIds ...int64) ([]*Location, error)
 	GetAllLocations(ctx context.Context) ([]*Location, error)
+	GetAllLocationsAfter(ctx context.Context) ([]*Location, error)
 	GetLocationsByUserIds(ctx context.Context, userIds []int64) ([]*Location, error)
 }
 
