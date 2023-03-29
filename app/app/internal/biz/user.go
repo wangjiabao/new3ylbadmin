@@ -2827,6 +2827,7 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		if 1 == user.ID {
 			userAddressSlice = append(userAddressSlice, user.Address)
 			userAddressRecommendSlice = append(userAddressRecommendSlice, user.Address)
+			continue
 		}
 
 		var (
