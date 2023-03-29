@@ -2930,6 +2930,8 @@ func tmpDo3(ctx context.Context, uuc *UserUseCase, tmpUserId int64, userAddressS
 		if nil != err {
 			return err
 		}
+	} else {
+		return nil
 	}
 
 	*userAddressSlice = append(*userAddressSlice, tmpUser3.Address)
