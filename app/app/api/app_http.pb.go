@@ -55,6 +55,7 @@ const OperationAppMyAuthList = "/api.App/MyAuthList"
 const OperationAppRecommendList = "/api.App/RecommendList"
 const OperationAppRecommendRewardList = "/api.App/RecommendRewardList"
 const OperationAppRewardList = "/api.App/RewardList"
+const OperationAppUploadRecommendUser = "/api.App/UploadRecommendUser"
 const OperationAppUserAuthList = "/api.App/UserAuthList"
 const OperationAppUserInfo = "/api.App/UserInfo"
 const OperationAppWithdraw = "/api.App/Withdraw"
@@ -97,6 +98,7 @@ type AppHTTPServer interface {
 	RecommendList(context.Context, *RecommendListRequest) (*RecommendListReply, error)
 	RecommendRewardList(context.Context, *RecommendRewardListRequest) (*RecommendRewardListReply, error)
 	RewardList(context.Context, *RewardListRequest) (*RewardListReply, error)
+	UploadRecommendUser(context.Context, *UploadRecommendUserRequest) (*UploadRecommendUserReply, error)
 	UserAuthList(context.Context, *UserAuthListRequest) (*UserAuthListReply, error)
 	UserInfo(context.Context, *UserInfoRequest) (*UserInfoReply, error)
 	Withdraw(context.Context, *WithdrawRequest) (*WithdrawReply, error)
@@ -117,6 +119,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/user_list", _App_AdminUserList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAdminUserArea0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/check_and_insert_locations_recommend_user", _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/upload_recommend_user", _App_UploadRecommendUser0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_list", _App_AdminLocationList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/location_all_list", _App_AdminLocationAllList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
@@ -374,6 +377,25 @@ func _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv AppHTTPServer) 
 			return err
 		}
 		reply := out.(*CheckAndInsertLocationsRecommendUserReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_UploadRecommendUser0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UploadRecommendUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppUploadRecommendUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UploadRecommendUser(ctx, req.(*UploadRecommendUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UploadRecommendUserReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -980,6 +1002,7 @@ type AppHTTPClient interface {
 	RecommendList(ctx context.Context, req *RecommendListRequest, opts ...http.CallOption) (rsp *RecommendListReply, err error)
 	RecommendRewardList(ctx context.Context, req *RecommendRewardListRequest, opts ...http.CallOption) (rsp *RecommendRewardListReply, err error)
 	RewardList(ctx context.Context, req *RewardListRequest, opts ...http.CallOption) (rsp *RewardListReply, err error)
+	UploadRecommendUser(ctx context.Context, req *UploadRecommendUserRequest, opts ...http.CallOption) (rsp *UploadRecommendUserReply, err error)
 	UserAuthList(ctx context.Context, req *UserAuthListRequest, opts ...http.CallOption) (rsp *UserAuthListReply, err error)
 	UserInfo(ctx context.Context, req *UserInfoRequest, opts ...http.CallOption) (rsp *UserInfoReply, err error)
 	Withdraw(ctx context.Context, req *WithdrawRequest, opts ...http.CallOption) (rsp *WithdrawReply, err error)
@@ -1454,6 +1477,19 @@ func (c *AppHTTPClientImpl) RewardList(ctx context.Context, in *RewardListReques
 	pattern := "/api/app_server/reward_list"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppRewardList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) UploadRecommendUser(ctx context.Context, in *UploadRecommendUserRequest, opts ...http.CallOption) (*UploadRecommendUserReply, error) {
+	var out UploadRecommendUserReply
+	pattern := "/api/admin_dhb/upload_recommend_user"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppUploadRecommendUser))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

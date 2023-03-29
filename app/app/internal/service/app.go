@@ -531,6 +531,10 @@ func (a *AppService) AdminDailyRecommendReward(ctx context.Context, req *v1.Admi
 	return a.uuc.AdminDailyRecommendReward(ctx, req)
 }
 
+func (a *AppService) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {
+	return a.uuc.UploadRecommendUser(ctx, req)
+}
+
 func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdrawEthRequest) (*v1.AdminWithdrawEthReply, error) {
 	var (
 		withdraw     *biz.Withdraw

@@ -91,6 +91,12 @@ service App {
 		};
 	};
 
+	rpc UploadRecommendUser (UploadRecommendUserRequest) returns (UploadRecommendUserReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/upload_recommend_user"
+		};
+	};
+
 	rpc AdminLocationList (AdminLocationListRequest) returns (AdminLocationListReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/location_list"
@@ -431,6 +437,13 @@ message CheckAndInsertLocationsRecommendUserRequest {
 
 message CheckAndInsertLocationsRecommendUserReply {
 
+}
+
+
+message UploadRecommendUserRequest {
+}
+
+message UploadRecommendUserReply {
 }
 
 message AdminUserListRequest {

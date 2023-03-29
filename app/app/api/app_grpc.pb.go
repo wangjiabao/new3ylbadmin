@@ -34,6 +34,7 @@ type AppClient interface {
 	AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error)
 	CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAreaRequest, opts ...grpc.CallOption) (*CheckAdminUserAreaReply, error)
 	CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...grpc.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error)
+	UploadRecommendUser(ctx context.Context, in *UploadRecommendUserRequest, opts ...grpc.CallOption) (*UploadRecommendUserReply, error)
 	AdminLocationList(ctx context.Context, in *AdminLocationListRequest, opts ...grpc.CallOption) (*AdminLocationListReply, error)
 	AdminLocationAllList(ctx context.Context, in *AdminLocationAllListRequest, opts ...grpc.CallOption) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error)
@@ -174,6 +175,15 @@ func (c *appClient) CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAr
 func (c *appClient) CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...grpc.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error) {
 	out := new(CheckAndInsertLocationsRecommendUserReply)
 	err := c.cc.Invoke(ctx, "/api.App/CheckAndInsertLocationsRecommendUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) UploadRecommendUser(ctx context.Context, in *UploadRecommendUserRequest, opts ...grpc.CallOption) (*UploadRecommendUserReply, error) {
+	out := new(UploadRecommendUserReply)
+	err := c.cc.Invoke(ctx, "/api.App/UploadRecommendUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -448,6 +458,7 @@ type AppServer interface {
 	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
 	CheckAdminUserArea(context.Context, *CheckAdminUserAreaRequest) (*CheckAdminUserAreaReply, error)
 	CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error)
+	UploadRecommendUser(context.Context, *UploadRecommendUserRequest) (*UploadRecommendUserReply, error)
 	AdminLocationList(context.Context, *AdminLocationListRequest) (*AdminLocationListReply, error)
 	AdminLocationAllList(context.Context, *AdminLocationAllListRequest) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
@@ -518,6 +529,9 @@ func (UnimplementedAppServer) CheckAdminUserArea(context.Context, *CheckAdminUse
 }
 func (UnimplementedAppServer) CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckAndInsertLocationsRecommendUser not implemented")
+}
+func (UnimplementedAppServer) UploadRecommendUser(context.Context, *UploadRecommendUserRequest) (*UploadRecommendUserReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadRecommendUser not implemented")
 }
 func (UnimplementedAppServer) AdminLocationList(context.Context, *AdminLocationListRequest) (*AdminLocationListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminLocationList not implemented")
@@ -828,6 +842,24 @@ func _App_CheckAndInsertLocationsRecommendUser_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AppServer).CheckAndInsertLocationsRecommendUser(ctx, req.(*CheckAndInsertLocationsRecommendUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_UploadRecommendUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadRecommendUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).UploadRecommendUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/UploadRecommendUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).UploadRecommendUser(ctx, req.(*UploadRecommendUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1390,6 +1422,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckAndInsertLocationsRecommendUser",
 			Handler:    _App_CheckAndInsertLocationsRecommendUser_Handler,
+		},
+		{
+			MethodName: "UploadRecommendUser",
+			Handler:    _App_UploadRecommendUser_Handler,
 		},
 		{
 			MethodName: "AdminLocationList",

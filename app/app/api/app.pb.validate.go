@@ -2808,6 +2808,210 @@ var _ interface {
 	ErrorName() string
 } = CheckAndInsertLocationsRecommendUserReplyValidationError{}
 
+// Validate checks the field values on UploadRecommendUserRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadRecommendUserRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadRecommendUserRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadRecommendUserRequestMultiError, or nil if none found.
+func (m *UploadRecommendUserRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadRecommendUserRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UploadRecommendUserRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadRecommendUserRequestMultiError is an error wrapping multiple
+// validation errors returned by UploadRecommendUserRequest.ValidateAll() if
+// the designated constraints aren't met.
+type UploadRecommendUserRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadRecommendUserRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadRecommendUserRequestMultiError) AllErrors() []error { return m }
+
+// UploadRecommendUserRequestValidationError is the validation error returned
+// by UploadRecommendUserRequest.Validate if the designated constraints aren't met.
+type UploadRecommendUserRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadRecommendUserRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadRecommendUserRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadRecommendUserRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadRecommendUserRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadRecommendUserRequestValidationError) ErrorName() string {
+	return "UploadRecommendUserRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadRecommendUserRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadRecommendUserRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadRecommendUserRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadRecommendUserRequestValidationError{}
+
+// Validate checks the field values on UploadRecommendUserReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadRecommendUserReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadRecommendUserReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadRecommendUserReplyMultiError, or nil if none found.
+func (m *UploadRecommendUserReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadRecommendUserReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UploadRecommendUserReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadRecommendUserReplyMultiError is an error wrapping multiple validation
+// errors returned by UploadRecommendUserReply.ValidateAll() if the designated
+// constraints aren't met.
+type UploadRecommendUserReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadRecommendUserReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadRecommendUserReplyMultiError) AllErrors() []error { return m }
+
+// UploadRecommendUserReplyValidationError is the validation error returned by
+// UploadRecommendUserReply.Validate if the designated constraints aren't met.
+type UploadRecommendUserReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadRecommendUserReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadRecommendUserReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadRecommendUserReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadRecommendUserReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadRecommendUserReplyValidationError) ErrorName() string {
+	return "UploadRecommendUserReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadRecommendUserReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadRecommendUserReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadRecommendUserReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadRecommendUserReplyValidationError{}
+
 // Validate checks the field values on AdminUserListRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
