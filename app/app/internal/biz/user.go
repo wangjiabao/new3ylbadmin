@@ -2917,6 +2917,6 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		userAddressRecommendSlice = append(userAddressRecommendSlice, tmpUser.Address)
 		fmt.Println(user.Address, tmpUser.Address)
 	}
-
+	fmt.Println(len(userAddressSlice), len(userAddressRecommendSlice))
 	return &v1.UploadRecommendUserReply{}, nil
 }
