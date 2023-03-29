@@ -2861,6 +2861,7 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		}
 
 		if !tmpDo {
+			fmt.Println(user.ID)
 			return nil, errors.New(500, "USER_ERROR", "位置错乱")
 		}
 
