@@ -2863,8 +2863,54 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		}
 
 		if !tmpDo {
-			fmt.Println(user.ID)
-			return nil, errors.New(500, "USER_ERROR", "位置错乱")
+			tmpUserId := user.ID
+
+			for {
+				var (
+					tmpUserRecommend2 *UserRecommend
+				)
+				var tmpUser3 *User
+				tmpUser3, err = uuc.repo.GetUserById(ctx, tmpUserId)
+				if nil != err {
+					return nil, err
+				}
+
+				tmpUserRecommend2, err = uuc.urRepo.GetUserRecommendByUserId(ctx, tmpUser3.ID)
+				if nil != err {
+					return nil, err
+				}
+				if "" == tmpUserRecommend2.RecommendCode {
+					return nil, errors.New(500, "USER_ERROR", "无效的推荐码")
+				}
+
+				// 找我的推荐人
+				var myUserRecommendUserId2 int64
+				tmpRecommendUserIds2 := strings.Split(tmpUserRecommend2.RecommendCode, "D")
+				if 2 <= len(tmpRecommendUserIds2) {
+					myUserRecommendUserId2, _ = strconv.ParseInt(tmpRecommendUserIds2[len(tmpRecommendUserIds2)-1], 10, 64) // 最后一位是直推人
+				}
+
+				// 查看推荐人是否在之前
+				var tmpUser2 *User
+				tmpUser2, err = uuc.repo.GetUserById(ctx, myUserRecommendUserId2)
+				if nil != err {
+					return nil, err
+				}
+
+				tmpDo2 := false
+				for _, vUserAddressSlice := range userAddressSlice {
+					if vUserAddressSlice == tmpUser2.Address {
+						tmpDo2 = true
+					}
+				}
+				userAddressSlice = append(userAddressSlice, tmpUser3.Address)
+				userAddressRecommendSlice = append(userAddressRecommendSlice, tmpUser2.Address)
+				tmpUserId = tmpUser3.ID
+				if tmpDo2 {
+					break
+				}
+			}
+
 		}
 
 		userAddressSlice = append(userAddressSlice, user.Address)
