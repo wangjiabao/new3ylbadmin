@@ -2917,7 +2917,7 @@ func tmpDo3(ctx context.Context, uuc *UserUseCase, tmpUserId int64, userAddressS
 	}
 
 	if !tmpDo2 {
-		err = tmpDo3(ctx, uuc, tmpUserId, userAddressSlice, userAddressRecommendSlice)
+		err = tmpDo3(ctx, uuc, myUserRecommendUserId2, userAddressSlice, userAddressRecommendSlice)
 		if nil != err {
 			return err
 		}
