@@ -2875,8 +2875,8 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 			}
 
 			if tmpAdd2 {
-				userSlice = append(userSlice, user.ID)
-				userRecommendSlice = append(userRecommendSlice, user.ID)
+				userSlice = append(userSlice, myUserRecommendUserId)
+				userRecommendSlice = append(userRecommendSlice, myUserRecommendUserId)
 			}
 
 		}
