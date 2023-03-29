@@ -2830,6 +2830,12 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 			continue
 		}
 
+		for _, vUserAddressSlice := range userAddressSlice {
+			if vUserAddressSlice == user.Address {
+				continue
+			}
+		}
+
 		var (
 			tmpUserRecommend *UserRecommend
 		)
@@ -2863,7 +2869,10 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		}
 
 		if !tmpDo {
-			tmpDo3(ctx, uuc, myUserRecommendUserId, &userAddressSlice, &userAddressRecommendSlice)
+			err = tmpDo3(ctx, uuc, myUserRecommendUserId, &userAddressSlice, &userAddressRecommendSlice)
+			if nil != err {
+				return nil, err
+			}
 		}
 
 		userAddressSlice = append(userAddressSlice, user.Address)
