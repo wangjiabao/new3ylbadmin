@@ -2811,17 +2811,25 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 
 func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {
 	var (
-		users []*User
-		err   error
+		users    []*User
+		usersMap map[int64]*User
+		err      error
 	)
 	users, err = uuc.repo.GetAllUsers(ctx)
 	if nil != err {
 		return nil, err
 	}
 
+	usersMap = make(map[int64]*User, 0)
+	for _, vUsers := range users {
+		usersMap[vUsers.ID] = vUsers
+	}
+
 	// 创建记录
 	userSlice := make([]int64, 0)
 	userRecommendSlice := make([]int64, 0)
+	userAddressSlice := make([]string, 0)
+	userAddressRecommendSlice := make([]string, 0)
 	for _, user := range users {
 		if 1 == user.ID {
 			continue
@@ -2881,6 +2889,15 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 			if tmpAdd2 {
 				userSlice = append(userSlice, myUserRecommendUserId)
 				userRecommendSlice = append(userRecommendSlice, tmpMyRecommendUserId)
+
+				if _, ok := usersMap[myUserRecommendUserId]; !ok {
+					return nil, errors.New(500, "USER_ERROR", "错误2")
+				}
+				if _, ok := usersMap[tmpMyRecommendUserId]; !ok {
+					return nil, errors.New(500, "USER_ERROR", "错误2")
+				}
+				userAddressSlice = append(userAddressSlice, usersMap[myUserRecommendUserId].Address)
+				userAddressRecommendSlice = append(userAddressRecommendSlice, usersMap[tmpMyRecommendUserId].Address)
 			}
 		}
 
@@ -2894,10 +2911,18 @@ func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadR
 		if tmpAdd {
 			userSlice = append(userSlice, user.ID)
 			userRecommendSlice = append(userRecommendSlice, userRecommendUserId)
+			if _, ok := usersMap[user.ID]; !ok {
+				return nil, errors.New(500, "USER_ERROR", "错误2")
+			}
+			if _, ok := usersMap[userRecommendUserId]; !ok {
+				return nil, errors.New(500, "USER_ERROR", "错误2")
+			}
+			userAddressSlice = append(userAddressSlice, usersMap[user.ID].Address)
+			userAddressRecommendSlice = append(userAddressRecommendSlice, usersMap[userRecommendUserId].Address)
 		}
 	}
 
-	fmt.Println(userSlice, userRecommendSlice)
+	fmt.Println(userSlice, userRecommendSlice, userAddressSlice, userAddressRecommendSlice)
 	fmt.Println(len(userSlice), len(userRecommendSlice))
 
 	return &v1.UploadRecommendUserReply{}, nil
