@@ -545,7 +545,11 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		err          error
 	)
 
+	end := time.Now().Add(50 * time.Second)
 	for {
+		if time.Now().After(end) {
+			break
+		}
 
 		withdraw, err = a.uuc.GetWithdrawPassOrRewardedFirst(ctx)
 		if nil == withdraw {
