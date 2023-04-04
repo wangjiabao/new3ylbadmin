@@ -574,11 +574,14 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 			continue
 		}
 
+		withDrawAmount := ""
 		if "dhb" == withdraw.Type {
 			tokenAddress = "0x0f97F5da8C4715D017F597314DCCd00E0D605Ed8"
+			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "usdt" == withdraw.Type {
 			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
 			tokenAddress = "0x55d398326f99059fF775485246999027B3197955"
+			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else {
 			continue
 		}
@@ -587,8 +590,6 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		if nil != err {
 			continue
 		}
-
-		withDrawAmount := strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
 
 		for i := 0; i < 3; i++ {
 			//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
