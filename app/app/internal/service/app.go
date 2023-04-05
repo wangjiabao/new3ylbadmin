@@ -597,16 +597,16 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		for i := 0; i < 3; i++ {
 			if "bnb" == withdraw.Type {
 				fmt.Println(withDrawAmount)
-				//_, _, err = toBnB(users[withdraw.UserId].Address, "", withDrawAmount)
-				//if nil != err {
-				//	fmt.Println(5555, err)
-				//	time.Sleep(3 * time.Second)
-				//	continue
-				//} else {
-				//	_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
-				//	//time.Sleep(3 * time.Second)
-				//	break
-				//}
+				_, _, err = toBnB(users[withdraw.UserId].Address, "", withDrawAmount)
+				if nil != err {
+					fmt.Println(5555, err)
+					time.Sleep(3 * time.Second)
+					continue
+				} else {
+					_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
+					//time.Sleep(3 * time.Second)
+					break
+				}
 			} else {
 				//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
 				_, _, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, tokenAddress)
