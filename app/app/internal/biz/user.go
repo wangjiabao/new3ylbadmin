@@ -1874,7 +1874,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 
 		currentValue = withdraw.Amount
 
-		if "dhb" == withdraw.Type { // 提现dhb
+		if "dhb" == withdraw.Type || "bnb" == withdraw.Type { // 提现dhb
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 				_, err = uuc.ubRepo.UpdateWithdraw(ctx, withdraw.ID, "pass")
 				if nil != err {
