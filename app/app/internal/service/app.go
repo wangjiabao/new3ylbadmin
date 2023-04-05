@@ -582,6 +582,9 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
 			tokenAddress = "0x55d398326f99059fF775485246999027B3197955"
 			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
+		} else if "bnb" == withdraw.Type {
+			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else {
 			continue
 		}
@@ -592,23 +595,38 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		}
 
 		for i := 0; i < 3; i++ {
-			//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
-			_, _, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, tokenAddress)
-			fmt.Println(3333, err)
-			if err == nil {
-				_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
-				//time.Sleep(3 * time.Second)
-				break
-			} else if "insufficient funds for gas * price + value" == err.Error() {
-				_, _, err = toBnB("0xe865f2e5ff04B8b7952d1C0d9163A91F313b158f", "", 400000000000000000)
-				if nil != err {
-					fmt.Println(5555, err)
-					continue
-				}
-				time.Sleep(7 * time.Second)
+			if "bnb" == withdraw.Type {
+				fmt.Println(withDrawAmount)
+				//_, _, err = toBnB(users[withdraw.UserId].Address, "", withDrawAmount)
+				//if nil != err {
+				//	fmt.Println(5555, err)
+				//	time.Sleep(3 * time.Second)
+				//	continue
+				//} else {
+				//	_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
+				//	//time.Sleep(3 * time.Second)
+				//	break
+				//}
 			} else {
-				time.Sleep(3 * time.Second)
+				//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
+				_, _, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, tokenAddress)
+				fmt.Println(3333, err)
+				if err == nil {
+					_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
+					//time.Sleep(3 * time.Second)
+					break
+				} else if "insufficient funds for gas * price + value" == err.Error() {
+					//_, _, err = toBnB("", "", 400000000000000000)
+					//if nil != err {
+					//	fmt.Println(5555, err)
+					//	continue
+					//}
+					time.Sleep(7 * time.Second)
+				} else {
+					time.Sleep(3 * time.Second)
+				}
 			}
+
 		}
 
 		// 清空bnb
@@ -636,7 +654,7 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 	return &v1.AdminWithdrawEthReply{}, nil
 }
 
-func toBnB(toAccount string, fromPrivateKey string, toAmount int64) (bool, string, error) {
+func toBnB(toAccount string, fromPrivateKey string, toAmount string) (bool, string, error) {
 	//client, err := ethclient.Dial("https://data-seed-prebsc-1-s3.binance.org:8545/")
 	client, err := ethclient.Dial("https://bsc-dataseed.binance.org/")
 	if err != nil {
@@ -658,7 +676,8 @@ func toBnB(toAccount string, fromPrivateKey string, toAmount int64) (bool, strin
 		return false, "", err
 	}
 
-	value := big.NewInt(toAmount) // in wei (1 eth) 最低0.03bnb才能转账
+	value := new(big.Int)
+	value.SetString(toAmount, 10) // 提现的金额恢复
 	fmt.Println(value)
 	gasLimit := uint64(210000) // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
