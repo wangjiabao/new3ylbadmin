@@ -67,6 +67,7 @@ type LocationRepo interface {
 	GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64, locationRowConfig int64) ([]*Location, error)
 	GetRewardLocationByIds(ctx context.Context, ids ...int64) (map[int64]*Location, error)
 	UpdateLocation(ctx context.Context, id int64, status string, current int64, stopDate time.Time) error
+	UpdateSubCurrentLocation(ctx context.Context, id int64, amount int64) error
 	GetLocations(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	GetLocationsAll(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	UpdateLocationRowAndCol(ctx context.Context, id int64) error

@@ -482,6 +482,18 @@ func (lr *LocationRepo) UpdateLocation(ctx context.Context, id int64, status str
 	return nil
 }
 
+// UpdateSubCurrentLocation .
+func (lr *LocationRepo) UpdateSubCurrentLocation(ctx context.Context, id int64, amount int64) error {
+	res := lr.data.DB(ctx).Table("location").
+		Where("id=?", id).
+		Updates(map[string]interface{}{"current": gorm.Expr("current - ?", amount)})
+	if 0 == res.RowsAffected || res.Error != nil {
+		return res.Error
+	}
+
+	return nil
+}
+
 // UpdateLocationRowAndCol 事务中使用 .
 func (lr *LocationRepo) UpdateLocationRowAndCol(ctx context.Context, id int64) error {
 

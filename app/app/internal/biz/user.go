@@ -2833,6 +2833,14 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		}
 		fmt.Println(total, vLocations.UserId, vLocations.Current)
 
+		if vLocations.Current > total {
+			tmp := vLocations.Current - total
+			err = uuc.locationRepo.UpdateSubCurrentLocation(ctx, vLocations.ID, tmp)
+			if nil != err {
+				fmt.Println("更新失败", vLocations.ID)
+				return nil, errors.New(500, "err", "失败更新")
+			}
+		}
 	}
 
 	return &v1.FixRewardReply{}, nil
