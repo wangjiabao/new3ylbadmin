@@ -217,7 +217,7 @@ func (lr *LocationRepo) GetLocationsRunningLast(ctx context.Context, id1 int64, 
 		Where("id>=?", id1).
 		Where("id<=?", id2).
 		Where("status=?", "running").
-		Order("id desc").First(&location).Error; err != nil {
+		Order("id desc").Find(&location).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, errors.NotFound("LOCATION_NOT_FOUND", "location not found")
 		}
