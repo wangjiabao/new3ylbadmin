@@ -2512,7 +2512,7 @@ func (ub UserBalanceRepo) GetUserRewardTotal(ctx context.Context, userId int64) 
 		Where("user_id=?", userId).
 		Select("sum(amount) as total").Take(&total).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return total.Total, errors.NotFound("USER_BALANCE_RECORD_NOT_FOUND", "user balance not found")
+			return total.Total, nil
 		}
 
 		return total.Total, errors.New(500, "USER BALANCE RECORD ERROR", err.Error())

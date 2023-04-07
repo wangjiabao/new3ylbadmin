@@ -2812,38 +2812,27 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 
 func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest) (*v1.FixRewardReply, error) {
 	var (
-		users []*User
-		err   error
+		locations []*Location
+		err       error
 	)
 
-	users, err = uuc.repo.GetAllUsers(ctx)
-	if nil != err {
-		return nil, err
-	}
+	locations, err = uuc.locationRepo.GetLocationsRunningLast(ctx, req.Id1, req.Id2)
 
-	for _, user := range users {
+	for _, vLocations := range locations {
+		var total int64
 
-		var (
-			location *Location
-			total    int64
-		)
-
-		location, err = uuc.locationRepo.GetMyLocationRunningLast(ctx, user.ID)
-		if nil == location {
-			continue
+		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, vLocations.UserId)
+		if nil != err {
+			return nil, errors.New(500, "err", "查询错误")
 		}
 
-		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, user.ID)
-		if nil == location {
-			continue
-		}
-
-		if total > location.Current {
+		if total > vLocations.Current {
 			fmt.Println("aaaaa")
 		} else {
 			fmt.Println("bbbbb")
 		}
-		fmt.Println(total, user.ID, user.Address, location.Current)
+		fmt.Println(total, vLocations.UserId, vLocations.Current)
+
 	}
 
 	return &v1.FixRewardReply{}, nil

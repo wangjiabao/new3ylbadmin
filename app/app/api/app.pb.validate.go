@@ -9006,6 +9006,10 @@ func (m *FixRewardRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Id1
+
+	// no validation rules for Id2
+
 	if len(errors) > 0 {
 		return FixRewardRequestMultiError(errors)
 	}
