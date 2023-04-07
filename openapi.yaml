@@ -371,6 +371,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/fix_reward:
+        get:
+            tags:
+                - App
+            operationId: App_FixReward
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FixRewardReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/level_update:
         post:
             tags:
@@ -1378,6 +1396,9 @@ components:
                     type: string
                 amount:
                     type: string
+        FixRewardReply:
+            type: object
+            properties: {}
         GoogleProtobufAny:
             type: object
             properties:

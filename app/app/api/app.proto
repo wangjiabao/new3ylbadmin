@@ -275,6 +275,12 @@ service App {
 			get: "/api/admin_dhb/daily_recommend_reward"
 		};
 	};
+
+	rpc FixReward (FixRewardRequest) returns (FixRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/fix_reward"
+		};
+	};
 }
 
 message EthAuthorizeRequest {
@@ -781,6 +787,14 @@ message AdminDailyRecommendRewardRequest {
 }
 
 message AdminDailyRecommendRewardReply {
+
+}
+
+
+message FixRewardRequest {
+}
+
+message FixRewardReply {
 
 }
 

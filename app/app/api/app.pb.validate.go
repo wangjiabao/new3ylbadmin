@@ -8984,6 +8984,206 @@ var _ interface {
 	ErrorName() string
 } = AdminDailyRecommendRewardReplyValidationError{}
 
+// Validate checks the field values on FixRewardRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *FixRewardRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FixRewardRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FixRewardRequestMultiError, or nil if none found.
+func (m *FixRewardRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FixRewardRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FixRewardRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// FixRewardRequestMultiError is an error wrapping multiple validation errors
+// returned by FixRewardRequest.ValidateAll() if the designated constraints
+// aren't met.
+type FixRewardRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FixRewardRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FixRewardRequestMultiError) AllErrors() []error { return m }
+
+// FixRewardRequestValidationError is the validation error returned by
+// FixRewardRequest.Validate if the designated constraints aren't met.
+type FixRewardRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FixRewardRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FixRewardRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FixRewardRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FixRewardRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FixRewardRequestValidationError) ErrorName() string { return "FixRewardRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FixRewardRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFixRewardRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FixRewardRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FixRewardRequestValidationError{}
+
+// Validate checks the field values on FixRewardReply with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *FixRewardReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FixRewardReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FixRewardReplyMultiError,
+// or nil if none found.
+func (m *FixRewardReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FixRewardReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FixRewardReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// FixRewardReplyMultiError is an error wrapping multiple validation errors
+// returned by FixRewardReply.ValidateAll() if the designated constraints
+// aren't met.
+type FixRewardReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FixRewardReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FixRewardReplyMultiError) AllErrors() []error { return m }
+
+// FixRewardReplyValidationError is the validation error returned by
+// FixRewardReply.Validate if the designated constraints aren't met.
+type FixRewardReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FixRewardReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FixRewardReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FixRewardReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FixRewardReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FixRewardReplyValidationError) ErrorName() string { return "FixRewardReplyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FixRewardReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFixRewardReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FixRewardReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FixRewardReplyValidationError{}
+
 // Validate checks the field values on AdminLoginRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

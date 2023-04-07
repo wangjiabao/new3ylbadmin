@@ -2505,6 +2505,22 @@ func (ub UserBalanceRepo) GetSystemRewardUsdtTotal(ctx context.Context) (int64, 
 	return total.Total, nil
 }
 
+// GetUserRewardTotal .
+func (ub UserBalanceRepo) GetUserRewardTotal(ctx context.Context, userId int64) (int64, error) {
+	var total UserBalanceTotal
+	if err := ub.data.db.Table("reward").
+		Where("user_id=?", userId).
+		Select("sum(amount) as total").Take(&total).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return total.Total, errors.NotFound("USER_BALANCE_RECORD_NOT_FOUND", "user balance not found")
+		}
+
+		return total.Total, errors.New(500, "USER BALANCE RECORD ERROR", err.Error())
+	}
+
+	return total.Total, nil
+}
+
 // GetUserInfoByUserIds .
 func (ui *UserInfoRepo) GetUserInfoByUserIds(ctx context.Context, userIds ...int64) (map[int64]*biz.UserInfo, error) {
 	var userInfos []*UserInfo

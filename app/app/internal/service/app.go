@@ -523,6 +523,10 @@ func (a *AppService) AdminBalanceUpdate(ctx context.Context, req *v1.AdminBalanc
 	return a.uuc.AdminBalanceUpdate(ctx, req)
 }
 
+func (a *AppService) FixReward(ctx context.Context, req *v1.FixRewardRequest) (*v1.FixRewardReply, error) {
+	return a.uuc.FixReward(ctx, req)
+}
+
 func (a *AppService) CheckAndInsertRecommendArea(ctx context.Context, req *v1.CheckAndInsertRecommendAreaRequest) (*v1.CheckAndInsertRecommendAreaReply, error) {
 	return a.uuc.CheckAndInsertRecommendArea(ctx, req)
 }

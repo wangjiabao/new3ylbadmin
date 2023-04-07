@@ -168,6 +168,7 @@ type UserBalanceRepo interface {
 	DepositDhb(ctx context.Context, userId int64, amount int64) (int64, error)
 	GetUserBalance(ctx context.Context, userId int64) (*UserBalance, error)
 	GetUserRewardByUserId(ctx context.Context, userId int64) ([]*Reward, error)
+	GetUserRewardTotal(ctx context.Context, userId int64) (int64, error)
 	GetUserRewards(ctx context.Context, b *Pagination, userId int64) ([]*Reward, error, int64)
 	GetUserRewardsLastMonthFee(ctx context.Context) ([]*Reward, error)
 	GetUserBalanceByUserIds(ctx context.Context, userIds ...int64) (map[int64]*UserBalance, error)
@@ -2807,6 +2808,45 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 	}
 
 	return &v1.CheckAndInsertLocationsRecommendUserReply{}, nil
+}
+
+func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest) (*v1.FixRewardReply, error) {
+	var (
+		users []*User
+		err   error
+	)
+
+	users, err = uuc.repo.GetAllUsers(ctx)
+	if nil != err {
+		return nil, err
+	}
+
+	for _, user := range users {
+
+		var (
+			location *Location
+			total    int64
+		)
+
+		location, err = uuc.locationRepo.GetMyLocationRunningLast(ctx, user.ID)
+		if nil == location {
+			continue
+		}
+
+		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, user.ID)
+		if nil == location {
+			continue
+		}
+
+		if total > location.Current {
+			fmt.Println("aaaaa")
+		} else {
+			fmt.Println("bbbbb")
+		}
+		fmt.Println(total, user.ID, user.Address, location.Current)
+	}
+
+	return &v1.FixRewardReply{}, nil
 }
 
 func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {

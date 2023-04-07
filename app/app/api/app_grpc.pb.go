@@ -63,6 +63,7 @@ type AppClient interface {
 	AuthAdminDelete(ctx context.Context, in *AuthAdminDeleteRequest, opts ...grpc.CallOption) (*AuthAdminDeleteReply, error)
 	CheckAndInsertRecommendArea(ctx context.Context, in *CheckAndInsertRecommendAreaRequest, opts ...grpc.CallOption) (*CheckAndInsertRecommendAreaReply, error)
 	AdminDailyRecommendReward(ctx context.Context, in *AdminDailyRecommendRewardRequest, opts ...grpc.CallOption) (*AdminDailyRecommendRewardReply, error)
+	FixReward(ctx context.Context, in *FixRewardRequest, opts ...grpc.CallOption) (*FixRewardReply, error)
 }
 
 type appClient struct {
@@ -442,6 +443,15 @@ func (c *appClient) AdminDailyRecommendReward(ctx context.Context, in *AdminDail
 	return out, nil
 }
 
+func (c *appClient) FixReward(ctx context.Context, in *FixRewardRequest, opts ...grpc.CallOption) (*FixRewardReply, error) {
+	out := new(FixRewardReply)
+	err := c.cc.Invoke(ctx, "/api.App/FixReward", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility
@@ -487,6 +497,7 @@ type AppServer interface {
 	AuthAdminDelete(context.Context, *AuthAdminDeleteRequest) (*AuthAdminDeleteReply, error)
 	CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error)
 	AdminDailyRecommendReward(context.Context, *AdminDailyRecommendRewardRequest) (*AdminDailyRecommendRewardReply, error)
+	FixReward(context.Context, *FixRewardRequest) (*FixRewardReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -616,6 +627,9 @@ func (UnimplementedAppServer) CheckAndInsertRecommendArea(context.Context, *Chec
 }
 func (UnimplementedAppServer) AdminDailyRecommendReward(context.Context, *AdminDailyRecommendRewardRequest) (*AdminDailyRecommendRewardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDailyRecommendReward not implemented")
+}
+func (UnimplementedAppServer) FixReward(context.Context, *FixRewardRequest) (*FixRewardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FixReward not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 
@@ -1368,6 +1382,24 @@ func _App_AdminDailyRecommendReward_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_FixReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FixRewardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).FixReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/FixReward",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).FixReward(ctx, req.(*FixRewardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1538,6 +1570,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminDailyRecommendReward",
 			Handler:    _App_AdminDailyRecommendReward_Handler,
+		},
+		{
+			MethodName: "FixReward",
+			Handler:    _App_FixReward_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
