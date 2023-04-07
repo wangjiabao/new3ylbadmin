@@ -66,10 +66,10 @@ func NewDB(c *conf.Data) *gorm.DB {
 	newLogger := logger.New(
 		slog.New(os.Stdout, "\r\n", slog.LstdFlags), // io writer
 		logger.Config{
-			SlowThreshold: time.Second, // 慢查询 SQL 阈值
-			Colorful:      true,        // 禁用彩色打印
-			//IgnoreRecordNotFoundError: false,
-			LogLevel: logger.Info, // Log lever
+			SlowThreshold:             30 * time.Second, // 慢查询 SQL 阈值
+			Colorful:                  true,             // 禁用彩色打印
+			IgnoreRecordNotFoundError: true,
+			LogLevel:                  logger.Error, // Log lever
 		},
 	)
 
