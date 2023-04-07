@@ -430,14 +430,14 @@ func (lr *LocationRepo) UnLockGlobalWithdraw(ctx context.Context) (bool, error) 
 func (lr *LocationRepo) UpdateLocation(ctx context.Context, id int64, status string, current int64, stopDate time.Time) error {
 
 	if "stop" == status {
-		res := lr.data.db.Table("location").
+		res := lr.data.DB(ctx).Table("location").
 			Where("id=?", id).
 			Updates(map[string]interface{}{"current": gorm.Expr("current + ?", current), "status": "stop", "stop_date": stopDate})
 		if 0 == res.RowsAffected || res.Error != nil {
 			return res.Error
 		}
 	} else {
-		res := lr.data.db.Table("location").
+		res := lr.data.DB(ctx).Table("location").
 			Where("id=?", id).
 			Where("status=?", "running").
 			Updates(map[string]interface{}{"current": gorm.Expr("current + ?", current), "status": status})
@@ -452,7 +452,7 @@ func (lr *LocationRepo) UpdateLocation(ctx context.Context, id int64, status str
 // UpdateLocationRowAndCol 事务中使用 .
 func (lr *LocationRepo) UpdateLocationRowAndCol(ctx context.Context, id int64) error {
 
-	if res := lr.data.db.Table("location").
+	if res := lr.data.DB(ctx).Table("location").
 		Where("id>?", id).
 		Where("col > 1").
 		Where("update_status=?", 0).
@@ -460,7 +460,7 @@ func (lr *LocationRepo) UpdateLocationRowAndCol(ctx context.Context, id int64) e
 		return res.Error
 	}
 
-	if res := lr.data.db.Table("location").
+	if res := lr.data.DB(ctx).Table("location").
 		Where("id>?", id).
 		Where("col = 1").
 		Where("update_status=?", 0).
@@ -468,13 +468,13 @@ func (lr *LocationRepo) UpdateLocationRowAndCol(ctx context.Context, id int64) e
 		return res.Error
 	}
 
-	if res := lr.data.db.Table("location").
+	if res := lr.data.DB(ctx).Table("location").
 		Where("id>?", id).
 		Updates(map[string]interface{}{"update_status": 0}); res.Error != nil {
 		return res.Error
 	}
 
-	if res := lr.data.db.Table("location").
+	if res := lr.data.DB(ctx).Table("location").
 		Where("id=?", id).
 		Updates(map[string]interface{}{"stop_is_update": 1}); res.Error != nil {
 		return res.Error
