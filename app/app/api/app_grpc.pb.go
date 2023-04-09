@@ -31,6 +31,7 @@ type AppClient interface {
 	Withdraw(ctx context.Context, in *WithdrawRequest, opts ...grpc.CallOption) (*WithdrawReply, error)
 	Deposit(ctx context.Context, in *DepositRequest, opts ...grpc.CallOption) (*DepositReply, error)
 	AdminRewardList(ctx context.Context, in *AdminRewardListRequest, opts ...grpc.CallOption) (*AdminRewardListReply, error)
+	AdminRewardBnbList(ctx context.Context, in *AdminRewardBnbListRequest, opts ...grpc.CallOption) (*AdminRewardBnbListReply, error)
 	AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error)
 	CheckAdminUserArea(ctx context.Context, in *CheckAdminUserAreaRequest, opts ...grpc.CallOption) (*CheckAdminUserAreaReply, error)
 	CheckAndInsertLocationsRecommendUser(ctx context.Context, in *CheckAndInsertLocationsRecommendUserRequest, opts ...grpc.CallOption) (*CheckAndInsertLocationsRecommendUserReply, error)
@@ -39,6 +40,7 @@ type AppClient interface {
 	AdminLocationAllList(ctx context.Context, in *AdminLocationAllListRequest, opts ...grpc.CallOption) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error)
 	AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error)
+	AdminWithdrawDoingToRewarded(ctx context.Context, in *AdminWithdrawDoingToRewardedRequest, opts ...grpc.CallOption) (*AdminWithdrawDoingToRewardedReply, error)
 	AdminWithdrawEth(ctx context.Context, in *AdminWithdrawEthRequest, opts ...grpc.CallOption) (*AdminWithdrawEthReply, error)
 	AdminFee(ctx context.Context, in *AdminFeeRequest, opts ...grpc.CallOption) (*AdminFeeReply, error)
 	AdminDailyFee(ctx context.Context, in *AdminDailyFeeRequest, opts ...grpc.CallOption) (*AdminDailyFeeReply, error)
@@ -155,6 +157,15 @@ func (c *appClient) AdminRewardList(ctx context.Context, in *AdminRewardListRequ
 	return out, nil
 }
 
+func (c *appClient) AdminRewardBnbList(ctx context.Context, in *AdminRewardBnbListRequest, opts ...grpc.CallOption) (*AdminRewardBnbListReply, error) {
+	out := new(AdminRewardBnbListReply)
+	err := c.cc.Invoke(ctx, "/api.App/AdminRewardBnbList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error) {
 	out := new(AdminUserListReply)
 	err := c.cc.Invoke(ctx, "/api.App/AdminUserList", in, out, opts...)
@@ -221,6 +232,15 @@ func (c *appClient) AdminWithdrawList(ctx context.Context, in *AdminWithdrawList
 func (c *appClient) AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error) {
 	out := new(AdminWithdrawReply)
 	err := c.cc.Invoke(ctx, "/api.App/AdminWithdraw", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminWithdrawDoingToRewarded(ctx context.Context, in *AdminWithdrawDoingToRewardedRequest, opts ...grpc.CallOption) (*AdminWithdrawDoingToRewardedReply, error) {
+	out := new(AdminWithdrawDoingToRewardedReply)
+	err := c.cc.Invoke(ctx, "/api.App/AdminWithdrawDoingToRewarded", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -465,6 +485,7 @@ type AppServer interface {
 	Withdraw(context.Context, *WithdrawRequest) (*WithdrawReply, error)
 	Deposit(context.Context, *DepositRequest) (*DepositReply, error)
 	AdminRewardList(context.Context, *AdminRewardListRequest) (*AdminRewardListReply, error)
+	AdminRewardBnbList(context.Context, *AdminRewardBnbListRequest) (*AdminRewardBnbListReply, error)
 	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
 	CheckAdminUserArea(context.Context, *CheckAdminUserAreaRequest) (*CheckAdminUserAreaReply, error)
 	CheckAndInsertLocationsRecommendUser(context.Context, *CheckAndInsertLocationsRecommendUserRequest) (*CheckAndInsertLocationsRecommendUserReply, error)
@@ -473,6 +494,7 @@ type AppServer interface {
 	AdminLocationAllList(context.Context, *AdminLocationAllListRequest) (*AdminLocationAllListReply, error)
 	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
 	AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error)
+	AdminWithdrawDoingToRewarded(context.Context, *AdminWithdrawDoingToRewardedRequest) (*AdminWithdrawDoingToRewardedReply, error)
 	AdminWithdrawEth(context.Context, *AdminWithdrawEthRequest) (*AdminWithdrawEthReply, error)
 	AdminFee(context.Context, *AdminFeeRequest) (*AdminFeeReply, error)
 	AdminDailyFee(context.Context, *AdminDailyFeeRequest) (*AdminDailyFeeReply, error)
@@ -532,6 +554,9 @@ func (UnimplementedAppServer) Deposit(context.Context, *DepositRequest) (*Deposi
 func (UnimplementedAppServer) AdminRewardList(context.Context, *AdminRewardListRequest) (*AdminRewardListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminRewardList not implemented")
 }
+func (UnimplementedAppServer) AdminRewardBnbList(context.Context, *AdminRewardBnbListRequest) (*AdminRewardBnbListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRewardBnbList not implemented")
+}
 func (UnimplementedAppServer) AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminUserList not implemented")
 }
@@ -555,6 +580,9 @@ func (UnimplementedAppServer) AdminWithdrawList(context.Context, *AdminWithdrawL
 }
 func (UnimplementedAppServer) AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdraw not implemented")
+}
+func (UnimplementedAppServer) AdminWithdrawDoingToRewarded(context.Context, *AdminWithdrawDoingToRewardedRequest) (*AdminWithdrawDoingToRewardedReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdrawDoingToRewarded not implemented")
 }
 func (UnimplementedAppServer) AdminWithdrawEth(context.Context, *AdminWithdrawEthRequest) (*AdminWithdrawEthReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdrawEth not implemented")
@@ -806,6 +834,24 @@ func _App_AdminRewardList_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminRewardBnbList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminRewardBnbListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminRewardBnbList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/AdminRewardBnbList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminRewardBnbList(ctx, req.(*AdminRewardBnbListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminUserListRequest)
 	if err := dec(in); err != nil {
@@ -946,6 +992,24 @@ func _App_AdminWithdraw_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AppServer).AdminWithdraw(ctx, req.(*AdminWithdrawRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminWithdrawDoingToRewarded_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminWithdrawDoingToRewardedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminWithdrawDoingToRewarded(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/AdminWithdrawDoingToRewarded",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminWithdrawDoingToRewarded(ctx, req.(*AdminWithdrawDoingToRewardedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1444,6 +1508,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _App_AdminRewardList_Handler,
 		},
 		{
+			MethodName: "AdminRewardBnbList",
+			Handler:    _App_AdminRewardBnbList_Handler,
+		},
+		{
 			MethodName: "AdminUserList",
 			Handler:    _App_AdminUserList_Handler,
 		},
@@ -1474,6 +1542,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminWithdraw",
 			Handler:    _App_AdminWithdraw_Handler,
+		},
+		{
+			MethodName: "AdminWithdrawDoingToRewarded",
+			Handler:    _App_AdminWithdrawDoingToRewarded_Handler,
 		},
 		{
 			MethodName: "AdminWithdrawEth",

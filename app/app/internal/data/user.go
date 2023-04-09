@@ -117,6 +117,15 @@ type Reward struct {
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
 }
 
+type BnbReward struct {
+	ID           int64     `gorm:"primarykey;type:int"`
+	UserId       int64     `gorm:"type:int;not null"`
+	BnbReward    float64   `gorm:"type:decimal(65,20);not null"`
+	BalanceTotal float64   `gorm:"type:decimal(65,20);not null"`
+	CreatedAt    time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt    time.Time `gorm:"type:datetime;not null"`
+}
+
 type Admin struct {
 	ID       int64  `gorm:"primarykey;type:int"`
 	Account  string `gorm:"type:varchar(100);not null"`
@@ -1327,6 +1336,26 @@ func (ub *UserBalanceRepo) UpdateWithdraw(ctx context.Context, id int64, status 
 	}, nil
 }
 
+// UpdateWithdrawDoingToRewarded .
+func (ub *UserBalanceRepo) UpdateWithdrawDoingToRewarded(ctx context.Context) error {
+	var withdraw Withdraw
+	withdraw.Status = "rewarded"
+	timeLimit := time.Now().UTC().Add(-20 * time.Minute)
+	res := ub.data.DB(ctx).Table("withdraw").
+		Where("status=?", "doing").
+		Where("created_at<=?", timeLimit).
+		Updates(&withdraw)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return nil
+		}
+
+		return errors.New(500, "CREATE_WITHDRAW_ERROR", "提现记录修改失败")
+	}
+
+	return nil
+}
+
 // UpdateWithdrawAmount .
 func (ub *UserBalanceRepo) UpdateWithdrawAmount(ctx context.Context, id int64, status string, amount int64) (*biz.Withdraw, error) {
 	var withdraw Withdraw
@@ -2181,6 +2210,41 @@ func (ub *UserBalanceRepo) GetUserRewardByUserId(ctx context.Context, userId int
 		})
 	}
 	return res, nil
+}
+
+// GetUserRewardsBnb .
+func (ub *UserBalanceRepo) GetUserRewardsBnb(ctx context.Context, b *biz.Pagination, userId int64) ([]*biz.BnbReward, error, int64) {
+	var (
+		rewards []*BnbReward
+		count   int64
+	)
+	res := make([]*biz.BnbReward, 0)
+
+	instance := ub.data.db.Table("bnb_reward")
+
+	if 0 < userId {
+		instance = instance.Where("user_id=?", userId)
+	}
+
+	instance = instance.Count(&count)
+	if err := instance.Scopes(Paginate(b.PageNum, b.PageSize)).Order("id desc").Find(&rewards).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.NotFound("REWARD_NOT_FOUND", "reward not found"), 0
+		}
+
+		return nil, errors.New(500, "REWARD ERROR", err.Error()), 0
+	}
+
+	for _, reward := range rewards {
+		res = append(res, &biz.BnbReward{
+			ID:           reward.ID,
+			UserId:       reward.UserId,
+			BalanceTotal: reward.BalanceTotal,
+			BnbReward:    reward.BnbReward,
+			CreatedAt:    reward.CreatedAt,
+		})
+	}
+	return res, nil, count
 }
 
 // GetUserRewards .

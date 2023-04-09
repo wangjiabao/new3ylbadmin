@@ -35,12 +35,14 @@ const OperationAppAdminLocationInsert = "/api.App/AdminLocationInsert"
 const OperationAppAdminLocationList = "/api.App/AdminLocationList"
 const OperationAppAdminLogin = "/api.App/AdminLogin"
 const OperationAppAdminMonthRecommend = "/api.App/AdminMonthRecommend"
+const OperationAppAdminRewardBnbList = "/api.App/AdminRewardBnbList"
 const OperationAppAdminRewardList = "/api.App/AdminRewardList"
 const OperationAppAdminUndoUpdate = "/api.App/AdminUndoUpdate"
 const OperationAppAdminUserList = "/api.App/AdminUserList"
 const OperationAppAdminUserRecommend = "/api.App/AdminUserRecommend"
 const OperationAppAdminVipUpdate = "/api.App/AdminVipUpdate"
 const OperationAppAdminWithdraw = "/api.App/AdminWithdraw"
+const OperationAppAdminWithdrawDoingToRewarded = "/api.App/AdminWithdrawDoingToRewarded"
 const OperationAppAdminWithdrawEth = "/api.App/AdminWithdrawEth"
 const OperationAppAdminWithdrawList = "/api.App/AdminWithdrawList"
 const OperationAppAuthAdminCreate = "/api.App/AuthAdminCreate"
@@ -79,12 +81,14 @@ type AppHTTPServer interface {
 	AdminLocationList(context.Context, *AdminLocationListRequest) (*AdminLocationListReply, error)
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
 	AdminMonthRecommend(context.Context, *AdminMonthRecommendRequest) (*AdminMonthRecommendReply, error)
+	AdminRewardBnbList(context.Context, *AdminRewardBnbListRequest) (*AdminRewardBnbListReply, error)
 	AdminRewardList(context.Context, *AdminRewardListRequest) (*AdminRewardListReply, error)
 	AdminUndoUpdate(context.Context, *AdminUndoUpdateRequest) (*AdminUndoUpdateReply, error)
 	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
 	AdminUserRecommend(context.Context, *AdminUserRecommendRequest) (*AdminUserRecommendReply, error)
 	AdminVipUpdate(context.Context, *AdminVipUpdateRequest) (*AdminVipUpdateReply, error)
 	AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error)
+	AdminWithdrawDoingToRewarded(context.Context, *AdminWithdrawDoingToRewardedRequest) (*AdminWithdrawDoingToRewardedReply, error)
 	AdminWithdrawEth(context.Context, *AdminWithdrawEthRequest) (*AdminWithdrawEthReply, error)
 	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
 	AuthAdminCreate(context.Context, *AuthAdminCreateRequest) (*AuthAdminCreateReply, error)
@@ -118,6 +122,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.POST("/api/app_server/withdraw", _App_Withdraw0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/deposit", _App_Deposit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/reward_list", _App_AdminRewardList0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/reward_bnb_list", _App_AdminRewardBnbList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/user_list", _App_AdminUserList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/check_admin_user_area", _App_CheckAdminUserArea0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/check_and_insert_locations_recommend_user", _App_CheckAndInsertLocationsRecommendUser0_HTTP_Handler(srv))
@@ -126,6 +131,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/location_all_list", _App_AdminLocationAllList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw", _App_AdminWithdraw0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/withdraw_doing_to_rewarded", _App_AdminWithdrawDoingToRewarded0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_eth", _App_AdminWithdrawEth0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/fee", _App_AdminFee0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily_fee", _App_AdminDailyFee0_HTTP_Handler(srv))
@@ -327,6 +333,25 @@ func _App_AdminRewardList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context
 	}
 }
 
+func _App_AdminRewardBnbList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminRewardBnbListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminRewardBnbList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminRewardBnbList(ctx, req.(*AdminRewardBnbListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminRewardBnbListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminUserList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminUserListRequest
@@ -475,6 +500,25 @@ func _App_AdminWithdraw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) 
 			return err
 		}
 		reply := out.(*AdminWithdrawReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminWithdrawDoingToRewarded0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminWithdrawDoingToRewardedRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminWithdrawDoingToRewarded)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminWithdrawDoingToRewarded(ctx, req.(*AdminWithdrawDoingToRewardedRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminWithdrawDoingToRewardedReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -1004,12 +1048,14 @@ type AppHTTPClient interface {
 	AdminLocationList(ctx context.Context, req *AdminLocationListRequest, opts ...http.CallOption) (rsp *AdminLocationListReply, err error)
 	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
 	AdminMonthRecommend(ctx context.Context, req *AdminMonthRecommendRequest, opts ...http.CallOption) (rsp *AdminMonthRecommendReply, err error)
+	AdminRewardBnbList(ctx context.Context, req *AdminRewardBnbListRequest, opts ...http.CallOption) (rsp *AdminRewardBnbListReply, err error)
 	AdminRewardList(ctx context.Context, req *AdminRewardListRequest, opts ...http.CallOption) (rsp *AdminRewardListReply, err error)
 	AdminUndoUpdate(ctx context.Context, req *AdminUndoUpdateRequest, opts ...http.CallOption) (rsp *AdminUndoUpdateReply, err error)
 	AdminUserList(ctx context.Context, req *AdminUserListRequest, opts ...http.CallOption) (rsp *AdminUserListReply, err error)
 	AdminUserRecommend(ctx context.Context, req *AdminUserRecommendRequest, opts ...http.CallOption) (rsp *AdminUserRecommendReply, err error)
 	AdminVipUpdate(ctx context.Context, req *AdminVipUpdateRequest, opts ...http.CallOption) (rsp *AdminVipUpdateReply, err error)
 	AdminWithdraw(ctx context.Context, req *AdminWithdrawRequest, opts ...http.CallOption) (rsp *AdminWithdrawReply, err error)
+	AdminWithdrawDoingToRewarded(ctx context.Context, req *AdminWithdrawDoingToRewardedRequest, opts ...http.CallOption) (rsp *AdminWithdrawDoingToRewardedReply, err error)
 	AdminWithdrawEth(ctx context.Context, req *AdminWithdrawEthRequest, opts ...http.CallOption) (rsp *AdminWithdrawEthReply, err error)
 	AdminWithdrawList(ctx context.Context, req *AdminWithdrawListRequest, opts ...http.CallOption) (rsp *AdminWithdrawListReply, err error)
 	AuthAdminCreate(ctx context.Context, req *AuthAdminCreateRequest, opts ...http.CallOption) (rsp *AuthAdminCreateReply, err error)
@@ -1248,6 +1294,19 @@ func (c *AppHTTPClientImpl) AdminMonthRecommend(ctx context.Context, in *AdminMo
 	return &out, err
 }
 
+func (c *AppHTTPClientImpl) AdminRewardBnbList(ctx context.Context, in *AdminRewardBnbListRequest, opts ...http.CallOption) (*AdminRewardBnbListReply, error) {
+	var out AdminRewardBnbListReply
+	pattern := "/api/admin_dhb/reward_bnb_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminRewardBnbList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AppHTTPClientImpl) AdminRewardList(ctx context.Context, in *AdminRewardListRequest, opts ...http.CallOption) (*AdminRewardListReply, error) {
 	var out AdminRewardListReply
 	pattern := "/api/admin_dhb/reward_list"
@@ -1318,6 +1377,19 @@ func (c *AppHTTPClientImpl) AdminWithdraw(ctx context.Context, in *AdminWithdraw
 	pattern := "/api/admin_dhb/withdraw"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminWithdraw))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminWithdrawDoingToRewarded(ctx context.Context, in *AdminWithdrawDoingToRewardedRequest, opts ...http.CallOption) (*AdminWithdrawDoingToRewardedReply, error) {
+	var out AdminWithdrawDoingToRewardedReply
+	pattern := "/api/admin_dhb/withdraw_doing_to_rewarded"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminWithdrawDoingToRewarded))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

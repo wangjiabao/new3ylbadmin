@@ -407,6 +407,10 @@ func (a *AppService) AdminRewardList(ctx context.Context, req *v1.AdminRewardLis
 	return a.uuc.AdminRewardList(ctx, req)
 }
 
+func (a *AppService) AdminRewardBnbList(ctx context.Context, req *v1.AdminRewardBnbListRequest) (*v1.AdminRewardBnbListReply, error) {
+	return a.uuc.AdminRewardBnbList(ctx, req)
+}
+
 func (a *AppService) AdminUserList(ctx context.Context, req *v1.AdminUserListRequest) (*v1.AdminUserListReply, error) {
 	return a.uuc.AdminUserList(ctx, req)
 }
@@ -537,6 +541,19 @@ func (a *AppService) AdminDailyRecommendReward(ctx context.Context, req *v1.Admi
 
 func (a *AppService) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {
 	return a.uuc.UploadRecommendUser(ctx, req)
+}
+
+func (a *AppService) AdminWithdrawDoingToRewarded(ctx context.Context, req *v1.AdminWithdrawDoingToRewardedRequest) (*v1.AdminWithdrawDoingToRewardedReply, error) {
+	var (
+		err error
+	)
+
+	err = a.uuc.UpdateWithdrawDoingToRewarded(ctx)
+	if nil != err {
+		return nil, err
+	}
+
+	return &v1.AdminWithdrawDoingToRewardedReply{}, nil
 }
 
 func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdrawEthRequest) (*v1.AdminWithdrawEthReply, error) {

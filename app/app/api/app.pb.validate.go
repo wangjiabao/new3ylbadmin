@@ -2392,6 +2392,250 @@ var _ interface {
 	ErrorName() string
 } = AdminRewardListReplyValidationError{}
 
+// Validate checks the field values on AdminRewardBnbListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminRewardBnbListRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminRewardBnbListRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminRewardBnbListRequestMultiError, or nil if none found.
+func (m *AdminRewardBnbListRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminRewardBnbListRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Page
+
+	// no validation rules for Address
+
+	if len(errors) > 0 {
+		return AdminRewardBnbListRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminRewardBnbListRequestMultiError is an error wrapping multiple validation
+// errors returned by AdminRewardBnbListRequest.ValidateAll() if the
+// designated constraints aren't met.
+type AdminRewardBnbListRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminRewardBnbListRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminRewardBnbListRequestMultiError) AllErrors() []error { return m }
+
+// AdminRewardBnbListRequestValidationError is the validation error returned by
+// AdminRewardBnbListRequest.Validate if the designated constraints aren't met.
+type AdminRewardBnbListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminRewardBnbListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminRewardBnbListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminRewardBnbListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminRewardBnbListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminRewardBnbListRequestValidationError) ErrorName() string {
+	return "AdminRewardBnbListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminRewardBnbListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminRewardBnbListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminRewardBnbListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminRewardBnbListRequestValidationError{}
+
+// Validate checks the field values on AdminRewardBnbListReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminRewardBnbListReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminRewardBnbListReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminRewardBnbListReplyMultiError, or nil if none found.
+func (m *AdminRewardBnbListReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminRewardBnbListReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetRewards() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AdminRewardBnbListReplyValidationError{
+						field:  fmt.Sprintf("Rewards[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AdminRewardBnbListReplyValidationError{
+						field:  fmt.Sprintf("Rewards[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AdminRewardBnbListReplyValidationError{
+					field:  fmt.Sprintf("Rewards[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Count
+
+	if len(errors) > 0 {
+		return AdminRewardBnbListReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminRewardBnbListReplyMultiError is an error wrapping multiple validation
+// errors returned by AdminRewardBnbListReply.ValidateAll() if the designated
+// constraints aren't met.
+type AdminRewardBnbListReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminRewardBnbListReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminRewardBnbListReplyMultiError) AllErrors() []error { return m }
+
+// AdminRewardBnbListReplyValidationError is the validation error returned by
+// AdminRewardBnbListReply.Validate if the designated constraints aren't met.
+type AdminRewardBnbListReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminRewardBnbListReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminRewardBnbListReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminRewardBnbListReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminRewardBnbListReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminRewardBnbListReplyValidationError) ErrorName() string {
+	return "AdminRewardBnbListReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminRewardBnbListReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminRewardBnbListReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminRewardBnbListReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminRewardBnbListReplyValidationError{}
+
 // Validate checks the field values on CheckAdminUserAreaRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -4196,6 +4440,216 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminWithdrawReplyValidationError{}
+
+// Validate checks the field values on AdminWithdrawDoingToRewardedRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AdminWithdrawDoingToRewardedRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminWithdrawDoingToRewardedRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AdminWithdrawDoingToRewardedRequestMultiError, or nil if none found.
+func (m *AdminWithdrawDoingToRewardedRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminWithdrawDoingToRewardedRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminWithdrawDoingToRewardedRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminWithdrawDoingToRewardedRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// AdminWithdrawDoingToRewardedRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AdminWithdrawDoingToRewardedRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminWithdrawDoingToRewardedRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminWithdrawDoingToRewardedRequestMultiError) AllErrors() []error { return m }
+
+// AdminWithdrawDoingToRewardedRequestValidationError is the validation error
+// returned by AdminWithdrawDoingToRewardedRequest.Validate if the designated
+// constraints aren't met.
+type AdminWithdrawDoingToRewardedRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminWithdrawDoingToRewardedRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminWithdrawDoingToRewardedRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminWithdrawDoingToRewardedRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminWithdrawDoingToRewardedRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminWithdrawDoingToRewardedRequestValidationError) ErrorName() string {
+	return "AdminWithdrawDoingToRewardedRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminWithdrawDoingToRewardedRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminWithdrawDoingToRewardedRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminWithdrawDoingToRewardedRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminWithdrawDoingToRewardedRequestValidationError{}
+
+// Validate checks the field values on AdminWithdrawDoingToRewardedReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AdminWithdrawDoingToRewardedReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminWithdrawDoingToRewardedReply
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AdminWithdrawDoingToRewardedReplyMultiError, or nil if none found.
+func (m *AdminWithdrawDoingToRewardedReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminWithdrawDoingToRewardedReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminWithdrawDoingToRewardedReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminWithdrawDoingToRewardedReplyMultiError is an error wrapping multiple
+// validation errors returned by
+// AdminWithdrawDoingToRewardedReply.ValidateAll() if the designated
+// constraints aren't met.
+type AdminWithdrawDoingToRewardedReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminWithdrawDoingToRewardedReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminWithdrawDoingToRewardedReplyMultiError) AllErrors() []error { return m }
+
+// AdminWithdrawDoingToRewardedReplyValidationError is the validation error
+// returned by AdminWithdrawDoingToRewardedReply.Validate if the designated
+// constraints aren't met.
+type AdminWithdrawDoingToRewardedReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminWithdrawDoingToRewardedReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminWithdrawDoingToRewardedReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminWithdrawDoingToRewardedReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminWithdrawDoingToRewardedReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminWithdrawDoingToRewardedReplyValidationError) ErrorName() string {
+	return "AdminWithdrawDoingToRewardedReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminWithdrawDoingToRewardedReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminWithdrawDoingToRewardedReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminWithdrawDoingToRewardedReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminWithdrawDoingToRewardedReplyValidationError{}
 
 // Validate checks the field values on AdminWithdrawEthRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -10766,6 +11220,117 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AdminRewardListReply_ListValidationError{}
+
+// Validate checks the field values on AdminRewardBnbListReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminRewardBnbListReply_List) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminRewardBnbListReply_List with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AdminRewardBnbListReply_ListMultiError, or nil if none found.
+func (m *AdminRewardBnbListReply_List) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminRewardBnbListReply_List) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CreatedAt
+
+	// no validation rules for Amount
+
+	// no validation rules for BalanceAll
+
+	// no validation rules for Address
+
+	if len(errors) > 0 {
+		return AdminRewardBnbListReply_ListMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminRewardBnbListReply_ListMultiError is an error wrapping multiple
+// validation errors returned by AdminRewardBnbListReply_List.ValidateAll() if
+// the designated constraints aren't met.
+type AdminRewardBnbListReply_ListMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminRewardBnbListReply_ListMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminRewardBnbListReply_ListMultiError) AllErrors() []error { return m }
+
+// AdminRewardBnbListReply_ListValidationError is the validation error returned
+// by AdminRewardBnbListReply_List.Validate if the designated constraints
+// aren't met.
+type AdminRewardBnbListReply_ListValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminRewardBnbListReply_ListValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminRewardBnbListReply_ListValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminRewardBnbListReply_ListValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminRewardBnbListReply_ListValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminRewardBnbListReply_ListValidationError) ErrorName() string {
+	return "AdminRewardBnbListReply_ListValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminRewardBnbListReply_ListValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminRewardBnbListReply_List.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminRewardBnbListReply_ListValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminRewardBnbListReply_ListValidationError{}
 
 // Validate checks the field values on AdminUserListReply_UserList with the
 // rules defined in the proto definition for this message. If any rules are

@@ -22,6 +22,14 @@ type User struct {
 	CreatedAt time.Time
 }
 
+type BnbReward struct {
+	ID           int64
+	UserId       int64
+	BalanceTotal float64
+	BnbReward    float64
+	CreatedAt    time.Time
+}
+
 type Admin struct {
 	ID       int64
 	Password string
@@ -168,6 +176,7 @@ type UserBalanceRepo interface {
 	DepositDhb(ctx context.Context, userId int64, amount int64) (int64, error)
 	GetUserBalance(ctx context.Context, userId int64) (*UserBalance, error)
 	GetUserRewardByUserId(ctx context.Context, userId int64) ([]*Reward, error)
+	GetUserRewardsBnb(ctx context.Context, b *Pagination, userId int64) ([]*BnbReward, error, int64)
 	GetUserRewardTotal(ctx context.Context, userId int64) (int64, error)
 	GetUserRewards(ctx context.Context, b *Pagination, userId int64) ([]*Reward, error, int64)
 	GetUserRewardsLastMonthFee(ctx context.Context) ([]*Reward, error)
@@ -183,6 +192,7 @@ type UserBalanceRepo interface {
 	GetWithdrawPassOrRewarded(ctx context.Context) ([]*Withdraw, error)
 	GetWithdrawPassOrRewardedFirst(ctx context.Context) (*Withdraw, error)
 	UpdateWithdraw(ctx context.Context, id int64, status string) (*Withdraw, error)
+	UpdateWithdrawDoingToRewarded(ctx context.Context) error
 	GetWithdrawById(ctx context.Context, id int64) (*Withdraw, error)
 	GetWithdrawNotDeal(ctx context.Context) ([]*Withdraw, error)
 	GetUserBalanceRecordUsdtTotal(ctx context.Context) (int64, error)
@@ -545,6 +555,67 @@ func (uuc *UserUseCase) Withdraw(ctx context.Context, req *v1.WithdrawRequest, u
 	return &v1.WithdrawReply{
 		Status: "ok",
 	}, nil
+}
+
+func (uuc *UserUseCase) AdminRewardBnbList(ctx context.Context, req *v1.AdminRewardBnbListRequest) (*v1.AdminRewardBnbListReply, error) {
+	var (
+		userSearch  *User
+		userId      int64 = 0
+		userRewards []*BnbReward
+		users       map[int64]*User
+		userIdsMap  map[int64]int64
+		userIds     []int64
+		err         error
+		count       int64
+	)
+	res := &v1.AdminRewardBnbListReply{
+		Rewards: make([]*v1.AdminRewardBnbListReply_List, 0),
+	}
+
+	// 地址查询
+	if "" != req.Address {
+		userSearch, err = uuc.repo.GetUserByAddress(ctx, req.Address)
+		if nil != err {
+			return res, nil
+		}
+		userId = userSearch.ID
+	}
+
+	userRewards, err, count = uuc.ubRepo.GetUserRewardsBnb(ctx, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 10,
+	}, userId)
+	if nil != err {
+		return res, nil
+	}
+	res.Count = count
+
+	userIdsMap = make(map[int64]int64, 0)
+	for _, vUserReward := range userRewards {
+		userIdsMap[vUserReward.UserId] = vUserReward.UserId
+	}
+	for _, v := range userIdsMap {
+		userIds = append(userIds, v)
+	}
+
+	users, err = uuc.repo.GetUserByUserIds(ctx, userIds...)
+	for _, vUserReward := range userRewards {
+		tmpUser := ""
+		if nil != users {
+			if _, ok := users[vUserReward.UserId]; ok {
+				tmpUser = users[vUserReward.UserId].Address
+			}
+		}
+
+		res.Rewards = append(res.Rewards, &v1.AdminRewardBnbListReply_List{
+			CreatedAt:  vUserReward.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			Amount:     fmt.Sprintf("%.5f", vUserReward.BnbReward),
+			BalanceAll: fmt.Sprintf("%.5f", vUserReward.BalanceTotal),
+			Address:    tmpUser,
+		})
+	}
+
+	return res, nil
 }
 
 func (uuc *UserUseCase) AdminRewardList(ctx context.Context, req *v1.AdminRewardListRequest) (*v1.AdminRewardListReply, error) {
@@ -1474,6 +1545,10 @@ func (uuc *UserUseCase) GetWithdrawPassOrRewardedList(ctx context.Context) ([]*W
 
 func (uuc *UserUseCase) GetWithdrawPassOrRewardedFirst(ctx context.Context) (*Withdraw, error) {
 	return uuc.ubRepo.GetWithdrawPassOrRewardedFirst(ctx)
+}
+
+func (uuc *UserUseCase) UpdateWithdrawDoingToRewarded(ctx context.Context) error {
+	return uuc.ubRepo.UpdateWithdrawDoingToRewarded(ctx)
 }
 
 func (uuc *UserUseCase) UpdateWithdrawDoing(ctx context.Context, id int64) (*Withdraw, error) {

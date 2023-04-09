@@ -574,6 +574,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/reward_bnb_list:
+        get:
+            tags:
+                - App
+            operationId: App_AdminRewardBnbList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminRewardBnbListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/reward_list:
         get:
             tags:
@@ -765,6 +793,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminWithdrawReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/withdraw_doing_to_rewarded:
+        get:
+            tags:
+                - App
+            operationId: App_AdminWithdrawDoingToRewarded
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminWithdrawDoingToRewardedReply'
                 default:
                     description: Default error response
                     content:
@@ -1212,6 +1258,27 @@ components:
                     format: int64
                 createdAt:
                     type: string
+        AdminRewardBnbListReply:
+            type: object
+            properties:
+                rewards:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminRewardBnbListReply_List'
+                count:
+                    type: integer
+                    format: int64
+        AdminRewardBnbListReply_List:
+            type: object
+            properties:
+                createdAt:
+                    type: string
+                amount:
+                    type: string
+                balanceAll:
+                    type: string
+                address:
+                    type: string
         AdminRewardListReply:
             type: object
             properties:
@@ -1318,6 +1385,9 @@ components:
                 vip:
                     type: integer
                     format: int64
+        AdminWithdrawDoingToRewardedReply:
+            type: object
+            properties: {}
         AdminWithdrawEthReply:
             type: object
             properties: {}
