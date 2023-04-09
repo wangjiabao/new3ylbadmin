@@ -574,6 +574,14 @@ message AdminAllReply {
 	string allWithdraw = 7;
 	string allReward = 8;
 	string allSystemRewardAndFee = 9;
+
+	string allBalanceBnb = 11;
+	string allWithdrawBnb = 13;
+	string todayWithdrawBnb = 14;
+
+	string allWithdrawBnb4 = 15;
+	string todayWithdrawBnb4 = 16;
+	string allBalanceBnb4 = 12;
 }
 
 message AdminUserRecommendRequest {

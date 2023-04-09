@@ -4949,6 +4949,18 @@ func (m *AdminAllReply) validate(all bool) error {
 
 	// no validation rules for AllSystemRewardAndFee
 
+	// no validation rules for AllBalanceBnb
+
+	// no validation rules for AllWithdrawBnb
+
+	// no validation rules for TodayWithdrawBnb
+
+	// no validation rules for AllWithdrawBnb4
+
+	// no validation rules for TodayWithdrawBnb4
+
+	// no validation rules for AllBalanceBnb4
+
 	if len(errors) > 0 {
 		return AdminAllReplyMultiError(errors)
 	}

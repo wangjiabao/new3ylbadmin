@@ -992,6 +992,18 @@ components:
                     type: string
                 allSystemRewardAndFee:
                     type: string
+                allBalanceBnb:
+                    type: string
+                allWithdrawBnb:
+                    type: string
+                todayWithdrawBnb:
+                    type: string
+                allWithdrawBnb4:
+                    type: string
+                todayWithdrawBnb4:
+                    type: string
+                allBalanceBnb4:
+                    type: string
         AdminAreaLevelUpdateReply:
             type: object
             properties: {}
