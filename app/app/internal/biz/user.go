@@ -2974,13 +2974,14 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 						fmt.Println(22222, user.ID, tmpSub-(userLocations[0].CurrentMax-userLocations[0].Current))
 
 					} else { // 够分
-						// 这里不管
-						fmt.Println(3333, user.ID)
+
+						if tmpSub < userLocations[0].CurrentMax-userLocations[0].Current {
+							// 这里不管
+							fmt.Println(3333, user.ID)
+						}
 					}
 
 				}
-
-				fmt.Println(user.ID, tmpTotalMax-total)
 			}
 
 		}
