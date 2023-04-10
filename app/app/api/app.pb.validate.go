@@ -4019,6 +4019,8 @@ func (m *AdminWithdrawListRequest) validate(all bool) error {
 
 	// no validation rules for Address
 
+	// no validation rules for Type
+
 	if len(errors) > 0 {
 		return AdminWithdrawListRequestMultiError(errors)
 	}
@@ -11577,6 +11579,10 @@ func (m *AdminUserListReply_UserList) validate(all bool) error {
 	// no validation rules for AreaAmount
 
 	// no validation rules for AreaMaxAmount
+
+	// no validation rules for BnbAmount
+
+	// no validation rules for BnbBalance
 
 	if len(errors) > 0 {
 		return AdminUserListReply_UserListMultiError(errors)

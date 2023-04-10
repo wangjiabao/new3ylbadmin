@@ -506,6 +506,8 @@ message AdminUserListReply {
 		int64 historyRecommend = 6;
 		int64 areaAmount = 9;
 		int64 areaMaxAmount = 10;
+		string bnbAmount = 11;
+		string bnbBalance = 12;
 	}
 	int64 count = 2;
 }
@@ -553,6 +555,7 @@ message AdminLocationAllListReply {
 message AdminWithdrawListRequest {
 	int64 page = 1;
 	string address = 2;
+	string type = 3;
 }
 
 message AdminWithdrawListReply {

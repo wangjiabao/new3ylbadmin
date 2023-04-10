@@ -868,6 +868,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: type
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1371,6 +1375,10 @@ components:
                 areaMaxAmount:
                     type: integer
                     format: int64
+                bnbAmount:
+                    type: string
+                bnbBalance:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

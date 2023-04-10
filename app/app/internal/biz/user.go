@@ -22,6 +22,12 @@ type User struct {
 	CreatedAt time.Time
 }
 
+type BnbBalance struct {
+	ID     int64
+	UserId int64
+	Amount float64
+}
+
 type BnbReward struct {
 	ID           int64
 	UserId       int64
@@ -89,6 +95,7 @@ type UserBalance struct {
 	UserId      int64
 	BalanceUsdt int64
 	BalanceDhb  int64
+	BnbAmount   float64
 }
 
 type Withdraw struct {
@@ -153,6 +160,7 @@ type ConfigRepo interface {
 
 type UserBalanceRepo interface {
 	CreateUserBalance(ctx context.Context, u *User) (*UserBalance, error)
+	GetBnbBalance(ctx context.Context, userIds []int64) (map[int64]*BnbBalance, error)
 	LocationReward(ctx context.Context, userId int64, amount int64, locationId int64, myLocationId int64, locationType string, status string) (int64, error)
 	WithdrawReward(ctx context.Context, userId int64, amount int64, locationId int64, myLocationId int64, locationType string, status string) (int64, error)
 	RecommendReward(ctx context.Context, userId int64, amount int64, locationId int64, status string) (int64, error)
@@ -188,7 +196,7 @@ type UserBalanceRepo interface {
 	WithdrawUsdt(ctx context.Context, userId int64, amount int64) error
 	WithdrawDhb(ctx context.Context, userId int64, amount int64) error
 	GetWithdrawByUserId(ctx context.Context, userId int64) ([]*Withdraw, error)
-	GetWithdraws(ctx context.Context, b *Pagination, userId int64) ([]*Withdraw, error, int64)
+	GetWithdraws(ctx context.Context, b *Pagination, userId int64, typeWithdraw string) ([]*Withdraw, error, int64)
 	GetWithdrawPassOrRewarded(ctx context.Context) ([]*Withdraw, error)
 	GetWithdrawPassOrRewardedFirst(ctx context.Context) (*Withdraw, error)
 	UpdateWithdraw(ctx context.Context, id int64, status string) (*Withdraw, error)
@@ -687,6 +695,7 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 		userBalances                   map[int64]*UserBalance
 		userInfos                      map[int64]*UserInfo
 		userCurrentMonthRecommendCount map[int64]int64
+		bnbBalance                     map[int64]*BnbBalance
 		count                          int64
 		err                            error
 	)
@@ -717,6 +726,8 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 	if nil != err {
 		return res, nil
 	}
+
+	bnbBalance, err = uuc.ubRepo.GetBnbBalance(ctx, userIds)
 
 	userCurrentMonthRecommendCount, err = uuc.userCurrentMonthRecommendRepo.GetUserCurrentMonthRecommendCountByUserIds(ctx, userIds...)
 
@@ -768,6 +779,11 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 			continue
 		}
 
+		var tmpBnbBalance float64
+		if _, ok := bnbBalance[v.ID]; !ok {
+			tmpBnbBalance = bnbBalance[v.ID].Amount
+		}
+
 		var tmpCount int64
 		if nil != userCurrentMonthRecommendCount {
 			if _, ok := userCurrentMonthRecommendCount[v.ID]; ok {
@@ -786,6 +802,8 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 			AreaAmount:       areaAmount,
 			AreaMaxAmount:    maxAreaAmount,
 			HistoryRecommend: userInfos[v.ID].HistoryRecommend,
+			BnbBalance:       fmt.Sprintf("%.5f", tmpBnbBalance),
+			BnbAmount:        fmt.Sprintf("%.5f", userBalances[v.ID].BnbAmount),
 		})
 	}
 
@@ -1587,7 +1605,7 @@ func (uuc *UserUseCase) AdminWithdrawList(ctx context.Context, req *v1.AdminWith
 	withdraws, err, count = uuc.ubRepo.GetWithdraws(ctx, &Pagination{
 		PageNum:  int(req.Page),
 		PageSize: 10,
-	}, userId)
+	}, userId, req.Type)
 	if nil != err {
 		return res, err
 	}

@@ -17,6 +17,14 @@ type User struct {
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
 
+type BnbBalance struct {
+	ID        int64     `gorm:"primarykey;type:int"`
+	UserId    int64     `gorm:"type:int"`
+	Amount    float64   `gorm:"type:decimal(65,20);not null"`
+	CreatedAt time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt time.Time `gorm:"type:datetime;not null"`
+}
+
 type UserArea struct {
 	ID         int64     `gorm:"primarykey;type:int"`
 	UserId     int64     `gorm:"type:int;not null"`
@@ -67,6 +75,7 @@ type UserBalance struct {
 	UserId      int64     `gorm:"type:int"`
 	BalanceUsdt int64     `gorm:"type:bigint"`
 	BalanceDhb  int64     `gorm:"type:bigint"`
+	BnbAmount   float64   `gorm:"type:decimal(65,18);not null"`
 	CreatedAt   time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt   time.Time `gorm:"type:datetime;not null"`
 }
@@ -1454,7 +1463,7 @@ func (ub *UserBalanceRepo) GetWithdrawById(ctx context.Context, id int64) (*biz.
 }
 
 // GetWithdraws .
-func (ub *UserBalanceRepo) GetWithdraws(ctx context.Context, b *biz.Pagination, userId int64) ([]*biz.Withdraw, error, int64) {
+func (ub *UserBalanceRepo) GetWithdraws(ctx context.Context, b *biz.Pagination, userId int64, typeWithdraw string) ([]*biz.Withdraw, error, int64) {
 	var (
 		withdraws []*Withdraw
 		count     int64
@@ -1465,6 +1474,10 @@ func (ub *UserBalanceRepo) GetWithdraws(ctx context.Context, b *biz.Pagination, 
 
 	if 0 < userId {
 		instance = instance.Where("user_id=?", userId)
+	}
+
+	if "" != typeWithdraw {
+		instance = instance.Where("type=?", typeWithdraw)
 	}
 
 	instance = instance.Count(&count)
@@ -2212,6 +2225,30 @@ func (ub *UserBalanceRepo) GetUserRewardByUserId(ctx context.Context, userId int
 	return res, nil
 }
 
+// GetBnbBalance .
+func (ub *UserBalanceRepo) GetBnbBalance(ctx context.Context, userIds []int64) (map[int64]*biz.BnbBalance, error) {
+
+	var bnbBalance []*BnbBalance
+	res := make(map[int64]*biz.BnbBalance, 0)
+	if err := ub.data.db.Where("user_id in(?)", userIds).Table("bnb_balance").Find(&bnbBalance).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.New(500, "USER AREA NOT FOUND", err.Error())
+		}
+
+		return res, errors.New(500, "USER AREA ERROR", err.Error())
+	}
+
+	for _, v := range bnbBalance {
+		res[v.UserId] = &biz.BnbBalance{
+			ID:     v.ID,
+			UserId: v.UserId,
+			Amount: v.Amount,
+		}
+	}
+
+	return res, nil
+}
+
 // GetUserRewardsBnb .
 func (ub *UserBalanceRepo) GetUserRewardsBnb(ctx context.Context, b *biz.Pagination, userId int64) ([]*biz.BnbReward, error, int64) {
 	var (
@@ -2411,6 +2448,7 @@ func (ub UserBalanceRepo) GetUserBalanceByUserIds(ctx context.Context, userIds .
 			UserId:      userBalance.UserId,
 			BalanceUsdt: userBalance.BalanceUsdt,
 			BalanceDhb:  userBalance.BalanceDhb,
+			BnbAmount:   userBalance.BnbAmount,
 		}
 	}
 
