@@ -29,6 +29,7 @@ type Location struct {
 	CurrentMax   int64
 	Row          int64
 	Col          int64
+	StopIsUpdate int64
 	StopDate     time.Time
 	CreatedAt    time.Time
 }
@@ -63,12 +64,14 @@ type LocationRepo interface {
 	GetMyStopLocationLast(ctx context.Context, userId int64) (*Location, error)
 	GetMyLocationRunningLast(ctx context.Context, userId int64) (*Location, error)
 	GetLocationsRunningLast(ctx context.Context, id1 int64, id2 int64) ([]*Location, error)
+	GetLocationsStopLast(ctx context.Context, id1 int64, id2 int64) ([]*Location, error)
 	GetLocationsRunning(ctx context.Context) ([]*Location, error)
 	GetLocationsByUserId(ctx context.Context, userId int64) ([]*Location, error)
 	GetRewardLocationByRowOrCol(ctx context.Context, row int64, col int64, locationRowConfig int64) ([]*Location, error)
 	GetRewardLocationByIds(ctx context.Context, ids ...int64) (map[int64]*Location, error)
 	UpdateLocation(ctx context.Context, id int64, status string, current int64, stopDate time.Time) error
 	UpdateSubCurrentLocation(ctx context.Context, id int64, amount int64) error
+	UpdateSubCurrentLocation2(ctx context.Context, id int64, amount int64, status string, stopIsUpdate int64, stopDate time.Time) error
 	GetLocations(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	GetLocationsAll(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	UpdateLocationRowAndCol(ctx context.Context, id int64) error

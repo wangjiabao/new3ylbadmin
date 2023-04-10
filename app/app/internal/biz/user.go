@@ -2933,7 +2933,8 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		err       error
 	)
 
-	locations, err = uuc.locationRepo.GetLocationsRunningLast(ctx, req.Id1, req.Id2)
+	//locations, err = uuc.locationRepo.GetLocationsRunningLast(ctx, req.Id1, req.Id2)
+	locations, err = uuc.locationRepo.GetLocationsStopLast(ctx, req.Id1, req.Id2)
 
 	for _, vLocations := range locations {
 		var total int64
@@ -2950,13 +2951,34 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		}
 		fmt.Println(total, vLocations.UserId, vLocations.Current)
 
+		//if vLocations.Current > total {
+		//	tmp := vLocations.Current - total
+		//	err = uuc.locationRepo.UpdateSubCurrentLocation(ctx, vLocations.ID, tmp)
+		//	if nil != err {
+		//		fmt.Println("更新失败", vLocations.ID)
+		//		return nil, errors.New(500, "err", "失败更新")
+		//	}
+		//}
+
 		if vLocations.Current > total {
 			tmp := vLocations.Current - total
-			err = uuc.locationRepo.UpdateSubCurrentLocation(ctx, vLocations.ID, tmp)
-			if nil != err {
-				fmt.Println("更新失败", vLocations.ID)
-				return nil, errors.New(500, "err", "失败更新")
+
+			tmpStopIsUpdate := int64(0)
+			tmpStatus := "running"
+			var tmpStopDate time.Time
+
+			if total < vLocations.CurrentMax {
+				tmpStopIsUpdate = vLocations.StopIsUpdate
+				tmpStatus = vLocations.Status
+				tmpStopDate = vLocations.StopDate
 			}
+
+			fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate)
+			//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, vLocations.ID, tmp, tmpStatus, tmpStopIsUpdate, tmpStopDate)
+			//if nil != err {
+			//	fmt.Println("更新失败", vLocations.ID)
+			//	return nil, errors.New(500, "err", "失败更新")
+			//}
 		}
 	}
 
