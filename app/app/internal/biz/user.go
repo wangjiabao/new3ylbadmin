@@ -2051,7 +2051,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 		}
 
 		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-			fmt.Println(withdraw.Amount)
+			//fmt.Println(withdraw.Amount)
 			currentValue -= withdraw.Amount / 100 * 5 // 手续费
 
 			// 手续费记录
@@ -2063,7 +2063,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 			currentValue = currentValue / 100 * 50 // 百分之50重新分配
 			withdrawAmount = currentValue
 			systemAmount = currentValue
-			fmt.Println(withdrawAmount)
+			//fmt.Println(withdrawAmount)
 			// 占位分红人分红
 			if nil != rewardLocations {
 				for _, vRewardLocations := range rewardLocations {
@@ -2964,7 +2964,7 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		}
 
 		if total > tmpAlreadyReward {
-			//fmt.Println(user.ID, total-tmpAlreadyReward)
+			fmt.Println(user.ID, total-tmpAlreadyReward)
 		}
 	}
 
