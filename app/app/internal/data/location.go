@@ -600,14 +600,14 @@ func (lr *LocationRepo) UpdateSubCurrentLocation(ctx context.Context, id int64, 
 }
 
 // UpdateSubCurrentLocation2 .
-func (lr *LocationRepo) UpdateSubCurrentLocation2(ctx context.Context, id int64, amount int64, status string, stopIsUpdate int64, stopDate time.Time) error {
+func (lr *LocationRepo) UpdateSubCurrentLocation2(ctx context.Context, id int64, amount int64, status string, stopIsUpdate int64) error {
 	res := lr.data.DB(ctx).Table("location").
 		Where("id=?", id).
 		Updates(map[string]interface{}{
 			"current_max":    gorm.Expr("current_max + ?", amount),
 			"status":         status,
 			"stop_is_update": stopIsUpdate,
-			"stop_date":      stopDate,
+			"stop_date":      "0000-00-00 00:00:00",
 		})
 	if 0 == res.RowsAffected || res.Error != nil {
 		return res.Error

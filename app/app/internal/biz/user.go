@@ -2967,14 +2967,14 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 					// 涨额度
 					tmpStopIsUpdate := int64(0)
 					tmpStatus := "running"
-					var tmpStopDate time.Time
-					fmt.Println(11111, user.ID, tmpSub-(userLocations[0].Current-userLocations[0].CurrentMax), tmpStopIsUpdate, tmpStatus, tmpStopDate)
 
-					//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, userLocations[0].ID, tmpSub-(userLocations[0].Current-userLocations[0].CurrentMax), tmpStatus, tmpStopIsUpdate, tmpStopDate)
-					//if nil != err {
-					//	fmt.Println("更新失败", userLocations[0].ID)
-					//	return nil, errors.New(500, "err", "失败更新")
-					//}
+					fmt.Println(11111, user.ID, tmpSub-(userLocations[0].Current-userLocations[0].CurrentMax), tmpStopIsUpdate, tmpStatus)
+
+					err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, userLocations[0].ID, tmpSub-(userLocations[0].Current-userLocations[0].CurrentMax), tmpStatus, tmpStopIsUpdate)
+					if nil != err {
+						fmt.Println("更新失败", userLocations[0].ID)
+						return nil, errors.New(500, "err", "失败更新")
+					}
 
 				} else { // 没停
 					if tmpSub > userLocations[0].CurrentMax-userLocations[0].Current {
