@@ -5,7 +5,6 @@ import (
 	"crypto/ecdsa"
 	"dhb/app/app/internal/pkg/middleware/auth"
 	"encoding/json"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -227,7 +226,7 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 
 		_, err = a.ruc.EthUserRecordHandle(ctx, notExistDepositResult...)
 		if nil != err {
-			fmt.Println(err)
+			//fmt.Println(err)
 		}
 
 		//time.Sleep(2 * time.Second)
@@ -267,7 +266,7 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 	client := http.Client{
 		Timeout: 10 * time.Second,
 	}
-	fmt.Println(u.String())
+	//fmt.Println(u.String())
 
 	resp, err := client.Get(u.String())
 	if err != nil {
@@ -621,10 +620,10 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 
 		for i := 0; i < 3; i++ {
 			if "bnb" == withdraw.Type {
-				fmt.Println(withDrawAmount)
+				//fmt.Println(withDrawAmount)
 				_, _, err = toBnB(users[withdraw.UserId].Address, "", withDrawAmount)
 				if nil != err {
-					fmt.Println(5555, err)
+					//fmt.Println(5555, err)
 					time.Sleep(3 * time.Second)
 					continue
 				} else {
@@ -635,7 +634,7 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 			} else {
 				//fmt.Println(11111, user.ToAddress, v.Amount, balanceInt)
 				_, _, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, tokenAddress)
-				fmt.Println(3333, err)
+				//fmt.Println(3333, err)
 				if err == nil {
 					_, err = a.uuc.UpdateWithdrawSuccess(ctx, withdraw.ID)
 					//time.Sleep(3 * time.Second)
@@ -703,7 +702,7 @@ func toBnB(toAccount string, fromPrivateKey string, toAmount string) (bool, stri
 
 	value := new(big.Int)
 	value.SetString(toAmount, 10) // 提现的金额恢复
-	fmt.Println(value)
+	//fmt.Println(value)
 	gasLimit := uint64(210000) // in units
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
@@ -792,7 +791,7 @@ func toToken(userPrivateKey string, toAccount string, withdrawAmount string, wit
 	if err != nil {
 		return false, "", err
 	}
-	fmt.Println(signedTx.Hash().Hex())
+	//fmt.Println(signedTx.Hash().Hex())
 	return true, signedTx.Hash().Hex(), nil
 }
 

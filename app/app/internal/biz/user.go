@@ -2097,7 +2097,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 							vRewardLocations.StopDate = time.Now().UTC().Add(8 * time.Hour)
 						}
 					}
-					fmt.Println(vRewardLocations.StopDate)
+					//fmt.Println(vRewardLocations.StopDate)
 					if 0 < tmpBalanceAmount {
 						err = uuc.locationRepo.UpdateLocation(ctx, vRewardLocations.ID, vRewardLocations.Status, tmpBalanceAmount, vRewardLocations.StopDate) // 分红占位数据修改
 						if nil != err {
@@ -2132,7 +2132,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						}
 					}
 
-					fmt.Println(myUserRecommendUserLocationLast.StopDate)
+					//fmt.Println(myUserRecommendUserLocationLast.StopDate)
 					if 0 < tmpBalanceAmount {
 						err = uuc.locationRepo.UpdateLocation(ctx, myUserRecommendUserLocationLast.ID, myUserRecommendUserLocationLast.Status, tmpBalanceAmount, myUserRecommendUserLocationLast.StopDate) // 分红占位数据修改
 						if nil != err {
@@ -2206,7 +2206,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 				// 推荐人的推荐信息，往上找
 
 				if 2 <= len(tmpRecommendUserIds) {
-					fmt.Println(tmpRecommendUserIds)
+					//fmt.Println(tmpRecommendUserIds)
 					lasAmount := currentValue / 100 * recommendNeed
 					for i := 2; i <= 6; i++ {
 						// 有占位信息，推荐人推荐人的上一代
@@ -2260,7 +2260,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 
 					}
 
-					fmt.Println(recommendNeedLast)
+					//fmt.Println(recommendNeedLast)
 
 					for i := 2; i <= len(tmpRecommendUserIds)-1; i++ {
 						// 有占位信息，推荐人推荐人的上一代
@@ -2271,7 +2271,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						if 0 >= tmpMyTopUserRecommendUserId || 0 >= 10-recommendNeedLast {
 							break
 						}
-						fmt.Println(tmpMyTopUserRecommendUserId)
+						//fmt.Println(tmpMyTopUserRecommendUserId)
 
 						myUserTopRecommendUserInfo, _ := uuc.uiRepo.GetUserInfoByUserId(ctx, tmpMyTopUserRecommendUserId)
 						if nil == myUserTopRecommendUserInfo {
@@ -2308,7 +2308,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 						}
 
 						recommendLevel = myUserTopRecommendUserInfo.Vip
-						fmt.Println(tmpMyRecommendAmount)
+						//fmt.Println(tmpMyRecommendAmount)
 						if 0 < tmpMyRecommendAmount { // 扣除推荐人分红
 							tmpStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
 
@@ -2531,10 +2531,10 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 			level4[user.ID] = user.ID
 		}
 	}
-	fmt.Println(level4, level3, level2, level1)
+	//fmt.Println(level4, level3, level2, level1)
 	// 分红
 	fee /= 100000
-	fmt.Println(fee)
+	//fmt.Println(fee)
 	if 0 < len(level1) {
 		feeLevel1 := fee * recommendAreaOneRate / 100 / int64(len(level1))
 		feeLevel1 *= 100000
@@ -2964,7 +2964,7 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		}
 
 		if total > tmpAlreadyReward {
-			fmt.Println(user.ID, total-tmpAlreadyReward)
+			//fmt.Println(user.ID, total-tmpAlreadyReward)
 		}
 	}
 
