@@ -2941,9 +2941,9 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 
 	for _, user := range users {
 		var (
-			userLocations    []*Location
-			tmpAlreadyReward int64
-			total            int64
+			userLocations []*Location
+			tmpTotalMax   int64
+			total         int64
 		)
 		// 查询分红总额
 		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, user.ID)
@@ -2956,15 +2956,33 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 			return nil, errors.New(500, "err", "查询错误")
 		}
 		for _, vUserLocations := range userLocations {
-			if vUserLocations.Current >= vUserLocations.CurrentMax {
-				tmpAlreadyReward += vUserLocations.CurrentMax
-			} else {
-				tmpAlreadyReward += vUserLocations.Current
-			}
+			tmpTotalMax += vUserLocations.CurrentMax
 		}
 
-		if total > tmpAlreadyReward {
-			fmt.Println(user.ID, total-tmpAlreadyReward)
+		if tmpTotalMax > total {
+			tmpSub := tmpTotalMax - total // 还差这么多
+			if len(userLocations) > 0 {
+
+				if userLocations[0].Current > userLocations[0].CurrentMax { // 已经停了
+					// 涨额度
+					fmt.Println(11111, user.ID, tmpSub-(userLocations[0].Current-userLocations[0].CurrentMax))
+
+				} else { // 没停
+					if tmpSub > userLocations[0].CurrentMax-userLocations[0].Current {
+
+						// 不够，涨额度
+						fmt.Println(22222, user.ID, tmpSub-(userLocations[0].CurrentMax-userLocations[0].Current))
+
+					} else { // 够分
+						// 这里不管
+						fmt.Println(3333, user.ID)
+					}
+
+				}
+
+				fmt.Println(user.ID, tmpTotalMax-total)
+			}
+
 		}
 	}
 
