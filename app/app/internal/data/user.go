@@ -487,7 +487,7 @@ func (u *UserRepo) GetAllUsers(ctx context.Context) ([]*biz.User, error) {
 // GetAllUsersByIds .
 func (u *UserRepo) GetAllUsersByIds(ctx context.Context, id1 int64, id2 int64) ([]*biz.User, error) {
 	var users []*User
-	if err := u.data.db.Table("user").Where("id>=?", id1).Where("id<=", id2).Find(&users).Error; err != nil {
+	if err := u.data.db.Table("user").Where("id>=?", id1).Where("id<=?", id2).Find(&users).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound("USER_NOT_FOUND", "user not found")
 		}
