@@ -2937,7 +2937,10 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 	locations, err = uuc.locationRepo.GetLocationsStopLast(ctx, req.Id1, req.Id2)
 
 	for _, vLocations := range locations {
-		var total int64
+		var (
+			tmpLocation *Location
+			total       int64
+		)
 
 		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, vLocations.UserId)
 		if nil != err {
@@ -2974,6 +2977,10 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 			}
 
 			fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate)
+
+			if nil != tmpLocation {
+				fmt.Println(tmpLocation, 222333)
+			}
 			//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, vLocations.ID, tmp, tmpStatus, tmpStopIsUpdate, tmpStopDate)
 			//if nil != err {
 			//	fmt.Println("更新失败", vLocations.ID)
