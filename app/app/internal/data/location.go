@@ -216,8 +216,8 @@ func (lr *LocationRepo) GetLocationsStopLast(ctx context.Context, id1 int64, id2
 	res := make([]*biz.Location, 0)
 	if err := lr.data.db.Table("location").
 		Where("status=?", "running").
-		Where("id>=", id1).
-		Where("id<=", id2).
+		Where("id>=?", id1).
+		Where("id<=?", id2).
 		Order("id desc").Find(&location).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, errors.NotFound("LOCATION_NOT_FOUND", "location not found")
@@ -251,8 +251,8 @@ func (lr *LocationRepo) GetLocationsRunningLast(ctx context.Context, id1 int64, 
 	res := make([]*biz.Location, 0)
 	if err := lr.data.db.Table("location").
 		Where("status=?", "running").
-		Where("id>=", id1).
-		Where("id<=", id2).
+		Where("id>=?", id1).
+		Where("id<=?", id2).
 		Order("id desc").Find(&location).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, errors.NotFound("LOCATION_NOT_FOUND", "location not found")
