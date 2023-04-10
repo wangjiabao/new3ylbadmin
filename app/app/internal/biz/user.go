@@ -2982,11 +2982,11 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 						// 不够，涨额度
 						fmt.Println(22222, user.ID, tmpSub-(userLocations[0].CurrentMax-userLocations[0].Current))
 
-						//err = uuc.locationRepo.UpdateSubCurrentLocation3(ctx, userLocations[0].ID, tmpSub-(userLocations[0].CurrentMax-userLocations[0].Current))
-						//if nil != err {
-						//	fmt.Println("更新失败", userLocations[0].ID)
-						//	return nil, errors.New(500, "err", "失败更新")
-						//}
+						err = uuc.locationRepo.UpdateSubCurrentLocation3(ctx, userLocations[0].ID, tmpSub-(userLocations[0].CurrentMax-userLocations[0].Current))
+						if nil != err {
+							fmt.Println("更新失败", userLocations[0].ID)
+							return nil, errors.New(500, "err", "失败更新")
+						}
 
 					} else { // 够分
 
