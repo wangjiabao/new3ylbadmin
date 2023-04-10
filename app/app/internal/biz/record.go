@@ -74,6 +74,7 @@ type LocationRepo interface {
 	UpdateSubCurrentLocation(ctx context.Context, id int64, amount int64) error
 	UpdateLocationFixRowAndCol(ctx context.Context, id int64, col int64, row int64) error
 	UpdateSubCurrentLocation2(ctx context.Context, id int64, amount int64, status string, stopIsUpdate int64, stopDate time.Time) error
+	UpdateSubCurrentLocation3(ctx context.Context, id int64, amount int64) error
 	GetLocations(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	GetLocationsAll(ctx context.Context, b *Pagination, userId int64) ([]*Location, error, int64)
 	UpdateLocationRowAndCol(ctx context.Context, id int64) error

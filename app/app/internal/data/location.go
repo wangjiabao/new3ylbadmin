@@ -604,10 +604,24 @@ func (lr *LocationRepo) UpdateSubCurrentLocation2(ctx context.Context, id int64,
 	res := lr.data.DB(ctx).Table("location").
 		Where("id=?", id).
 		Updates(map[string]interface{}{
-			"current":        gorm.Expr("current - ?", amount),
+			"current_max":    gorm.Expr("current_max + ?", amount),
 			"status":         status,
 			"stop_is_update": stopIsUpdate,
 			"stop_date":      stopDate,
+		})
+	if 0 == res.RowsAffected || res.Error != nil {
+		return res.Error
+	}
+
+	return nil
+}
+
+// UpdateSubCurrentLocation3 .
+func (lr *LocationRepo) UpdateSubCurrentLocation3(ctx context.Context, id int64, amount int64) error {
+	res := lr.data.DB(ctx).Table("location").
+		Where("id=?", id).
+		Updates(map[string]interface{}{
+			"current_max": gorm.Expr("current_max + ?", amount),
 		})
 	if 0 == res.RowsAffected || res.Error != nil {
 		return res.Error
