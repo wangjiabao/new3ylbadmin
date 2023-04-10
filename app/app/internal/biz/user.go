@@ -780,7 +780,7 @@ func (uuc *UserUseCase) AdminUserList(ctx context.Context, req *v1.AdminUserList
 		}
 
 		var tmpBnbBalance float64
-		if _, ok := bnbBalance[v.ID]; !ok {
+		if _, ok := bnbBalance[v.ID]; ok {
 			tmpBnbBalance = bnbBalance[v.ID].Amount
 		}
 
