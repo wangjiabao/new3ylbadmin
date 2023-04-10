@@ -262,6 +262,7 @@ type UserRepo interface {
 	GetAdmins(ctx context.Context) ([]*Admin, error)
 	GetUsers(ctx context.Context, b *Pagination, address string, isLocation bool, vip int64) ([]*User, error, int64)
 	GetAllUsers(ctx context.Context) ([]*User, error)
+	GetAllUsersByIds(ctx context.Context, id1 int64, id2 int64) ([]*User, error)
 	GetUserCount(ctx context.Context) (int64, error)
 	GetUserCountToday(ctx context.Context) (int64, error)
 	CreateAdminAuth(ctx context.Context, adminId int64, authId int64) (bool, error)
@@ -2929,92 +2930,126 @@ func (uuc *UserUseCase) CheckAndInsertLocationsRecommendUser(ctx context.Context
 
 func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest) (*v1.FixRewardReply, error) {
 	var (
-		locations []*Location
-		err       error
+		users []*User
+		err   error
 	)
 
-	//locations, err = uuc.locationRepo.GetLocationsRunningLast(ctx, req.Id1, req.Id2)
-	locations, err = uuc.locationRepo.GetLocationsStopLast(ctx, req.Id1, req.Id2)
+	users, err = uuc.repo.GetAllUsersByIds(ctx, req.Id1, req.Id2)
+	if nil == users {
+		return nil, errors.New(500, "err", "查询错误")
+	}
 
-	for _, vLocations := range locations {
+	for _, user := range users {
 		var (
-			tmpLocation *Location
-			total       int64
+			userLocations    []*Location
+			tmpAlreadyReward int64
+			total            int64
 		)
-
-		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, vLocations.UserId)
+		// 查询分红总额
+		total, err = uuc.ubRepo.GetUserRewardTotal(ctx, user.ID)
 		if nil != err {
 			return nil, errors.New(500, "err", "查询错误")
 		}
 
-		tmpLocation, err = uuc.locationRepo.GetLocationsRunningLastByUserId(ctx, vLocations.UserId)
-		if nil != err {
+		userLocations, err = uuc.locationRepo.GetLocationsByUserId(ctx, user.ID)
+		if nil == userLocations {
 			return nil, errors.New(500, "err", "查询错误")
 		}
-
-		if total > vLocations.Current {
-			fmt.Println("aaaaa")
-		} else {
-			fmt.Println("bbbbb")
-		}
-		fmt.Println(total, vLocations.UserId, vLocations.Current)
-
-		//if vLocations.Current > total {
-		//	tmp := vLocations.Current - total
-		//	err = uuc.locationRepo.UpdateSubCurrentLocation(ctx, vLocations.ID, tmp)
-		//	if nil != err {
-		//		fmt.Println("更新失败", vLocations.ID)
-		//		return nil, errors.New(500, "err", "失败更新")
-		//	}
-		//}
-
-		if vLocations.Current > total {
-			var tmp int64
-
-			if nil != tmpLocation { // 复投
-				fmt.Println(tmpLocation, 222222)
-				var tmpSub int64
-				if total >= vLocations.CurrentMax {
-					// 超过最大值
-
-				} else {
-					tmpSub = vLocations.CurrentMax - total // 补
-
-					if tmpLocation.Current < tmpSub {
-						// 补加额度
-						tmpSub -= tmpLocation.Current
-
-					} else {
-						// 不需要加
-
-					}
-
-				}
-
+		for _, vUserLocations := range userLocations {
+			if vUserLocations.Current >= vUserLocations.CurrentMax {
+				tmpAlreadyReward += vUserLocations.CurrentMax
 			} else {
-
-				tmpStopIsUpdate := int64(0)
-				tmpStatus := "running"
-				var tmpStopDate time.Time
-
-				tmp = vLocations.Current - total // 差这么多没分
-
-				if total >= vLocations.CurrentMax { // 停了
-					tmpStopIsUpdate = vLocations.StopIsUpdate
-					tmpStatus = vLocations.Status
-					tmpStopDate = vLocations.StopDate
-				}
-
-				fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate, 3333)
+				tmpAlreadyReward += vUserLocations.Current
 			}
+		}
 
-			//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, vLocations.ID, tmp, tmpStatus, tmpStopIsUpdate, tmpStopDate)
-			//if nil != err {
-			//	fmt.Println("更新失败", vLocations.ID)
-			//	return nil, errors.New(500, "err", "失败更新")
-			//}
+		if total > tmpAlreadyReward {
+			fmt.Println(user.ID, total-tmpAlreadyReward)
 		}
 	}
+
+	//locations, err = uuc.locationRepo.GetLocationsRunningLast(ctx, req.Id1, req.Id2)
+	//locations, err = uuc.locationRepo.GetLocationsStopLast(ctx, req.Id1, req.Id2)
+	//
+	//for _, vLocations := range locations {
+	//	var (
+	//		tmpLocation *Location
+	//		total       int64
+	//	)
+	//
+	//	total, err = uuc.ubRepo.GetUserRewardTotal(ctx, vLocations.UserId)
+	//	if nil != err {
+	//		return nil, errors.New(500, "err", "查询错误")
+	//	}
+	//
+	//	tmpLocation, err = uuc.locationRepo.GetLocationsRunningLastByUserId(ctx, vLocations.UserId)
+	//	if nil != err {
+	//		return nil, errors.New(500, "err", "查询错误")
+	//	}
+	//
+	//	if total > vLocations.Current {
+	//		fmt.Println("aaaaa")
+	//	} else {
+	//		fmt.Println("bbbbb")
+	//	}
+	//	fmt.Println(total, vLocations.UserId, vLocations.Current)
+	//
+	//	//if vLocations.Current > total {
+	//	//	tmp := vLocations.Current - total
+	//	//	err = uuc.locationRepo.UpdateSubCurrentLocation(ctx, vLocations.ID, tmp)
+	//	//	if nil != err {
+	//	//		fmt.Println("更新失败", vLocations.ID)
+	//	//		return nil, errors.New(500, "err", "失败更新")
+	//	//	}
+	//	//}
+	//
+	//	if vLocations.Current > total {
+	//		var tmp int64
+	//
+	//		if nil != tmpLocation { // 复投
+	//			fmt.Println(tmpLocation, 222222)
+	//			var tmpSub int64
+	//			if total >= vLocations.CurrentMax {
+	//				// 超过最大值
+	//
+	//			} else {
+	//				tmpSub = vLocations.CurrentMax - total // 补
+	//
+	//				if tmpLocation.Current < tmpSub {
+	//					// 补加额度
+	//					tmpSub -= tmpLocation.Current
+	//
+	//				} else {
+	//					// 不需要加
+	//
+	//				}
+	//
+	//			}
+	//
+	//		} else {
+	//
+	//			tmpStopIsUpdate := int64(0)
+	//			tmpStatus := "running"
+	//			var tmpStopDate time.Time
+	//
+	//			tmp = vLocations.Current - total // 差这么多没分
+	//
+	//			if total >= vLocations.CurrentMax { // 停了
+	//				tmpStopIsUpdate = vLocations.StopIsUpdate
+	//				tmpStatus = vLocations.Status
+	//				tmpStopDate = vLocations.StopDate
+	//			}
+	//
+	//			fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate, 3333)
+	//		}
+	//
+	//		//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, vLocations.ID, tmp, tmpStatus, tmpStopIsUpdate, tmpStopDate)
+	//		//if nil != err {
+	//		//	fmt.Println("更新失败", vLocations.ID)
+	//		//	return nil, errors.New(500, "err", "失败更新")
+	//		//}
+	//	}
+	//}
 
 	return &v1.FixRewardReply{}, nil
 }
