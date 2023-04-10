@@ -371,6 +371,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/fix_locations:
+        get:
+            tags:
+                - App
+            operationId: App_FixLocations
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FixLocationsReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/fix_reward:
         get:
             tags:
@@ -1489,6 +1507,9 @@ components:
                     type: string
                 amount:
                     type: string
+        FixLocationsReply:
+            type: object
+            properties: {}
         FixRewardReply:
             type: object
             properties: {}

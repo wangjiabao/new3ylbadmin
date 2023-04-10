@@ -531,6 +531,10 @@ func (a *AppService) FixReward(ctx context.Context, req *v1.FixRewardRequest) (*
 	return a.uuc.FixReward(ctx, req)
 }
 
+func (a *AppService) FixLocations(ctx context.Context, req *v1.FixLocationsRequest) (*v1.FixLocationsReply, error) {
+	return a.uuc.FixLocations(ctx, req)
+}
+
 func (a *AppService) CheckAndInsertRecommendArea(ctx context.Context, req *v1.CheckAndInsertRecommendAreaRequest) (*v1.CheckAndInsertRecommendAreaReply, error) {
 	return a.uuc.CheckAndInsertRecommendArea(ctx, req)
 }

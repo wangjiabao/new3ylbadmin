@@ -2945,6 +2945,35 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 	return &v1.FixRewardReply{}, nil
 }
 
+func (uuc *UserUseCase) FixLocations(ctx context.Context, req *v1.FixLocationsRequest) (*v1.FixLocationsReply, error) {
+	var (
+		locations []*Location
+		col       = int64(1)
+		row       = int64(1)
+		err       error
+	)
+
+	locations, err = uuc.locationRepo.GetLocationsRunning(ctx)
+	if nil != err {
+		return nil, err
+	}
+
+	for _, vLocations := range locations {
+		fmt.Println(vLocations.Col, vLocations.Row, 111111)
+		// todo
+		if 3 > col {
+			col = col + 1
+		} else {
+			col = 1
+			row = row + 1
+		}
+
+		fmt.Println(col, row, 22222)
+	}
+
+	return &v1.FixLocationsReply{}, nil
+}
+
 func (uuc *UserUseCase) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {
 	var (
 		users    []*User

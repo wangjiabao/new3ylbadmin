@@ -9654,6 +9654,210 @@ var _ interface {
 	ErrorName() string
 } = FixRewardReplyValidationError{}
 
+// Validate checks the field values on FixLocationsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *FixLocationsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FixLocationsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FixLocationsRequestMultiError, or nil if none found.
+func (m *FixLocationsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FixLocationsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FixLocationsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// FixLocationsRequestMultiError is an error wrapping multiple validation
+// errors returned by FixLocationsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type FixLocationsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FixLocationsRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FixLocationsRequestMultiError) AllErrors() []error { return m }
+
+// FixLocationsRequestValidationError is the validation error returned by
+// FixLocationsRequest.Validate if the designated constraints aren't met.
+type FixLocationsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FixLocationsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FixLocationsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FixLocationsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FixLocationsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FixLocationsRequestValidationError) ErrorName() string {
+	return "FixLocationsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FixLocationsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFixLocationsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FixLocationsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FixLocationsRequestValidationError{}
+
+// Validate checks the field values on FixLocationsReply with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *FixLocationsReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FixLocationsReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// FixLocationsReplyMultiError, or nil if none found.
+func (m *FixLocationsReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FixLocationsReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return FixLocationsReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// FixLocationsReplyMultiError is an error wrapping multiple validation errors
+// returned by FixLocationsReply.ValidateAll() if the designated constraints
+// aren't met.
+type FixLocationsReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FixLocationsReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FixLocationsReplyMultiError) AllErrors() []error { return m }
+
+// FixLocationsReplyValidationError is the validation error returned by
+// FixLocationsReply.Validate if the designated constraints aren't met.
+type FixLocationsReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FixLocationsReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FixLocationsReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FixLocationsReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FixLocationsReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FixLocationsReplyValidationError) ErrorName() string {
+	return "FixLocationsReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e FixLocationsReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFixLocationsReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FixLocationsReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FixLocationsReplyValidationError{}
+
 // Validate checks the field values on AdminLoginRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

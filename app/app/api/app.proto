@@ -293,6 +293,12 @@ service App {
 			get: "/api/admin_dhb/fix_reward"
 		};
 	};
+
+	rpc FixLocations (FixLocationsRequest) returns (FixLocationsReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/fix_locations"
+		};
+	};
 }
 
 message EthAuthorizeRequest {
@@ -839,6 +845,14 @@ message FixRewardRequest {
 }
 
 message FixRewardReply {
+
+}
+
+message FixLocationsRequest {
+
+}
+
+message FixLocationsReply {
 
 }
 

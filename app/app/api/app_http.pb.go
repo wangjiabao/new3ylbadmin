@@ -53,6 +53,7 @@ const OperationAppCheckAndInsertLocationsRecommendUser = "/api.App/CheckAndInser
 const OperationAppCheckAndInsertRecommendArea = "/api.App/CheckAndInsertRecommendArea"
 const OperationAppDeposit = "/api.App/Deposit"
 const OperationAppFeeRewardList = "/api.App/FeeRewardList"
+const OperationAppFixLocations = "/api.App/FixLocations"
 const OperationAppFixReward = "/api.App/FixReward"
 const OperationAppMyAuthList = "/api.App/MyAuthList"
 const OperationAppRecommendList = "/api.App/RecommendList"
@@ -99,6 +100,7 @@ type AppHTTPServer interface {
 	CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error)
 	Deposit(context.Context, *DepositRequest) (*DepositReply, error)
 	FeeRewardList(context.Context, *FeeRewardListRequest) (*FeeRewardListReply, error)
+	FixLocations(context.Context, *FixLocationsRequest) (*FixLocationsReply, error)
 	FixReward(context.Context, *FixRewardRequest) (*FixRewardReply, error)
 	MyAuthList(context.Context, *MyAuthListRequest) (*MyAuthListReply, error)
 	RecommendList(context.Context, *RecommendListRequest) (*RecommendListReply, error)
@@ -157,6 +159,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/check_and_insert_recommend_area", _App_CheckAndInsertRecommendArea0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily_recommend_reward", _App_AdminDailyRecommendReward0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/fix_reward", _App_FixReward0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/fix_locations", _App_FixLocations0_HTTP_Handler(srv))
 }
 
 func _App_UserInfo0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
@@ -1031,6 +1034,25 @@ func _App_FixReward0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) erro
 	}
 }
 
+func _App_FixLocations0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in FixLocationsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppFixLocations)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.FixLocations(ctx, req.(*FixLocationsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*FixLocationsReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AppHTTPClient interface {
 	AdminAll(ctx context.Context, req *AdminAllRequest, opts ...http.CallOption) (rsp *AdminAllReply, err error)
 	AdminAreaLevelUpdate(ctx context.Context, req *AdminAreaLevelUpdateRequest, opts ...http.CallOption) (rsp *AdminAreaLevelUpdateReply, err error)
@@ -1066,6 +1088,7 @@ type AppHTTPClient interface {
 	CheckAndInsertRecommendArea(ctx context.Context, req *CheckAndInsertRecommendAreaRequest, opts ...http.CallOption) (rsp *CheckAndInsertRecommendAreaReply, err error)
 	Deposit(ctx context.Context, req *DepositRequest, opts ...http.CallOption) (rsp *DepositReply, err error)
 	FeeRewardList(ctx context.Context, req *FeeRewardListRequest, opts ...http.CallOption) (rsp *FeeRewardListReply, err error)
+	FixLocations(ctx context.Context, req *FixLocationsRequest, opts ...http.CallOption) (rsp *FixLocationsReply, err error)
 	FixReward(ctx context.Context, req *FixRewardRequest, opts ...http.CallOption) (rsp *FixRewardReply, err error)
 	MyAuthList(ctx context.Context, req *MyAuthListRequest, opts ...http.CallOption) (rsp *MyAuthListReply, err error)
 	RecommendList(ctx context.Context, req *RecommendListRequest, opts ...http.CallOption) (rsp *RecommendListReply, err error)
@@ -1520,6 +1543,19 @@ func (c *AppHTTPClientImpl) FeeRewardList(ctx context.Context, in *FeeRewardList
 	pattern := "/api/app_server/fee_reward_list"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppFeeRewardList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) FixLocations(ctx context.Context, in *FixLocationsRequest, opts ...http.CallOption) (*FixLocationsReply, error) {
+	var out FixLocationsReply
+	pattern := "/api/admin_dhb/fix_locations"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppFixLocations))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

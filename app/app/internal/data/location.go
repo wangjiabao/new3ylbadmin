@@ -214,10 +214,39 @@ func (lr *LocationRepo) GetLocationsRunningLast(ctx context.Context, id1 int64, 
 
 	res := make([]*biz.Location, 0)
 	if err := lr.data.db.Table("location").
-		Where("id>=?", id1).
-		Where("id<=?", id2).
 		Where("status=?", "running").
 		Order("id desc").Find(&location).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.NotFound("LOCATION_NOT_FOUND", "location not found")
+		}
+
+		return res, errors.New(500, "LOCATION ERROR", err.Error())
+	}
+
+	for _, vLocation := range location {
+		res = append(res, &biz.Location{
+			ID:           vLocation.ID,
+			UserId:       vLocation.UserId,
+			Status:       vLocation.Status,
+			CurrentLevel: vLocation.CurrentLevel,
+			Current:      vLocation.Current,
+			CurrentMax:   vLocation.CurrentMax,
+			Row:          vLocation.Row,
+			Col:          vLocation.Col,
+		})
+	}
+
+	return res, nil
+}
+
+// GetLocationsRunning .
+func (lr *LocationRepo) GetLocationsRunning(ctx context.Context) ([]*biz.Location, error) {
+	var location []*Location
+
+	res := make([]*biz.Location, 0)
+	if err := lr.data.db.Table("location").
+		Where("status=?", "running").
+		Order("id asc").Find(&location).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, errors.NotFound("LOCATION_NOT_FOUND", "location not found")
 		}
