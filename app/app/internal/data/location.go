@@ -215,7 +215,7 @@ func (lr *LocationRepo) GetLocationsStopLast(ctx context.Context, id1 int64, id2
 
 	res := make([]*biz.Location, 0)
 	if err := lr.data.db.Table("location").
-		Where("status=?", "running").
+		Where("status=?", "stop").
 		Where("id>=?", id1).
 		Where("id<=?", id2).
 		Order("id desc").Find(&location).Error; err != nil {

@@ -2947,6 +2947,11 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 			return nil, errors.New(500, "err", "查询错误")
 		}
 
+		tmpLocation, err = uuc.locationRepo.GetLocationsRunningLastByUserId(ctx, vLocations.UserId)
+		if nil != err {
+			return nil, errors.New(500, "err", "查询错误")
+		}
+
 		if total > vLocations.Current {
 			fmt.Println("aaaaa")
 		} else {
