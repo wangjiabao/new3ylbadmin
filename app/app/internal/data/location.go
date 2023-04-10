@@ -576,6 +576,17 @@ func (lr *LocationRepo) UpdateLocation(ctx context.Context, id int64, status str
 	return nil
 }
 
+// UpdateLocationFixRowAndCol .
+func (lr *LocationRepo) UpdateLocationFixRowAndCol(ctx context.Context, id int64, col int64, row int64) error {
+	res := lr.data.DB(ctx).Table("location").
+		Where("id=?", id).
+		Updates(map[string]interface{}{"col": col, "row": row})
+	if 0 == res.RowsAffected || res.Error != nil {
+		return res.Error
+	}
+	return nil
+}
+
 // UpdateSubCurrentLocation .
 func (lr *LocationRepo) UpdateSubCurrentLocation(ctx context.Context, id int64, amount int64) error {
 	res := lr.data.DB(ctx).Table("location").

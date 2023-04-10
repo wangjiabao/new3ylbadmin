@@ -2969,23 +2969,45 @@ func (uuc *UserUseCase) FixReward(ctx context.Context, req *v1.FixRewardRequest)
 		//}
 
 		if vLocations.Current > total {
-			tmp := vLocations.Current - total
+			var tmp int64
 
-			tmpStopIsUpdate := int64(0)
-			tmpStatus := "running"
-			var tmpStopDate time.Time
+			if nil != tmpLocation { // 复投
+				fmt.Println(tmpLocation, 222222)
+				var tmpSub int64
+				if total >= vLocations.CurrentMax {
+					// 超过最大值
 
-			if total < vLocations.CurrentMax {
-				tmpStopIsUpdate = vLocations.StopIsUpdate
-				tmpStatus = vLocations.Status
-				tmpStopDate = vLocations.StopDate
+				} else {
+					tmpSub = vLocations.CurrentMax - total // 补
+
+					if tmpLocation.Current < tmpSub {
+						// 补加额度
+						tmpSub -= tmpLocation.Current
+
+					} else {
+						// 不需要加
+
+					}
+
+				}
+
+			} else {
+
+				tmpStopIsUpdate := int64(0)
+				tmpStatus := "running"
+				var tmpStopDate time.Time
+
+				tmp = vLocations.Current - total // 差这么多没分
+
+				if total >= vLocations.CurrentMax { // 停了
+					tmpStopIsUpdate = vLocations.StopIsUpdate
+					tmpStatus = vLocations.Status
+					tmpStopDate = vLocations.StopDate
+				}
+
+				fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate, 3333)
 			}
 
-			fmt.Println(tmpStatus, tmp, tmpStopDate, tmpStopIsUpdate)
-
-			if nil != tmpLocation {
-				fmt.Println(tmpLocation, 222333)
-			}
 			//err = uuc.locationRepo.UpdateSubCurrentLocation2(ctx, vLocations.ID, tmp, tmpStatus, tmpStopIsUpdate, tmpStopDate)
 			//if nil != err {
 			//	fmt.Println("更新失败", vLocations.ID)
@@ -3011,8 +3033,11 @@ func (uuc *UserUseCase) FixLocations(ctx context.Context, req *v1.FixLocationsRe
 	}
 
 	for _, vLocations := range locations {
-		fmt.Println(vLocations.Col, vLocations.Row, 111111)
-		// todo
+		err = uuc.locationRepo.UpdateLocationFixRowAndCol(ctx, vLocations.ID, col, row)
+		if nil != err {
+			return nil, err
+		}
+
 		if 3 > col {
 			col = col + 1
 		} else {
@@ -3020,7 +3045,6 @@ func (uuc *UserUseCase) FixLocations(ctx context.Context, req *v1.FixLocationsRe
 			row = row + 1
 		}
 
-		fmt.Println(col, row, 22222)
 	}
 
 	return &v1.FixLocationsReply{}, nil
