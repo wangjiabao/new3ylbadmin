@@ -2030,7 +2030,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 		// 获取当前用户的占位信息，已经有运行中的跳过
 		myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, withdraw.UserId)
 		if nil == myLocationLast { // 无占位信息
-			return nil, err
+			continue
 		}
 		// 占位分红人
 		rewardLocations, err = uuc.locationRepo.GetRewardLocationByRowOrCol(ctx, myLocationLast.Row, myLocationLast.Col, locationRowConfig)
@@ -2038,7 +2038,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 		// 推荐人
 		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, withdraw.UserId)
 		if nil != err {
-			return nil, err
+			continue
 		}
 		if "" != userRecommend.RecommendCode {
 			tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
@@ -2050,6 +2050,9 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 			myUserRecommendUserInfo, err = uuc.uiRepo.GetUserInfoByUserId(ctx, myUserRecommendUserId)
 		}
 
+		if 3195 == withdraw.UserId {
+			fmt.Println(112323232323)
+		}
 		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			//fmt.Println(withdraw.Amount)
 			currentValue -= withdraw.Amount / 100 * 5 // 手续费
@@ -2354,6 +2357,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 
 			return nil
 		}); nil != err {
+			fmt.Println(err)
 			continue
 		}
 
