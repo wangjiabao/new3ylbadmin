@@ -66,17 +66,17 @@ func NewDB(c *conf.Data) *gorm.DB {
 	newLogger := logger.New(
 		slog.New(os.Stdout, "\r\n", slog.LstdFlags), // io writer
 		logger.Config{
-			SlowThreshold: 30 * time.Second, // 慢查询 SQL 阈值
-			Colorful:      true,             // 禁用彩色打印
-			//IgnoreRecordNotFoundError: true,
-			LogLevel: logger.Error, // Log lever
+			SlowThreshold:             30 * time.Second, // 慢查询 SQL 阈值
+			Colorful:                  true,             // 禁用彩色打印
+			IgnoreRecordNotFoundError: true,
+			LogLevel:                  logger.Error, // Log lever
 		},
 	)
 
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
 		Logger:                                   newLogger,
 		DisableForeignKeyConstraintWhenMigrating: true,
-		NamingStrategy: schema.NamingStrategy{
+		NamingStrategy:                           schema.NamingStrategy{
 			//SingularTable: true, // 表名是否加 s
 		},
 	})
