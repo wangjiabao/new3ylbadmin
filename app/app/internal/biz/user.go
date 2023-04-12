@@ -2050,9 +2050,6 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 			myUserRecommendUserInfo, err = uuc.uiRepo.GetUserInfoByUserId(ctx, myUserRecommendUserId)
 		}
 
-		if 3195 == withdraw.UserId {
-			fmt.Println(112323232323)
-		}
 		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			//fmt.Println(withdraw.Amount)
 			currentValue -= withdraw.Amount / 100 * 5 // 手续费
