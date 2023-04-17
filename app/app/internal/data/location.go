@@ -566,8 +566,7 @@ func (lr *LocationRepo) UpdateLocation(ctx context.Context, id int64, status str
 	} else {
 		res := lr.data.DB(ctx).Table("location").
 			Where("id=?", id).
-			Where("status=?", "running").
-			Updates(map[string]interface{}{"current": gorm.Expr("current + ?", current), "status": status})
+			Updates(map[string]interface{}{"current": gorm.Expr("current + ?", current)})
 		if 0 == res.RowsAffected || res.Error != nil {
 			return res.Error
 		}
