@@ -2403,6 +2403,8 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 
 	if 1 == req.Day {
 		day = 0
+	} else if 2 == req.Day {
+		day = -2
 	}
 
 	// 全网手续费
