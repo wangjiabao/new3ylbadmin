@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"dhb/app/app/internal/biz"
+	"fmt"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
@@ -1341,6 +1342,7 @@ func (ub *UserBalanceRepo) GetWithdrawDaily(ctx context.Context, day int) (int64
 	var total UserWithdrawTotal
 
 	now := time.Now().UTC().AddDate(0, 0, day)
+	fmt.Println(day, now)
 	var startDate time.Time
 	var endDate time.Time
 	if 14 <= now.Hour() {

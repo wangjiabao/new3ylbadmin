@@ -874,11 +874,14 @@ func (ruc *RecordUseCase) AdminLocationInsert(ctx context.Context, userId int64,
 	if nil != err {
 		return false, errors.New(500, "ERROR", "输入金额错误，重试")
 	}
-	if "" != userRecommend.RecommendCode {
-		tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
-		if 2 <= len(tmpRecommendUserIds) {
-			myUserRecommendUserId, _ = strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-1], 10, 64) // 最后一位是直推人
+	if nil != userRecommend {
+		if "" != userRecommend.RecommendCode {
+			tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+			if 2 <= len(tmpRecommendUserIds) {
+				myUserRecommendUserId, _ = strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-1], 10, 64) // 最后一位是直推人
+			}
 		}
+
 	}
 
 	if 0 < myUserRecommendUserId {
@@ -916,18 +919,20 @@ func (ruc *RecordUseCase) AdminLocationInsert(ctx context.Context, userId int64,
 			return err
 		}
 
-		_, err = ruc.userInfoRepo.UpdateUserInfo(ctx, myUserRecommendUserInfo) // 推荐人信息修改
-		if nil != err {
-			return err
-		}
+		if nil != myUserRecommendUserInfo {
+			_, err = ruc.userInfoRepo.UpdateUserInfo(ctx, myUserRecommendUserInfo) // 推荐人信息修改
+			if nil != err {
+				return err
+			}
 
-		_, err = ruc.userCurrentMonthRecommendRepo.CreateUserCurrentMonthRecommend(ctx, &UserCurrentMonthRecommend{ // 直推人本月推荐人数
-			UserId:          myUserRecommendUserId,
-			RecommendUserId: userId,
-			Date:            time.Now().UTC().Add(8 * time.Hour),
-		})
-		if nil != err {
-			return err
+			_, err = ruc.userCurrentMonthRecommendRepo.CreateUserCurrentMonthRecommend(ctx, &UserCurrentMonthRecommend{ // 直推人本月推荐人数
+				UserId:          myUserRecommendUserId,
+				RecommendUserId: userId,
+				Date:            time.Now().UTC().Add(8 * time.Hour),
+			})
+			if nil != err {
+				return err
+			}
 		}
 
 		if 0 < locationCurrent && nil != myLastStopLocation {

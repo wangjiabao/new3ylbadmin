@@ -155,6 +155,7 @@ func (lr *LocationRepo) GetMyLocationLast(ctx context.Context, userId int64) (*b
 		Row:          location.Row,
 		Col:          location.Col,
 		StopDate:     location.StopDate,
+		CreatedAt:    location.CreatedAt,
 	}, nil
 }
 

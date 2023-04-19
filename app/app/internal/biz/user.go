@@ -2462,7 +2462,7 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.AdminDailyWithdrawRewardRequest) (*v1.AdminDailyWithdrawRewardReply, error) {
 	//time.Sleep(30 * time.Second) // 错开时间和充值
 	now := time.Now()
-	beforeDay30 := now.AddDate(0, 0, 30)
+	beforeDay30 := now.AddDate(0, 0, -30)
 
 	var (
 		withdrawAmount     int64
@@ -2474,6 +2474,10 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 		err                error
 		allLocationAmount  int64
 	)
+
+	if 1 == req.Day {
+		day = 0
+	}
 
 	withdrawTotal, _ = uuc.ubRepo.GetWithdrawDaily(ctx, day)
 	if 0 == withdrawTotal {
@@ -2510,8 +2514,21 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 			if vMyRecommendUsers.CreatedAt.Before(beforeDay30) {
 				continue
 			}
+			var (
+				tmpLocationLast *Location
+			)
+			tmpLocationLast, _ = uuc.locationRepo.GetMyLocationLast(ctx, vMyRecommendUsers.UserId)
+			if nil == tmpLocationLast {
+				continue
+			}
+
+			if tmpLocationLast.CreatedAt.Before(beforeDay30) {
+				continue
+			}
+
 			tmpDo = true
 		}
+
 		if !tmpDo {
 			continue
 		}
