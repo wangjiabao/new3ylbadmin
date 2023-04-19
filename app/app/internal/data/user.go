@@ -1113,6 +1113,49 @@ func (ub *UserBalanceRepo) LocationReward(ctx context.Context, userId int64, amo
 	return userBalanceRecode.ID, nil
 }
 
+// WithdrawReward2 .
+func (ub *UserBalanceRepo) WithdrawReward2(ctx context.Context, userId int64, amount int64, myLocationId int64, status string) (int64, error) {
+	var err error
+	if "running" == status {
+		if err = ub.data.DB(ctx).Table("user_balance").
+			Where("user_id=?", userId).
+			Updates(map[string]interface{}{"balance_usdt": gorm.Expr("balance_usdt + ?", amount)}).Error; nil != err {
+			return 0, errors.NotFound("user balance err", "user balance not found")
+		}
+
+	}
+
+	var userBalance UserBalance
+	err = ub.data.DB(ctx).Where(&UserBalance{UserId: userId}).Table("user_balance").First(&userBalance).Error
+	if err != nil {
+		return 0, err
+	}
+
+	var userBalanceRecode UserBalanceRecord
+	userBalanceRecode.Balance = userBalance.BalanceUsdt
+	userBalanceRecode.UserId = userBalance.UserId
+	userBalanceRecode.Type = "reward"
+	userBalanceRecode.Amount = amount
+	err = ub.data.DB(ctx).Table("user_balance_record").Create(&userBalanceRecode).Error
+	if err != nil {
+		return 0, err
+	}
+
+	var reward Reward
+	reward.UserId = userBalance.UserId
+	reward.Amount = amount
+	reward.BalanceRecordId = userBalanceRecode.ID
+	reward.Type = "withdraw"   // 本次分红的行为类型
+	reward.Reason = "location" // 给我分红的理由
+	reward.ReasonLocationId = myLocationId
+	err = ub.data.DB(ctx).Table("reward").Create(&reward).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return userBalanceRecode.ID, nil
+}
+
 // WithdrawReward .
 func (ub *UserBalanceRepo) WithdrawReward(ctx context.Context, userId int64, amount int64, locationId int64, myLocationId int64, locationType string, status string) (int64, error) {
 	var err error
@@ -1291,6 +1334,36 @@ func (ub *UserBalanceRepo) WithdrawUsdt(ctx context.Context, userId int64, amoun
 	}
 
 	return nil
+}
+
+// GetWithdrawDaily .
+func (ub *UserBalanceRepo) GetWithdrawDaily(ctx context.Context, day int) (int64, error) {
+	var total UserWithdrawTotal
+
+	now := time.Now().UTC().AddDate(0, 0, day)
+	var startDate time.Time
+	var endDate time.Time
+	if 14 <= now.Hour() {
+		startDate = now
+		endDate = now.AddDate(0, 0, 1)
+	} else {
+		startDate = now.AddDate(0, 0, -1)
+		endDate = now
+	}
+	todayStart := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 14, 0, 0, 0, time.UTC)
+	todayEnd := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 14, 0, 0, 0, time.UTC)
+
+	if err := ub.data.db.Table("withdraw").
+		Where("type=?", "usdt").
+		Where("created_at>=?", todayStart).Where("created_at<?", todayEnd).Select("sum(amount) as total").Take(&total).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return total.Total, errors.NotFound("USER_WITHDRAW_NOT_FOUND", "withdraw not found")
+		}
+
+		return total.Total, errors.New(500, "USER WITHDRAW ERROR", err.Error())
+	}
+
+	return total.Total, nil
 }
 
 // WithdrawDhb .
@@ -2477,6 +2550,10 @@ func (ub UserBalanceRepo) GetUserBalanceByUserIds(ctx context.Context, userIds .
 }
 
 type UserBalanceTotal struct {
+	Total int64
+}
+
+type UserWithdrawTotal struct {
 	Total int64
 }
 

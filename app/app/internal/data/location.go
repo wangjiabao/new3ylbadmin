@@ -676,7 +676,7 @@ func (lr *LocationRepo) GetRewardLocationByRowOrCol(ctx context.Context, row int
 
 	if err := lr.data.db.Table("location").
 		Where("status=?", "running").
-		Where("row=? or (col=? and row>=? and row<=?)", row, col, rowMin, rowMax).
+		Where("col=? and row>=? and row<=?", col, rowMin, rowMax).
 		Find(&locations).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound("LOCATION_NOT_FOUND", "location not found")

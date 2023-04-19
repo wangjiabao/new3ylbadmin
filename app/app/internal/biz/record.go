@@ -121,40 +121,54 @@ func (ruc *RecordUseCase) GetEthUserRecordByTxHash(ctx context.Context, txHash .
 func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord ...*EthUserRecord) (bool, error) {
 
 	var (
-		configs            []*Config
-		recommendNeed      int64
-		recommendNeedTwo   int64
-		recommendNeedThree int64
-		recommendNeedFour  int64
-		recommendNeedFive  int64
-		recommendNeedSix   int64
-		recommendNeedVip1  int64
-		recommendNeedVip2  int64
-		recommendNeedVip3  int64
-		recommendNeedVip4  int64
-		recommendNeedVip5  int64
-		timeAgain          int64
-		locationRowConfig  int64
+		configs             []*Config
+		recommendNeed       int64
+		recommendNeed1to4   int64
+		recommendNeed5      int64
+		recommendNeed6      int64
+		recommendNeed7to10  int64
+		recommendNeed11     int64
+		recommendNeed12     int64
+		recommendNeed13to16 int64
+		recommendNeed17     int64
+		recommendNeed18     int64
+		recommendNeedVip1   int64
+		recommendNeedVip2   int64
+		recommendNeedVip3   int64
+		recommendNeedVip4   int64
+		recommendNeedVip5   int64
+		timeAgain           int64
+		locationRowConfig   int64
 	)
 	// 配置
-	configs, _ = ruc.configRepo.GetConfigByKeys(ctx, "recommend_need", "recommend_need_one",
-		"recommend_need_two", "recommend_need_three", "recommend_need_four", "recommend_need_five", "recommend_need_six",
+	configs, _ = ruc.configRepo.GetConfigByKeys(ctx, "recommend_need",
+		"recommend_need_1_4", "recommend_need_5", "recommend_need_6",
+		"recommend_need_7_10", "recommend_need_11", "recommend_need_12",
+		"recommend_need_13_17", "recommend_need_17", "recommend_need_18",
 		"recommend_need_vip1", "recommend_need_vip2",
 		"recommend_need_vip3", "recommend_need_vip4", "recommend_need_vip5", "time_again", "location_row")
 	if nil != configs {
 		for _, vConfig := range configs {
 			if "recommend_need" == vConfig.KeyName {
 				recommendNeed, _ = strconv.ParseInt(vConfig.Value, 10, 64)
-			} else if "recommend_need_two" == vConfig.KeyName {
-				recommendNeedTwo, _ = strconv.ParseInt(vConfig.Value, 10, 64)
-			} else if "recommend_need_three" == vConfig.KeyName {
-				recommendNeedThree, _ = strconv.ParseInt(vConfig.Value, 10, 64)
-			} else if "recommend_need_four" == vConfig.KeyName {
-				recommendNeedFour, _ = strconv.ParseInt(vConfig.Value, 10, 64)
-			} else if "recommend_need_five" == vConfig.KeyName {
-				recommendNeedFive, _ = strconv.ParseInt(vConfig.Value, 10, 64)
-			} else if "recommend_need_six" == vConfig.KeyName {
-				recommendNeedSix, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_1_4" == vConfig.KeyName {
+				recommendNeed1to4, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_5" == vConfig.KeyName {
+				recommendNeed5, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_6" == vConfig.KeyName {
+				recommendNeed6, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_7_10" == vConfig.KeyName {
+				recommendNeed7to10, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_11" == vConfig.KeyName {
+				recommendNeed11, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_12" == vConfig.KeyName {
+				recommendNeed12, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_13_16" == vConfig.KeyName {
+				recommendNeed13to16, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_17" == vConfig.KeyName {
+				recommendNeed17, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_18" == vConfig.KeyName {
+				recommendNeed18, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			} else if "recommend_need_vip1" == vConfig.KeyName {
 				recommendNeedVip1, _ = strconv.ParseInt(vConfig.Value, 10, 64)
 			} else if "recommend_need_vip2" == vConfig.KeyName {
@@ -262,16 +276,26 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 			locationCurrentMax = 5000000000000
 			currentValue = 1000000000000
 			dhbAmount = 1000000000000
-		} else if "300000000000000000000" == v.Amount {
-			locationCurrentLevel = 2
-			locationCurrentMax = 15000000000000
-			currentValue = 3000000000000
-			dhbAmount = 3000000000000
 		} else if "500000000000000000000" == v.Amount {
 			locationCurrentLevel = 3
 			locationCurrentMax = 25000000000000
 			currentValue = 5000000000000
 			dhbAmount = 5000000000000
+		} else if "1000000000000000000000" == v.Amount {
+			locationCurrentLevel = 4
+			locationCurrentMax = 50000000000000
+			currentValue = 10000000000000
+			dhbAmount = 10000000000000
+		} else if "3000000000000000000000" == v.Amount {
+			locationCurrentLevel = 5
+			locationCurrentMax = 150000000000000
+			currentValue = 30000000000000
+			dhbAmount = 30000000000000
+		} else if "5000000000000000000000" == v.Amount {
+			locationCurrentLevel = 6
+			locationCurrentMax = 250000000000000
+			currentValue = 50000000000000
+			dhbAmount = 50000000000000
 		} else {
 			continue
 		}
@@ -328,10 +352,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 
 					var locationType string
 					var tmpAmount int64
-					if locationRow == vRewardLocations.Row { // 同行的人
-						tmpAmount = currentValue / 100 * 5
-						locationType = "row"
-					} else if locationCol == vRewardLocations.Col { // 同列的人
+					if locationCol == vRewardLocations.Col { // 同列的人
 						tmpAmount = currentValue / 100
 						locationType = "col"
 					} else {
@@ -488,7 +509,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 				if 2 <= len(tmpRecommendUserIds) {
 					fmt.Println(tmpRecommendUserIds)
 					lasAmount := currentValue / 100 * recommendNeed
-					for i := 2; i <= 6; i++ {
+					for i := 1; i <= 18; i++ {
 						// 有占位信息，推荐人推荐人的上一代
 						if len(tmpRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
 							break
@@ -496,16 +517,24 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-i], 10, 64) // 最后一位是直推人
 
 						var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
-						if i == 2 {
-							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeedTwo // 记录下一次
-						} else if i == 3 {
-							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeedThree // 记录下一次
-						} else if i == 4 {
-							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeedFour // 记录下一次
+						if i >= 1 && i <= 4 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed1to4 // 记录下一次
 						} else if i == 5 {
-							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeedFive // 记录下一次
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed5 // 记录下一次
 						} else if i == 6 {
-							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeedSix // 记录下一次
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed6 // 记录下一次
+						} else if i >= 7 && i <= 10 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed7to10 // 记录下一次
+						} else if i == 11 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed11 // 记录下一次
+						} else if i == 12 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed12 // 记录下一次
+						} else if i >= 13 && i <= 16 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed13to16 // 记录下一次
+						} else if i == 17 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed17 // 记录下一次
+						} else if i == 18 {
+							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed18 // 记录下一次
 						} else {
 							break
 						}
@@ -809,18 +838,26 @@ func (ruc *RecordUseCase) AdminLocationInsert(ctx context.Context, userId int64,
 	}
 
 	// todo
-	if 50 == amount {
+	if 100 == amount {
 		locationCurrentLevel = 1
 		locationCurrentMax = 5000000000000
 		currentValue = 1000000000000
-	} else if 100 == amount {
-		locationCurrentLevel = 2
-		locationCurrentMax = 15000000000000
-		currentValue = 3000000000000
-	} else if 300 == amount {
+	} else if 500 == amount {
 		locationCurrentLevel = 3
 		locationCurrentMax = 25000000000000
 		currentValue = 5000000000000
+	} else if 1000 == amount {
+		locationCurrentLevel = 4
+		locationCurrentMax = 50000000000000
+		currentValue = 10000000000000
+	} else if 3000 == amount {
+		locationCurrentLevel = 5
+		locationCurrentMax = 150000000000000
+		currentValue = 30000000000000
+	} else if 5000 == amount {
+		locationCurrentLevel = 6
+		locationCurrentMax = 250000000000000
+		currentValue = 50000000000000
 	} else {
 		return false, errors.New(500, "ERROR", "输入金额错误，重试")
 	}

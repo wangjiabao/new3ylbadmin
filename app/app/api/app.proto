@@ -288,6 +288,12 @@ service App {
 		};
 	};
 
+	rpc AdminDailyWithdrawReward (AdminDailyWithdrawRewardRequest) returns (AdminDailyWithdrawRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/daily_withdraw_reward"
+		};
+	};
+
 	rpc FixReward (FixRewardRequest) returns (FixRewardReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/fix_reward"
@@ -841,6 +847,13 @@ message AdminDailyRecommendRewardReply {
 
 }
 
+message AdminDailyWithdrawRewardRequest {
+	int32 day = 1;
+}
+
+message AdminDailyWithdrawRewardReply {
+
+}
 
 message FixRewardRequest {
 	int64 id1 = 1;

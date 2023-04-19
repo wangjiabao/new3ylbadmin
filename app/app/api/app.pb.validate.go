@@ -9452,6 +9452,214 @@ var _ interface {
 	ErrorName() string
 } = AdminDailyRecommendRewardReplyValidationError{}
 
+// Validate checks the field values on AdminDailyWithdrawRewardRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminDailyWithdrawRewardRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminDailyWithdrawRewardRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// AdminDailyWithdrawRewardRequestMultiError, or nil if none found.
+func (m *AdminDailyWithdrawRewardRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminDailyWithdrawRewardRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Day
+
+	if len(errors) > 0 {
+		return AdminDailyWithdrawRewardRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminDailyWithdrawRewardRequestMultiError is an error wrapping multiple
+// validation errors returned by AdminDailyWithdrawRewardRequest.ValidateAll()
+// if the designated constraints aren't met.
+type AdminDailyWithdrawRewardRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminDailyWithdrawRewardRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminDailyWithdrawRewardRequestMultiError) AllErrors() []error { return m }
+
+// AdminDailyWithdrawRewardRequestValidationError is the validation error
+// returned by AdminDailyWithdrawRewardRequest.Validate if the designated
+// constraints aren't met.
+type AdminDailyWithdrawRewardRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminDailyWithdrawRewardRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminDailyWithdrawRewardRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminDailyWithdrawRewardRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminDailyWithdrawRewardRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminDailyWithdrawRewardRequestValidationError) ErrorName() string {
+	return "AdminDailyWithdrawRewardRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminDailyWithdrawRewardRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminDailyWithdrawRewardRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminDailyWithdrawRewardRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminDailyWithdrawRewardRequestValidationError{}
+
+// Validate checks the field values on AdminDailyWithdrawRewardReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AdminDailyWithdrawRewardReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminDailyWithdrawRewardReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// AdminDailyWithdrawRewardReplyMultiError, or nil if none found.
+func (m *AdminDailyWithdrawRewardReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminDailyWithdrawRewardReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminDailyWithdrawRewardReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminDailyWithdrawRewardReplyMultiError is an error wrapping multiple
+// validation errors returned by AdminDailyWithdrawRewardReply.ValidateAll()
+// if the designated constraints aren't met.
+type AdminDailyWithdrawRewardReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminDailyWithdrawRewardReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminDailyWithdrawRewardReplyMultiError) AllErrors() []error { return m }
+
+// AdminDailyWithdrawRewardReplyValidationError is the validation error
+// returned by AdminDailyWithdrawRewardReply.Validate if the designated
+// constraints aren't met.
+type AdminDailyWithdrawRewardReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminDailyWithdrawRewardReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminDailyWithdrawRewardReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminDailyWithdrawRewardReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminDailyWithdrawRewardReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminDailyWithdrawRewardReplyValidationError) ErrorName() string {
+	return "AdminDailyWithdrawRewardReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminDailyWithdrawRewardReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminDailyWithdrawRewardReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminDailyWithdrawRewardReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminDailyWithdrawRewardReplyValidationError{}
+
 // Validate checks the field values on FixRewardRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.

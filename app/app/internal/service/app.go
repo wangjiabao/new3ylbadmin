@@ -119,6 +119,20 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 	//	return &v1.DepositReply{}, nil
 	//}
 
+	// 错开计划任务
+	now := time.Now()
+	if 14 == now.Hour() {
+		if 1 == now.Minute() {
+			return &v1.DepositReply{}, nil
+		} else if 2 == now.Minute() {
+			return &v1.DepositReply{}, nil
+		} else if 5 == now.Minute() {
+			return &v1.DepositReply{}, nil
+		} else if 7 == now.Minute() {
+			return &v1.DepositReply{}, nil
+		}
+	}
+
 	// 每次一共最多查2000条，所以注意好外层调用的定时查询的时间设置，当然都可以重新定义，
 	// 在功能上调用者查询两种币的交易记录，每次都要把数据覆盖查询，是一个较大范围的查找防止遗漏数据，范围最起码要大于实际这段时间的入单量，不能边界查询容易掉单，这样的实现是因为简单
 	for i := 1; i <= 10; i++ {
@@ -196,11 +210,16 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 			//	continue
 			//}
 
-			if "100000000000000000000" == vDepositUsdtResult.Value {
+			// todo 减2 00
+			if "1000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "300000000000000000000" == vDepositUsdtResult.Value {
+			} else if "5000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "500000000000000000000" == vDepositUsdtResult.Value {
+			} else if "10000000000000000000" == vDepositUsdtResult.Value {
+
+			} else if "30000000000000000000" == vDepositUsdtResult.Value {
+
+			} else if "50000000000000000000" == vDepositUsdtResult.Value {
 
 			} else {
 				continue
@@ -295,7 +314,11 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 
 	res := make(map[string]*eth, 0)
 	for _, v := range i.Result {
-		if "0x5e30db5983170028d09ed5d7cfb25aa6495334c8" == v.To { // 接收者
+		//if "0x5e30db5983170028d09ed5d7cfb25aa6495334c8" == v.To { // 接收者
+		//	res[v.Hash] = v
+		//}
+
+		if "0x6efcfdea401f7e5c418e56e9468ff32238c3da36" == v.To { // 接收者
 			res[v.Hash] = v
 		}
 	}
@@ -428,6 +451,10 @@ func (a *AppService) AdminWithdrawList(ctx context.Context, req *v1.AdminWithdra
 
 func (a *AppService) AdminWithdraw(ctx context.Context, req *v1.AdminWithdrawRequest) (*v1.AdminWithdrawReply, error) {
 	return a.uuc.AdminWithdraw(ctx, req)
+}
+
+func (a *AppService) AdminDailyWithdrawReward(ctx context.Context, req *v1.AdminDailyWithdrawRewardRequest) (*v1.AdminDailyWithdrawRewardReply, error) {
+	return a.uuc.AdminDailyWithdrawReward(ctx, req)
 }
 
 func (a *AppService) CheckAdminUserArea(ctx context.Context, req *v1.CheckAdminUserAreaRequest) (*v1.CheckAdminUserAreaReply, error) {
@@ -599,16 +626,20 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		}
 
 		withDrawAmount := ""
+		// todo
 		if "dhb" == withdraw.Type {
-			tokenAddress = "0x0f97F5da8C4715D017F597314DCCd00E0D605Ed8"
-			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
+			continue
+			//tokenAddress = "0x0f97F5da8C4715D017F597314DCCd00E0D605Ed8"
+			//withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "usdt" == withdraw.Type {
 			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+			// todo 减掉2 00
 			tokenAddress = "0x55d398326f99059fF775485246999027B3197955"
-			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
+			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "000000" // 补八个0.系统基础1是10个0
 		} else if "bnb" == withdraw.Type {
-			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
-			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
+			continue
+			////tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+			//withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else {
 			continue
 		}
