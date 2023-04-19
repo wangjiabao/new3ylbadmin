@@ -130,6 +130,8 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 			return &v1.DepositReply{}, nil
 		} else if 7 == now.Minute() {
 			return &v1.DepositReply{}, nil
+		} else if 8 == now.Minute() {
+			return &v1.DepositReply{}, nil
 		}
 	}
 

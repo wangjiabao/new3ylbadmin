@@ -509,7 +509,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 				if 2 <= len(tmpRecommendUserIds) {
 					fmt.Println(tmpRecommendUserIds)
 					lasAmount := currentValue / 100 * recommendNeed
-					for i := 1; i <= 18; i++ {
+					for i := 2; i <= 18; i++ {
 						// 有占位信息，推荐人推荐人的上一代
 						if len(tmpRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
 							break
@@ -517,7 +517,7 @@ func (ruc *RecordUseCase) EthUserRecordHandle(ctx context.Context, ethUserRecord
 						tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-i], 10, 64) // 最后一位是直推人
 
 						var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
-						if i >= 1 && i <= 4 {
+						if i >= 2 && i <= 4 {
 							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed1to4 // 记录下一次
 						} else if i == 5 {
 							tmpMyTopUserRecommendUserLocationLastBalanceAmount = lasAmount / 100 * recommendNeed5 // 记录下一次
