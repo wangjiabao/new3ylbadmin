@@ -2461,18 +2461,18 @@ func (uuc *UserUseCase) AdminWithdraw(ctx context.Context, req *v1.AdminWithdraw
 
 func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.AdminDailyWithdrawRewardRequest) (*v1.AdminDailyWithdrawRewardReply, error) {
 	//time.Sleep(30 * time.Second) // 错开时间和充值
-	now := time.Now()
-	beforeDay30 := now.AddDate(0, 0, -30)
+	//now := time.Now()
+	//beforeDay30 := now.AddDate(0, 0, -30)
 
 	var (
-		withdrawAmount     int64
-		withdrawTotal      int64
-		day                = -1
-		runningLocations   []*Location
-		rewardLocations    []*Location
-		tryRewardLocations []*Location
-		err                error
-		allLocationAmount  int64
+		withdrawAmount   int64
+		withdrawTotal    int64
+		day              = -1
+		runningLocations []*Location
+		rewardLocations  []*Location
+		//tryRewardLocations []*Location
+		err               error
+		allLocationAmount int64
 	)
 
 	if 1 == req.Day {
@@ -2493,45 +2493,45 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 	}
 
 	for _, vRunningLocations := range runningLocations {
-		var (
-			tmpUserRecommend *UserRecommend
-			myRecommendUsers []*UserRecommend
-		)
-		tmpUserRecommend, _ = uuc.urRepo.GetUserRecommendByUserId(ctx, vRunningLocations.UserId)
-		if nil == tmpUserRecommend {
-			continue
-		}
-
-		myCode := tmpUserRecommend.RecommendCode + "D" + strconv.FormatInt(vRunningLocations.UserId, 10)
-		myRecommendUsers, _ = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
-		if 0 >= len(myRecommendUsers) {
-			continue
-		}
+		//var (
+		//	tmpUserRecommend *UserRecommend
+		//	myRecommendUsers []*UserRecommend
+		//)
+		//tmpUserRecommend, _ = uuc.urRepo.GetUserRecommendByUserId(ctx, vRunningLocations.UserId)
+		//if nil == tmpUserRecommend {
+		//	continue
+		//}
+		//
+		//myCode := tmpUserRecommend.RecommendCode + "D" + strconv.FormatInt(vRunningLocations.UserId, 10)
+		//myRecommendUsers, _ = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
+		//if 0 >= len(myRecommendUsers) {
+		//	continue
+		//}
 
 		// 30天前推荐
-		tmpDo := false
-		for _, vMyRecommendUsers := range myRecommendUsers {
-			if vMyRecommendUsers.CreatedAt.Before(beforeDay30) {
-				continue
-			}
-			var (
-				tmpLocationLast *Location
-			)
-			tmpLocationLast, _ = uuc.locationRepo.GetMyLocationLast(ctx, vMyRecommendUsers.UserId)
-			if nil == tmpLocationLast {
-				continue
-			}
-
-			if tmpLocationLast.CreatedAt.Before(beforeDay30) {
-				continue
-			}
-
-			tmpDo = true
-		}
-
-		if !tmpDo {
-			continue
-		}
+		//tmpDo := false
+		//for _, vMyRecommendUsers := range myRecommendUsers {
+		//	if vMyRecommendUsers.CreatedAt.Before(beforeDay30) {
+		//		continue
+		//	}
+		//	var (
+		//		tmpLocationLast *Location
+		//	)
+		//	tmpLocationLast, _ = uuc.locationRepo.GetMyLocationLast(ctx, vMyRecommendUsers.UserId)
+		//	if nil == tmpLocationLast {
+		//		continue
+		//	}
+		//
+		//	if tmpLocationLast.CreatedAt.Before(beforeDay30) {
+		//		continue
+		//	}
+		//
+		//	tmpDo = true
+		//}
+		//
+		//if !tmpDo {
+		//	continue
+		//}
 
 		tmpCurrentMax := vRunningLocations.CurrentMax / 5
 
@@ -2554,79 +2554,79 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 		rewardLocations = append(rewardLocations, vRunningLocations)
 	}
 
-	tryCount := 0
-	for 0 < len(rewardLocations) && tryCount <= 5 {
+	//tryCount := 0
+	//for 0 < len(rewardLocations) && tryCount <= 5 {
+	//
+	//	if tryCount > 0 {
+	//		for _, vRewardLocations := range rewardLocations {
+	//			fmt.Println(vRewardLocations, "not deal withdraw reward")
+	//		}
+	//
+	//		fmt.Println(tryCount, "not deal withdraw reward count")
+	//		time.Sleep(51 * time.Second) // 如果超时了，21s大于数据库超时回滚时间，保证上一波最后一个超时回滚结束
+	//	}
+	//	tryCount++
 
-		if tryCount > 0 {
-			for _, vRewardLocations := range rewardLocations {
-				fmt.Println(vRewardLocations, "not deal withdraw reward")
-			}
-
-			fmt.Println(tryCount, "not deal withdraw reward count")
-			time.Sleep(51 * time.Second) // 如果超时了，21s大于数据库超时回滚时间，保证上一波最后一个超时回滚结束
-		}
-		tryCount++
-
-		for _, vRewardLocations := range rewardLocations {
-			tmpCurrentMax := vRewardLocations.CurrentMax / 5
-			if tmpCurrentMax >= 1000000000000 && tmpCurrentMax < 3000000000000 {
-				tmpCurrentMax = 100
-			} else if tmpCurrentMax >= 3000000000000 && tmpCurrentMax < 5000000000000 {
-				tmpCurrentMax = 300
-			} else if tmpCurrentMax >= 5000000000000 && tmpCurrentMax < 10000000000000 {
-				tmpCurrentMax = 500
-			} else if tmpCurrentMax >= 10000000000000 && tmpCurrentMax < 30000000000000 {
-				tmpCurrentMax = 1000
-			} else if tmpCurrentMax >= 30000000000000 && tmpCurrentMax < 50000000000000 {
-				tmpCurrentMax = 3000
-			} else if tmpCurrentMax >= 50000000000000 {
-				tmpCurrentMax = 5000
-			} else {
-				continue
-			}
-
-			tmpCurrent := withdrawAmount * tmpCurrentMax / (allLocationAmount / 10000000000)
-
-			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-				var (
-					status   string
-					current  int64
-					StopDate = vRewardLocations.StopDate
-				)
-				// 获取当前用户的占位信息，已经有运行中的跳过
-				tmpCurrentStatus := vRewardLocations.Status // 现在还在运行中
-				tmpBalanceAmount := tmpCurrent
-				status = "running"
-				current += tmpCurrent
-				if current >= vRewardLocations.CurrentMax { // 占位分红人分满停止
-					if "running" == tmpCurrentStatus {
-						StopDate = time.Now().UTC().Add(8 * time.Hour)
-					}
-					status = "stop"
-				}
-
-				if 0 < tmpBalanceAmount {
-					err = uuc.locationRepo.UpdateLocation(ctx, vRewardLocations.ID, status, tmpBalanceAmount, StopDate) // 分红占位数据修改
-					if nil != err {
-						return err
-					}
-
-					_, err = uuc.ubRepo.WithdrawReward2(ctx, vRewardLocations.UserId, tmpBalanceAmount, vRewardLocations.ID, tmpCurrentStatus)
-					if nil != err {
-						return err
-					}
-				}
-
-				return nil
-			}); nil != err {
-				fmt.Println(err)
-				tryRewardLocations = append(tryRewardLocations, vRewardLocations)
-				continue
-			}
+	for _, vRewardLocations := range rewardLocations {
+		tmpCurrentMax := vRewardLocations.CurrentMax / 5
+		if tmpCurrentMax >= 1000000000000 && tmpCurrentMax < 3000000000000 {
+			tmpCurrentMax = 100
+		} else if tmpCurrentMax >= 3000000000000 && tmpCurrentMax < 5000000000000 {
+			tmpCurrentMax = 300
+		} else if tmpCurrentMax >= 5000000000000 && tmpCurrentMax < 10000000000000 {
+			tmpCurrentMax = 500
+		} else if tmpCurrentMax >= 10000000000000 && tmpCurrentMax < 30000000000000 {
+			tmpCurrentMax = 1000
+		} else if tmpCurrentMax >= 30000000000000 && tmpCurrentMax < 50000000000000 {
+			tmpCurrentMax = 3000
+		} else if tmpCurrentMax >= 50000000000000 {
+			tmpCurrentMax = 5000
+		} else {
+			continue
 		}
 
-		rewardLocations = tryRewardLocations
+		tmpCurrent := withdrawAmount * tmpCurrentMax / (allLocationAmount / 10000000000)
+
+		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			var (
+				status   string
+				current  int64
+				StopDate = vRewardLocations.StopDate
+			)
+			// 获取当前用户的占位信息，已经有运行中的跳过
+			tmpCurrentStatus := vRewardLocations.Status // 现在还在运行中
+			tmpBalanceAmount := tmpCurrent
+			status = "running"
+			current += tmpCurrent
+			if current >= vRewardLocations.CurrentMax { // 占位分红人分满停止
+				if "running" == tmpCurrentStatus {
+					StopDate = time.Now().UTC().Add(8 * time.Hour)
+				}
+				status = "stop"
+			}
+
+			if 0 < tmpBalanceAmount {
+				err = uuc.locationRepo.UpdateLocation(ctx, vRewardLocations.ID, status, tmpBalanceAmount, StopDate) // 分红占位数据修改
+				if nil != err {
+					return err
+				}
+
+				_, err = uuc.ubRepo.WithdrawReward2(ctx, vRewardLocations.UserId, tmpBalanceAmount, vRewardLocations.ID, tmpCurrentStatus)
+				if nil != err {
+					return err
+				}
+			}
+
+			return nil
+		}); nil != err {
+			fmt.Println(err)
+			//tryRewardLocations = append(tryRewardLocations, vRewardLocations)
+			continue
+		}
 	}
+
+	//rewardLocations = tryRewardLocations
+	//}
 
 	return &v1.AdminDailyWithdrawRewardReply{}, nil
 }
@@ -2791,62 +2791,62 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		feeLevel1 := fee * recommendAreaOneRate / 100 / int64(len(level1))
 		feeLevel1 *= 100000
 
-		tryCount := 0
-		for 0 < len(level1) && tryCount <= 5 {
-			tmpLevel1Not := make(map[int64]int64, 0)
+		//tryCount := 0
+		//for 0 < len(level1) && tryCount <= 5 {
+		//	tmpLevel1Not := make(map[int64]int64, 0)
+		//
+		//	if tryCount > 0 {
+		//		for _, vLevel1 := range level1 {
+		//			fmt.Println(vLevel1, "not deal 1")
+		//		}
+		//
+		//		fmt.Println(tryCount, "level1")
+		//		time.Sleep(51 * time.Second) // 如果超时了，21s大于数据库超时回滚时间，保证上一波最后一个超时回滚结束
+		//	}
+		//	tryCount++
 
-			if tryCount > 0 {
-				for _, vLevel1 := range level1 {
-					fmt.Println(vLevel1, "not deal 1")
+		for _, vLevel1 := range level1 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel1)
+				if nil == myLocationLast { // 无占位信息
+					return err
+				}
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpBalanceAmount := feeLevel1
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel1
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
 				}
 
-				fmt.Println(tryCount, "level1")
-				time.Sleep(51 * time.Second) // 如果超时了，21s大于数据库超时回滚时间，保证上一波最后一个超时回滚结束
-			}
-			tryCount++
-
-			for _, vLevel1 := range level1 {
-				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-					var myLocationLast *Location
-					// 获取当前用户的占位信息，已经有运行中的跳过
-					myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel1)
-					if nil == myLocationLast { // 无占位信息
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
 						return err
 					}
-					tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-					tmpBalanceAmount := feeLevel1
-					myLocationLast.Status = "running"
-					myLocationLast.Current += feeLevel1
-					if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
-						if "running" == tmpCurrentStatus {
-							myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
-						}
-						myLocationLast.Status = "stop"
-					}
 
-					if 0 < tmpBalanceAmount {
-						err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if 0 < tmpBalanceAmount { // 这次还能分红
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel1, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
-
-						if 0 < tmpBalanceAmount { // 这次还能分红
-							_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel1, tmpBalanceAmount, tmpCurrentStatus)
-							if nil != err {
-								return err
-							}
-						}
 					}
-
-					return nil
-				}); nil != err {
-					fmt.Println(err)
-					tmpLevel1Not[vLevel1] = vLevel1
-					continue
 				}
-			}
 
-			level1 = tmpLevel1Not
+				return nil
+			}); nil != err {
+				fmt.Println(err)
+				//tmpLevel1Not[vLevel1] = vLevel1
+				continue
+			}
+			//}
+			//
+			//level1 = tmpLevel1Not
 		}
 	}
 
@@ -2855,64 +2855,64 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		feeLevel2 := fee * recommendAreaTwoRate / 100 / int64(len(level2))
 		feeLevel2 *= 100000
 
-		tryCount := 0
-		for 0 < len(level2) && tryCount <= 5 {
-			tmpLevel2Not := make(map[int64]int64, 0)
+		//tryCount := 0
+		//for 0 < len(level2) && tryCount <= 5 {
+		//	tmpLevel2Not := make(map[int64]int64, 0)
+		//
+		//	if tryCount > 0 {
+		//		for _, vLevel2 := range level2 {
+		//			fmt.Println(vLevel2, "not deal 2")
+		//		}
+		//
+		//		fmt.Println(tryCount, "level2")
+		//		time.Sleep(51 * time.Second)
+		//	}
+		//	tryCount++
 
-			if tryCount > 0 {
-				for _, vLevel2 := range level2 {
-					fmt.Println(vLevel2, "not deal 2")
+		for _, vLevel2 := range level2 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel2)
+				if nil == myLocationLast { // 无占位信息
+					return err
 				}
 
-				fmt.Println(tryCount, "level2")
-				time.Sleep(51 * time.Second)
-			}
-			tryCount++
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpBalanceAmount := feeLevel2
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel2
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
 
-			for _, vLevel2 := range level2 {
-				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-					var myLocationLast *Location
-					// 获取当前用户的占位信息，已经有运行中的跳过
-					myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel2)
-					if nil == myLocationLast { // 无占位信息
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
 						return err
 					}
 
-					tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-					tmpBalanceAmount := feeLevel2
-					myLocationLast.Status = "running"
-					myLocationLast.Current += feeLevel2
-					if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
-						if "running" == tmpCurrentStatus {
-							myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
-						}
-						myLocationLast.Status = "stop"
-					}
-
-					if 0 < tmpBalanceAmount {
-						err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if 0 < tmpBalanceAmount { // 这次还能分红
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel2, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
-
-						if 0 < tmpBalanceAmount { // 这次还能分红
-							_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel2, tmpBalanceAmount, tmpCurrentStatus)
-							if nil != err {
-								return err
-							}
-						}
 					}
-
-					return nil
-				}); nil != err {
-					fmt.Println(err)
-					tmpLevel2Not[vLevel2] = vLevel2
-					continue
 				}
-			}
 
-			level2 = tmpLevel2Not
+				return nil
+			}); nil != err {
+				fmt.Println(err)
+				//tmpLevel2Not[vLevel2] = vLevel2
+				continue
+			}
 		}
+
+		//	level2 = tmpLevel2Not
+		//}
 
 	}
 
@@ -2921,64 +2921,64 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		feeLevel3 := fee * recommendAreaThreeRate / 100 / int64(len(level3))
 		feeLevel3 *= 100000
 
-		tryCount := 0
-		for 0 < len(level3) && tryCount <= 5 {
-			tmpLevel3Not := make(map[int64]int64, 0)
+		//tryCount := 0
+		//for 0 < len(level3) && tryCount <= 5 {
+		//	tmpLevel3Not := make(map[int64]int64, 0)
+		//
+		//	if tryCount > 0 {
+		//		for _, vLevel3 := range level3 {
+		//			fmt.Println(vLevel3, "not deal 3")
+		//		}
+		//
+		//		fmt.Println(tryCount, "level3")
+		//		time.Sleep(51 * time.Second)
+		//	}
+		//	tryCount++
 
-			if tryCount > 0 {
-				for _, vLevel3 := range level3 {
-					fmt.Println(vLevel3, "not deal 3")
+		for _, vLevel3 := range level3 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel3)
+				if nil == myLocationLast { // 无占位信息
+					return err
 				}
 
-				fmt.Println(tryCount, "level3")
-				time.Sleep(51 * time.Second)
-			}
-			tryCount++
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpBalanceAmount := feeLevel3
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel3
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
 
-			for _, vLevel3 := range level3 {
-				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-					var myLocationLast *Location
-					// 获取当前用户的占位信息，已经有运行中的跳过
-					myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel3)
-					if nil == myLocationLast { // 无占位信息
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
 						return err
 					}
 
-					tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-					tmpBalanceAmount := feeLevel3
-					myLocationLast.Status = "running"
-					myLocationLast.Current += feeLevel3
-					if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
-						if "running" == tmpCurrentStatus {
-							myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
-						}
-						myLocationLast.Status = "stop"
-					}
-
-					if 0 < tmpBalanceAmount {
-						err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if 0 < tmpBalanceAmount { // 这次还能分红
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel3, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
-
-						if 0 < tmpBalanceAmount { // 这次还能分红
-							_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel3, tmpBalanceAmount, tmpCurrentStatus)
-							if nil != err {
-								return err
-							}
-						}
 					}
-
-					return nil
-				}); nil != err {
-					fmt.Println(err)
-					tmpLevel3Not[vLevel3] = vLevel3
-					continue
 				}
-			}
 
-			level3 = tmpLevel3Not
+				return nil
+			}); nil != err {
+				fmt.Println(err)
+				//tmpLevel3Not[vLevel3] = vLevel3
+				continue
+			}
 		}
+
+		//	level3 = tmpLevel3Not
+		//}
 	}
 
 	// 分红
@@ -2986,63 +2986,63 @@ func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.A
 		feeLevel4 := fee * recommendAreaFourRate / 100 / int64(len(level4))
 		feeLevel4 *= 100000
 
-		tryCount := 0
-		for 0 < len(level4) && tryCount <= 5 {
-			tmpLevel4Not := make(map[int64]int64, 0)
-			if tryCount > 0 {
-				for _, vLevel4 := range level4 {
-					fmt.Println(vLevel4, "not deal 4")
+		//tryCount := 0
+		//for 0 < len(level4) && tryCount <= 5 {
+		//	tmpLevel4Not := make(map[int64]int64, 0)
+		//	if tryCount > 0 {
+		//		for _, vLevel4 := range level4 {
+		//			fmt.Println(vLevel4, "not deal 4")
+		//		}
+		//
+		//		fmt.Println(tryCount, "level4")
+		//		time.Sleep(51 * time.Second)
+		//	}
+		//	tryCount++
+
+		for _, vLevel4 := range level4 {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				var myLocationLast *Location
+				// 获取当前用户的占位信息，已经有运行中的跳过
+				myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel4)
+				if nil == myLocationLast { // 无占位信息
+					return err
 				}
 
-				fmt.Println(tryCount, "level4")
-				time.Sleep(51 * time.Second)
-			}
-			tryCount++
+				tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
+				tmpBalanceAmount := feeLevel4
+				myLocationLast.Status = "running"
+				myLocationLast.Current += feeLevel4
+				if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
+					if "running" == tmpCurrentStatus {
+						myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+					}
+					myLocationLast.Status = "stop"
+				}
 
-			for _, vLevel4 := range level4 {
-				if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-					var myLocationLast *Location
-					// 获取当前用户的占位信息，已经有运行中的跳过
-					myLocationLast, err = uuc.locationRepo.GetMyLocationLast(ctx, vLevel4)
-					if nil == myLocationLast { // 无占位信息
+				if 0 < tmpBalanceAmount {
+					err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if nil != err {
 						return err
 					}
 
-					tmpCurrentStatus := myLocationLast.Status // 现在还在运行中
-					tmpBalanceAmount := feeLevel4
-					myLocationLast.Status = "running"
-					myLocationLast.Current += feeLevel4
-					if myLocationLast.Current >= myLocationLast.CurrentMax { // 占位分红人分满停止
-						if "running" == tmpCurrentStatus {
-							myLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
-						}
-						myLocationLast.Status = "stop"
-					}
-
-					if 0 < tmpBalanceAmount {
-						err = uuc.locationRepo.UpdateLocation(ctx, myLocationLast.ID, myLocationLast.Status, tmpBalanceAmount, myLocationLast.StopDate) // 分红占位数据修改
+					if 0 < tmpBalanceAmount { // 这次还能分红
+						_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel4, tmpBalanceAmount, tmpCurrentStatus)
 						if nil != err {
 							return err
 						}
-
-						if 0 < tmpBalanceAmount { // 这次还能分红
-							_, err = uuc.ubRepo.UserDailyRecommendArea(ctx, vLevel4, tmpBalanceAmount, tmpCurrentStatus)
-							if nil != err {
-								return err
-							}
-						}
 					}
-
-					return nil
-				}); nil != err {
-					fmt.Println(err)
-					tmpLevel4Not[vLevel4] = vLevel4
-					continue
 				}
-			}
 
-			level4 = tmpLevel4Not
+				return nil
+			}); nil != err {
+				fmt.Println(err)
+				//tmpLevel4Not[vLevel4] = vLevel4
+				continue
+			}
 		}
+
+		//level4 = tmpLevel4Not
+		//}
 	}
 
 	return &v1.AdminDailyRecommendRewardReply{}, nil

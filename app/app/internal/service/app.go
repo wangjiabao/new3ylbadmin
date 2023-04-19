@@ -273,8 +273,7 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 	data.Set("action", "tokentx")
 	data.Set("contractaddress", contractAddress)
 	data.Set("apikey", "CRCSHR2G3WXB1MET3BNA7ZQKQVSNXFYX18")
-	data.Set("address", "0x6efcfdea401f7e5c418e56e9468ff32238c3da36")
-	//data.Set("address", "0x5e30db5983170028d09ed5d7cfb25aa6495334c8")
+	data.Set("address", "0x5e30db5983170028d09ed5d7cfb25aa6495334c8")
 	data.Set("sort", "desc")
 	data.Set("offset", strconv.FormatInt(offset, 10))
 	data.Set("page", strconv.FormatInt(page, 10))
@@ -316,11 +315,7 @@ func requestEthDepositResult(offset int64, page int64, contractAddress string) (
 
 	res := make(map[string]*eth, 0)
 	for _, v := range i.Result {
-		//if "0x5e30db5983170028d09ed5d7cfb25aa6495334c8" == v.To { // 接收者
-		//	res[v.Hash] = v
-		//}
-
-		if "0x6efcfdea401f7e5c418e56e9468ff32238c3da36" == v.To { // 接收者
+		if "0x5e30db5983170028d09ed5d7cfb25aa6495334c8" == v.To { // 接收者
 			res[v.Hash] = v
 		}
 	}
@@ -628,19 +623,16 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 		}
 
 		withDrawAmount := ""
-		// todo
 		if "dhb" == withdraw.Type {
-			continue
-			//tokenAddress = "0x0f97F5da8C4715D017F597314DCCd00E0D605Ed8"
-			//withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
+			tokenAddress = "0x0f97F5da8C4715D017F597314DCCd00E0D605Ed8"
+			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "usdt" == withdraw.Type {
 			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
 			tokenAddress = "0x55d398326f99059fF775485246999027B3197955"
 			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "bnb" == withdraw.Type {
-			continue
-			////tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
-			//withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
+			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
+			withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else {
 			continue
 		}
