@@ -210,16 +210,15 @@ func (a *AppService) Deposit(ctx context.Context, req *v1.DepositRequest) (*v1.D
 			//	continue
 			//}
 
-			// todo 减2 00
-			if "1000000000000000000" == vDepositUsdtResult.Value {
+			if "100000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "5000000000000000000" == vDepositUsdtResult.Value {
+			} else if "500000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "10000000000000000000" == vDepositUsdtResult.Value {
+			} else if "1000000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "30000000000000000000" == vDepositUsdtResult.Value {
+			} else if "3000000000000000000000" == vDepositUsdtResult.Value {
 
-			} else if "50000000000000000000" == vDepositUsdtResult.Value {
+			} else if "5000000000000000000000" == vDepositUsdtResult.Value {
 
 			} else {
 				continue
@@ -633,9 +632,8 @@ func (a *AppService) AdminWithdrawEth(ctx context.Context, req *v1.AdminWithdraw
 			//withDrawAmount = strconv.FormatInt(withdraw.Amount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "usdt" == withdraw.Type {
 			//tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
-			// todo 减掉2 00
 			tokenAddress = "0x55d398326f99059fF775485246999027B3197955"
-			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "000000" // 补八个0.系统基础1是10个0
+			withDrawAmount = strconv.FormatInt(withdraw.RelAmount, 10) + "00000000" // 补八个0.系统基础1是10个0
 		} else if "bnb" == withdraw.Type {
 			continue
 			////tokenAddress = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd"
