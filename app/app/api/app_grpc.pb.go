@@ -65,6 +65,7 @@ type AppClient interface {
 	AuthAdminDelete(ctx context.Context, in *AuthAdminDeleteRequest, opts ...grpc.CallOption) (*AuthAdminDeleteReply, error)
 	CheckAndInsertRecommendArea(ctx context.Context, in *CheckAndInsertRecommendAreaRequest, opts ...grpc.CallOption) (*CheckAndInsertRecommendAreaReply, error)
 	AdminDailyRecommendReward(ctx context.Context, in *AdminDailyRecommendRewardRequest, opts ...grpc.CallOption) (*AdminDailyRecommendRewardReply, error)
+	AdminDailyRecommendTopReward(ctx context.Context, in *AdminDailyRecommendTopRewardRequest, opts ...grpc.CallOption) (*AdminDailyRecommendTopRewardReply, error)
 	AdminDailyWithdrawReward(ctx context.Context, in *AdminDailyWithdrawRewardRequest, opts ...grpc.CallOption) (*AdminDailyWithdrawRewardReply, error)
 	FixReward(ctx context.Context, in *FixRewardRequest, opts ...grpc.CallOption) (*FixRewardReply, error)
 	FixLocations(ctx context.Context, in *FixLocationsRequest, opts ...grpc.CallOption) (*FixLocationsReply, error)
@@ -465,6 +466,15 @@ func (c *appClient) AdminDailyRecommendReward(ctx context.Context, in *AdminDail
 	return out, nil
 }
 
+func (c *appClient) AdminDailyRecommendTopReward(ctx context.Context, in *AdminDailyRecommendTopRewardRequest, opts ...grpc.CallOption) (*AdminDailyRecommendTopRewardReply, error) {
+	out := new(AdminDailyRecommendTopRewardReply)
+	err := c.cc.Invoke(ctx, "/api.App/AdminDailyRecommendTopReward", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminDailyWithdrawReward(ctx context.Context, in *AdminDailyWithdrawRewardRequest, opts ...grpc.CallOption) (*AdminDailyWithdrawRewardReply, error) {
 	out := new(AdminDailyWithdrawRewardReply)
 	err := c.cc.Invoke(ctx, "/api.App/AdminDailyWithdrawReward", in, out, opts...)
@@ -539,6 +549,7 @@ type AppServer interface {
 	AuthAdminDelete(context.Context, *AuthAdminDeleteRequest) (*AuthAdminDeleteReply, error)
 	CheckAndInsertRecommendArea(context.Context, *CheckAndInsertRecommendAreaRequest) (*CheckAndInsertRecommendAreaReply, error)
 	AdminDailyRecommendReward(context.Context, *AdminDailyRecommendRewardRequest) (*AdminDailyRecommendRewardReply, error)
+	AdminDailyRecommendTopReward(context.Context, *AdminDailyRecommendTopRewardRequest) (*AdminDailyRecommendTopRewardReply, error)
 	AdminDailyWithdrawReward(context.Context, *AdminDailyWithdrawRewardRequest) (*AdminDailyWithdrawRewardReply, error)
 	FixReward(context.Context, *FixRewardRequest) (*FixRewardReply, error)
 	FixLocations(context.Context, *FixLocationsRequest) (*FixLocationsReply, error)
@@ -677,6 +688,9 @@ func (UnimplementedAppServer) CheckAndInsertRecommendArea(context.Context, *Chec
 }
 func (UnimplementedAppServer) AdminDailyRecommendReward(context.Context, *AdminDailyRecommendRewardRequest) (*AdminDailyRecommendRewardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDailyRecommendReward not implemented")
+}
+func (UnimplementedAppServer) AdminDailyRecommendTopReward(context.Context, *AdminDailyRecommendTopRewardRequest) (*AdminDailyRecommendTopRewardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDailyRecommendTopReward not implemented")
 }
 func (UnimplementedAppServer) AdminDailyWithdrawReward(context.Context, *AdminDailyWithdrawRewardRequest) (*AdminDailyWithdrawRewardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDailyWithdrawReward not implemented")
@@ -1474,6 +1488,24 @@ func _App_AdminDailyRecommendReward_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminDailyRecommendTopReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminDailyRecommendTopRewardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminDailyRecommendTopReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.App/AdminDailyRecommendTopReward",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminDailyRecommendTopReward(ctx, req.(*AdminDailyRecommendTopRewardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminDailyWithdrawReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminDailyWithdrawRewardRequest)
 	if err := dec(in); err != nil {
@@ -1706,6 +1738,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminDailyRecommendReward",
 			Handler:    _App_AdminDailyRecommendReward_Handler,
+		},
+		{
+			MethodName: "AdminDailyRecommendTopReward",
+			Handler:    _App_AdminDailyRecommendTopReward_Handler,
 		},
 		{
 			MethodName: "AdminDailyWithdrawReward",

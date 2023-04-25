@@ -566,6 +566,10 @@ func (a *AppService) AdminDailyRecommendReward(ctx context.Context, req *v1.Admi
 	return a.uuc.AdminDailyRecommendReward(ctx, req)
 }
 
+func (a *AppService) AdminDailyRecommendTopReward(ctx context.Context, req *v1.AdminDailyRecommendTopRewardRequest) (*v1.AdminDailyRecommendTopRewardReply, error) {
+	return a.uuc.AdminDailyRecommendTopReward(ctx, req)
+}
+
 func (a *AppService) UploadRecommendUser(ctx context.Context, req *v1.UploadRecommendUserRequest) (*v1.UploadRecommendUserReply, error) {
 	return a.uuc.UploadRecommendUser(ctx, req)
 }

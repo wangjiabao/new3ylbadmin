@@ -335,6 +335,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/daily_recommend_top_reward:
+        get:
+            tags:
+                - App
+            operationId: App_AdminDailyRecommendTopReward
+            parameters:
+                - name: day
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminDailyRecommendTopRewardReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/daily_withdraw_reward:
         get:
             tags:
@@ -1174,6 +1198,9 @@ components:
             type: object
             properties: {}
         AdminDailyRecommendRewardReply:
+            type: object
+            properties: {}
+        AdminDailyRecommendTopRewardReply:
             type: object
             properties: {}
         AdminDailyWithdrawRewardReply:

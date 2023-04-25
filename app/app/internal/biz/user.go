@@ -167,6 +167,7 @@ type UserBalanceRepo interface {
 	RecommendReward(ctx context.Context, userId int64, amount int64, locationId int64, status string) (int64, error)
 	RecommendTopReward(ctx context.Context, userId int64, amount int64, locationId int64, vip int64, status string) (int64, error)
 	SystemWithdrawReward(ctx context.Context, amount int64, locationId int64) error
+	GetYesterdayDailyReward(ctx context.Context, day int) ([]*Reward, error)
 	SystemReward(ctx context.Context, amount int64, locationId int64) error
 	SystemDailyReward(ctx context.Context, amount int64, locationId int64) error
 	GetSystemYesterdayDailyReward(ctx context.Context, day int) (*Reward, error)
@@ -2465,11 +2466,11 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 	//beforeDay30 := now.AddDate(0, 0, -30)
 
 	var (
-		withdrawAmount   int64
-		withdrawTotal    int64
-		day              = -1
-		runningLocations []*Location
-		rewardLocations  []*Location
+		withdrawAmount      int64
+		withdrawTotal       int64
+		day                 = -1
+		mapRunningLocations map[int64][]*Location
+		rewardLocations     []*Location
 		//tryRewardLocations []*Location
 		err               error
 		allLocationAmount int64
@@ -2487,71 +2488,89 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 	withdrawAmount -= withdrawTotal / 100 * 5 // 手续费
 	withdrawAmount = withdrawAmount / 100 * 50
 
-	runningLocations, _ = uuc.locationRepo.GetLocationsRunning(ctx)
-	if 0 >= len(runningLocations) {
+	mapRunningLocations, _ = uuc.locationRepo.GetLocationsRunning2(ctx)
+	if 0 >= len(mapRunningLocations) {
 		return &v1.AdminDailyWithdrawRewardReply{}, nil
 	}
 
-	for _, vRunningLocations := range runningLocations {
-		//var (
-		//	tmpUserRecommend *UserRecommend
-		//	myRecommendUsers []*UserRecommend
-		//)
-		//tmpUserRecommend, _ = uuc.urRepo.GetUserRecommendByUserId(ctx, vRunningLocations.UserId)
-		//if nil == tmpUserRecommend {
-		//	continue
-		//}
-		//
-		//myCode := tmpUserRecommend.RecommendCode + "D" + strconv.FormatInt(vRunningLocations.UserId, 10)
-		//myRecommendUsers, _ = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
-		//if 0 >= len(myRecommendUsers) {
-		//	continue
-		//}
-
-		// 30天前推荐
-		//tmpDo := false
-		//for _, vMyRecommendUsers := range myRecommendUsers {
-		//	if vMyRecommendUsers.CreatedAt.Before(beforeDay30) {
-		//		continue
-		//	}
-		//	var (
-		//		tmpLocationLast *Location
-		//	)
-		//	tmpLocationLast, _ = uuc.locationRepo.GetMyLocationLast(ctx, vMyRecommendUsers.UserId)
-		//	if nil == tmpLocationLast {
-		//		continue
-		//	}
-		//
-		//	if tmpLocationLast.CreatedAt.Before(beforeDay30) {
-		//		continue
-		//	}
-		//
-		//	tmpDo = true
-		//}
-		//
-		//if !tmpDo {
-		//	continue
-		//}
-
-		tmpCurrentMax := vRunningLocations.CurrentMax / 5
-
-		if tmpCurrentMax >= 1000000000000 && tmpCurrentMax < 3000000000000 {
-			allLocationAmount += 1000000000000
-		} else if tmpCurrentMax >= 3000000000000 && tmpCurrentMax < 5000000000000 {
-			allLocationAmount += 3000000000000
-		} else if tmpCurrentMax >= 5000000000000 && tmpCurrentMax < 10000000000000 {
-			allLocationAmount += 5000000000000
-		} else if tmpCurrentMax >= 10000000000000 && tmpCurrentMax < 30000000000000 {
-			allLocationAmount += 10000000000000
-		} else if tmpCurrentMax >= 30000000000000 && tmpCurrentMax < 50000000000000 {
-			allLocationAmount += 30000000000000
-		} else if tmpCurrentMax >= 50000000000000 {
-			allLocationAmount += 50000000000000
-		} else {
+	tmpMapLocationCurrentMaxAll := make(map[int64]int64, 0)
+	for _, runningLocations := range mapRunningLocations {
+		if runningLocations[0].Status != "running" {
 			continue
 		}
 
-		rewardLocations = append(rewardLocations, vRunningLocations)
+		if _, ok := tmpMapLocationCurrentMaxAll[runningLocations[0].ID]; !ok {
+			tmpMapLocationCurrentMaxAll[runningLocations[0].ID] = 0
+		}
+
+		for _, vRunningLocations := range runningLocations {
+
+			//var (
+			//	tmpUserRecommend *UserRecommend
+			//	myRecommendUsers []*UserRecommend
+			//)
+			//tmpUserRecommend, _ = uuc.urRepo.GetUserRecommendByUserId(ctx, vRunningLocations.UserId)
+			//if nil == tmpUserRecommend {
+			//	continue
+			//}
+			//
+			//myCode := tmpUserRecommend.RecommendCode + "D" + strconv.FormatInt(vRunningLocations.UserId, 10)
+			//myRecommendUsers, _ = uuc.urRepo.GetUserRecommendByCode(ctx, myCode)
+			//if 0 >= len(myRecommendUsers) {
+			//	continue
+			//}
+
+			// 30天前推荐
+			//tmpDo := false
+			//for _, vMyRecommendUsers := range myRecommendUsers {
+			//	if vMyRecommendUsers.CreatedAt.Before(beforeDay30) {
+			//		continue
+			//	}
+			//	var (
+			//		tmpLocationLast *Location
+			//	)
+			//	tmpLocationLast, _ = uuc.locationRepo.GetMyLocationLast(ctx, vMyRecommendUsers.UserId)
+			//	if nil == tmpLocationLast {
+			//		continue
+			//	}
+			//
+			//	if tmpLocationLast.CreatedAt.Before(beforeDay30) {
+			//		continue
+			//	}
+			//
+			//	tmpDo = true
+			//}
+			//
+			//if !tmpDo {
+			//	continue
+			//}
+
+			tmpCurrentMax := vRunningLocations.CurrentMax / 5
+
+			if tmpCurrentMax >= 1000000000000 && tmpCurrentMax < 3000000000000 {
+				allLocationAmount += 1000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 1000000000000
+			} else if tmpCurrentMax >= 3000000000000 && tmpCurrentMax < 5000000000000 {
+				allLocationAmount += 3000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 3000000000000
+			} else if tmpCurrentMax >= 5000000000000 && tmpCurrentMax < 10000000000000 {
+				allLocationAmount += 5000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 5000000000000
+			} else if tmpCurrentMax >= 10000000000000 && tmpCurrentMax < 30000000000000 {
+				allLocationAmount += 10000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 10000000000000
+			} else if tmpCurrentMax >= 30000000000000 && tmpCurrentMax < 50000000000000 {
+				allLocationAmount += 30000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 30000000000000
+			} else if tmpCurrentMax >= 50000000000000 {
+				allLocationAmount += 50000000000000
+				tmpMapLocationCurrentMaxAll[runningLocations[0].ID] += 50000000000000
+			} else {
+				continue
+			}
+		}
+
+		rewardLocations = append(rewardLocations, runningLocations[0])
 	}
 
 	//tryCount := 0
@@ -2568,23 +2587,11 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 	//	tryCount++
 
 	for _, vRewardLocations := range rewardLocations {
-		tmpCurrentMax := vRewardLocations.CurrentMax / 5
-		if tmpCurrentMax >= 1000000000000 && tmpCurrentMax < 3000000000000 {
-			tmpCurrentMax = 100
-		} else if tmpCurrentMax >= 3000000000000 && tmpCurrentMax < 5000000000000 {
-			tmpCurrentMax = 300
-		} else if tmpCurrentMax >= 5000000000000 && tmpCurrentMax < 10000000000000 {
-			tmpCurrentMax = 500
-		} else if tmpCurrentMax >= 10000000000000 && tmpCurrentMax < 30000000000000 {
-			tmpCurrentMax = 1000
-		} else if tmpCurrentMax >= 30000000000000 && tmpCurrentMax < 50000000000000 {
-			tmpCurrentMax = 3000
-		} else if tmpCurrentMax >= 50000000000000 {
-			tmpCurrentMax = 5000
-		} else {
+
+		if _, ok := tmpMapLocationCurrentMaxAll[vRewardLocations.ID]; !ok {
 			continue
 		}
-
+		tmpCurrentMax := tmpMapLocationCurrentMaxAll[vRewardLocations.ID] / 10000000000
 		tmpCurrent := withdrawAmount * tmpCurrentMax / (allLocationAmount / 10000000000)
 
 		if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
@@ -2629,6 +2636,186 @@ func (uuc *UserUseCase) AdminDailyWithdrawReward(ctx context.Context, req *v1.Ad
 	//}
 
 	return &v1.AdminDailyWithdrawRewardReply{}, nil
+}
+
+func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v1.AdminDailyRecommendTopRewardRequest) (*v1.AdminDailyRecommendTopRewardReply, error) {
+
+	var (
+		userLocations       []*Location
+		configs             []*Config
+		recommendNeed1to4   int64
+		recommendNeed5      int64
+		recommendNeed6      int64
+		recommendNeed7to10  int64
+		recommendNeed11     int64
+		recommendNeed12     int64
+		recommendNeed13to16 int64
+		recommendNeed17     int64
+		recommendNeed18     int64
+		fee                 int64
+		rewards             []*Reward
+		day                 = -1
+		err                 error
+	)
+
+	if 1 == req.Day {
+		day = 0
+	}
+
+	// 全网手续费
+	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx, day)
+	if nil != err {
+		return nil, err
+	}
+
+	// 配置
+	configs, _ = uuc.configRepo.GetConfigByKeys(ctx,
+		"recommend_need_1_4", "recommend_need_5", "recommend_need_6",
+		"recommend_need_7_10", "recommend_need_11", "recommend_need_12",
+		"recommend_need_13_17", "recommend_need_17", "recommend_need_18")
+
+	if nil != configs {
+		for _, vConfig := range configs {
+			if "recommend_need_1_4" == vConfig.KeyName {
+				recommendNeed1to4, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_5" == vConfig.KeyName {
+				recommendNeed5, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_6" == vConfig.KeyName {
+				recommendNeed6, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_7_10" == vConfig.KeyName {
+				recommendNeed7to10, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_11" == vConfig.KeyName {
+				recommendNeed11, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_12" == vConfig.KeyName {
+				recommendNeed12, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_13_16" == vConfig.KeyName {
+				recommendNeed13to16, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_17" == vConfig.KeyName {
+				recommendNeed17, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			} else if "recommend_need_18" == vConfig.KeyName {
+				recommendNeed18, _ = strconv.ParseInt(vConfig.Value, 10, 64)
+			}
+		}
+	}
+
+	rewards, err = uuc.ubRepo.GetYesterdayDailyReward(ctx, day)
+	if nil != err {
+		return nil, err
+	}
+
+	for _, vReward := range rewards {
+		if "location" == vReward.Reason && "location" == vReward.Type {
+
+		} else if "recommend" == vReward.Reason && "location" == vReward.Type {
+
+		} else if "daily_recommend_area" == vReward.Reason {
+
+		} else if "recommend_vip_top" == vReward.Reason && "location" == vReward.Type {
+
+		} else {
+			continue
+		}
+		fmt.Println(vReward)
+		fee += vReward.Amount
+	}
+
+	if 0 >= len(userLocations) {
+		return &v1.AdminDailyRecommendTopRewardReply{}, nil
+	}
+
+	fmt.Println(fee)
+	fee /= int64(len(userLocations))
+	fmt.Println(fee)
+	if 0 >= fee {
+		return &v1.AdminDailyRecommendTopRewardReply{}, nil
+	}
+
+	for _, vUserLocations := range userLocations {
+		var (
+			userRecommend       *UserRecommend
+			tmpRecommendUserIds []string
+		)
+
+		// 推荐人
+		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, vUserLocations.UserId)
+		if nil != err {
+			continue
+		}
+		if "" != userRecommend.RecommendCode {
+			tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+
+		}
+
+		if 2 <= len(tmpRecommendUserIds) {
+			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				for i := 2; i <= 18; i++ {
+					// 有占位信息，推荐人推荐人的上一代
+					if len(tmpRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
+						break
+					}
+					tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-i], 10, 64) // 最后一位是直推人
+
+					var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
+					if i >= 2 && i <= 4 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed1to4 // 记录下一次
+					} else if i == 5 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed5 // 记录下一次
+					} else if i == 6 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed6 // 记录下一次
+					} else if i >= 7 && i <= 10 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed7to10 // 记录下一次
+					} else if i == 11 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed11 // 记录下一次
+					} else if i == 12 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed12 // 记录下一次
+					} else if i >= 13 && i <= 16 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed13to16 // 记录下一次
+					} else if i == 17 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed17 // 记录下一次
+					} else if i == 18 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed18 // 记录下一次
+					} else {
+						break
+					}
+
+					tmpMyTopUserRecommendUserLocationLast, _ := uuc.locationRepo.GetMyLocationLast(ctx, tmpMyTopUserRecommendUserId)
+					if nil != tmpMyTopUserRecommendUserLocationLast {
+						tmpMyTopUserRecommendUserLocationLastStatus := tmpMyTopUserRecommendUserLocationLast.Status // 现在还在运行中
+
+						tmpMyTopUserRecommendUserLocationLast.Status = "running"
+						tmpMyTopUserRecommendUserLocationLast.Current += tmpMyTopUserRecommendUserLocationLastBalanceAmount
+						if tmpMyTopUserRecommendUserLocationLast.Current >= tmpMyTopUserRecommendUserLocationLast.CurrentMax { // 占位分红人分满停止
+							tmpMyTopUserRecommendUserLocationLast.Status = "stop"
+							if "running" == tmpMyTopUserRecommendUserLocationLastStatus {
+								tmpMyTopUserRecommendUserLocationLast.StopDate = time.Now().UTC().Add(8 * time.Hour)
+							}
+						}
+						if 0 < tmpMyTopUserRecommendUserLocationLastBalanceAmount {
+							err = uuc.locationRepo.UpdateLocation(ctx, tmpMyTopUserRecommendUserLocationLast.ID, tmpMyTopUserRecommendUserLocationLast.Status, tmpMyTopUserRecommendUserLocationLastBalanceAmount, tmpMyTopUserRecommendUserLocationLast.StopDate) // 分红占位数据修改
+							if nil != err {
+								return err
+							}
+						}
+
+						if 0 < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 这次还能分红
+							_, err = uuc.ubRepo.NormalRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpMyTopUserRecommendUserLocationLastBalanceAmount, vUserLocations.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
+							if nil != err {
+								return err
+							}
+						}
+					}
+
+				}
+
+				return nil
+			}); nil != err {
+				continue
+			}
+		}
+
+	}
+
+	return &v1.AdminDailyRecommendTopRewardReply{}, nil
 }
 
 func (uuc *UserUseCase) AdminDailyRecommendReward(ctx context.Context, req *v1.AdminDailyRecommendRewardRequest) (*v1.AdminDailyRecommendRewardReply, error) {

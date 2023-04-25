@@ -9452,6 +9452,218 @@ var _ interface {
 	ErrorName() string
 } = AdminDailyRecommendRewardReplyValidationError{}
 
+// Validate checks the field values on AdminDailyRecommendTopRewardRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AdminDailyRecommendTopRewardRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminDailyRecommendTopRewardRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AdminDailyRecommendTopRewardRequestMultiError, or nil if none found.
+func (m *AdminDailyRecommendTopRewardRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminDailyRecommendTopRewardRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Day
+
+	if len(errors) > 0 {
+		return AdminDailyRecommendTopRewardRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminDailyRecommendTopRewardRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// AdminDailyRecommendTopRewardRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AdminDailyRecommendTopRewardRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminDailyRecommendTopRewardRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminDailyRecommendTopRewardRequestMultiError) AllErrors() []error { return m }
+
+// AdminDailyRecommendTopRewardRequestValidationError is the validation error
+// returned by AdminDailyRecommendTopRewardRequest.Validate if the designated
+// constraints aren't met.
+type AdminDailyRecommendTopRewardRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminDailyRecommendTopRewardRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminDailyRecommendTopRewardRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminDailyRecommendTopRewardRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminDailyRecommendTopRewardRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminDailyRecommendTopRewardRequestValidationError) ErrorName() string {
+	return "AdminDailyRecommendTopRewardRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminDailyRecommendTopRewardRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminDailyRecommendTopRewardRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminDailyRecommendTopRewardRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminDailyRecommendTopRewardRequestValidationError{}
+
+// Validate checks the field values on AdminDailyRecommendTopRewardReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *AdminDailyRecommendTopRewardReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AdminDailyRecommendTopRewardReply
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// AdminDailyRecommendTopRewardReplyMultiError, or nil if none found.
+func (m *AdminDailyRecommendTopRewardReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AdminDailyRecommendTopRewardReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AdminDailyRecommendTopRewardReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// AdminDailyRecommendTopRewardReplyMultiError is an error wrapping multiple
+// validation errors returned by
+// AdminDailyRecommendTopRewardReply.ValidateAll() if the designated
+// constraints aren't met.
+type AdminDailyRecommendTopRewardReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AdminDailyRecommendTopRewardReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AdminDailyRecommendTopRewardReplyMultiError) AllErrors() []error { return m }
+
+// AdminDailyRecommendTopRewardReplyValidationError is the validation error
+// returned by AdminDailyRecommendTopRewardReply.Validate if the designated
+// constraints aren't met.
+type AdminDailyRecommendTopRewardReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AdminDailyRecommendTopRewardReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AdminDailyRecommendTopRewardReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AdminDailyRecommendTopRewardReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AdminDailyRecommendTopRewardReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AdminDailyRecommendTopRewardReplyValidationError) ErrorName() string {
+	return "AdminDailyRecommendTopRewardReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AdminDailyRecommendTopRewardReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAdminDailyRecommendTopRewardReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AdminDailyRecommendTopRewardReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AdminDailyRecommendTopRewardReplyValidationError{}
+
 // Validate checks the field values on AdminDailyWithdrawRewardRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

@@ -288,6 +288,12 @@ service App {
 		};
 	};
 
+	rpc AdminDailyRecommendTopReward (AdminDailyRecommendTopRewardRequest) returns (AdminDailyRecommendTopRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/daily_recommend_top_reward"
+		};
+	};
+
 	rpc AdminDailyWithdrawReward (AdminDailyWithdrawRewardRequest) returns (AdminDailyWithdrawRewardReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/daily_withdraw_reward"
@@ -844,6 +850,14 @@ message AdminDailyRecommendRewardRequest {
 }
 
 message AdminDailyRecommendRewardReply {
+
+}
+
+message AdminDailyRecommendTopRewardRequest {
+	int32 day = 1;
+}
+
+message AdminDailyRecommendTopRewardReply {
 
 }
 
