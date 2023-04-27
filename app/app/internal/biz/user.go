@@ -2674,7 +2674,7 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 	configs, _ = uuc.configRepo.GetConfigByKeys(ctx,
 		"recommend_need_1_4", "recommend_need_5", "recommend_need_6",
 		"recommend_need_7_10", "recommend_need_11", "recommend_need_12",
-		"recommend_need_13_17", "recommend_need_17", "recommend_need_18")
+		"recommend_need_13_16", "recommend_need_17", "recommend_need_18")
 
 	if nil != configs {
 		for _, vConfig := range configs {
