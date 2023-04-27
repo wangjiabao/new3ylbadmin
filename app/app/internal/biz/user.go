@@ -2776,23 +2776,23 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 
 					var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
 					if i >= 2 && i <= 4 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed1to4 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed1to4 // 记录下一次
 					} else if i == 5 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed5 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed5 // 记录下一次
 					} else if i == 6 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed6 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed6 // 记录下一次
 					} else if i >= 7 && i <= 10 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed7to10 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed7to10 // 记录下一次
 					} else if i == 11 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed11 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed11 // 记录下一次
 					} else if i == 12 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed12 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed12 // 记录下一次
 					} else if i >= 13 && i <= 16 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed13to16 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed13to16 // 记录下一次
 					} else if i == 17 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed17 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed17 // 记录下一次
 					} else if i == 18 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 1000 * recommendNeed18 // 记录下一次
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed18 // 记录下一次
 					} else {
 						break
 					}
