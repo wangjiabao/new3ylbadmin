@@ -167,7 +167,7 @@ type UserBalanceRepo interface {
 	RecommendReward(ctx context.Context, userId int64, amount int64, locationId int64, status string) (int64, error)
 	RecommendTopReward(ctx context.Context, userId int64, amount int64, locationId int64, vip int64, status string) (int64, error)
 	SystemWithdrawReward(ctx context.Context, amount int64, locationId int64) error
-	GetYesterdayDailyReward(ctx context.Context, day int) ([]*Reward, error)
+	GetYesterdayDailyReward(ctx context.Context, day int, userIds []int64) (map[int64][]*Reward, error)
 	SystemReward(ctx context.Context, amount int64, locationId int64) error
 	SystemDailyReward(ctx context.Context, amount int64, locationId int64) error
 	GetSystemYesterdayDailyReward(ctx context.Context, day int) (*Reward, error)
@@ -2652,8 +2652,7 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		recommendNeed13to16 int64
 		recommendNeed17     int64
 		recommendNeed18     int64
-		fee                 int64
-		rewards             []*Reward
+		rewards             map[int64][]*Reward
 		day                 = -1
 		err                 error
 	)
@@ -2662,10 +2661,13 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		day = 0
 	}
 
-	// 全网手续费
 	userLocations, err = uuc.locationRepo.GetLocationDailyYesterday(ctx, day)
 	if nil != err {
 		return nil, err
+	}
+
+	if 0 >= len(userLocations) {
+		return &v1.AdminDailyRecommendTopRewardReply{}, nil
 	}
 
 	// 配置
@@ -2698,38 +2700,7 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		}
 	}
 
-	rewards, err = uuc.ubRepo.GetYesterdayDailyReward(ctx, day)
-	if nil != err {
-		return nil, err
-	}
-
-	for _, vReward := range rewards {
-		if "location" == vReward.Reason && "location" == vReward.Type {
-
-		} else if "recommend" == vReward.Reason && "location" == vReward.Type {
-
-		} else if "daily_recommend_area" == vReward.Reason {
-
-		} else if "recommend_vip_top" == vReward.Reason && "location" == vReward.Type {
-
-		} else {
-			continue
-		}
-		fmt.Println(vReward)
-		fee += vReward.Amount
-	}
-
-	if 0 >= len(userLocations) {
-		return &v1.AdminDailyRecommendTopRewardReply{}, nil
-	}
-
-	fmt.Println(fee)
-	fee /= int64(len(userLocations))
-	fmt.Println(fee)
-	if 0 >= fee {
-		return &v1.AdminDailyRecommendTopRewardReply{}, nil
-	}
-
+	recommendAllUserIds := make(map[int64][]string, 0)
 	for _, vUserLocations := range userLocations {
 		var (
 			userRecommend       *UserRecommend
@@ -2743,17 +2714,65 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		}
 		if "" != userRecommend.RecommendCode {
 			tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+			if 2 <= len(tmpRecommendUserIds) {
+				myUserRecommendUserId, _ := strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-1], 10, 64) // 最后一位是直推人
+				if 0 < myUserRecommendUserId {
+					if _, ok := recommendAllUserIds[myUserRecommendUserId]; !ok {
+						recommendAllUserIds[myUserRecommendUserId] = make([]string, 0)
+					}
+					recommendAllUserIds[myUserRecommendUserId] = tmpRecommendUserIds
+				}
+			}
+		}
+	}
 
+	var (
+		recommendUserIds []int64
+	)
+	for kRecommendUserId, _ := range recommendAllUserIds {
+		recommendUserIds = append(recommendUserIds, kRecommendUserId)
+	}
+	rewards, err = uuc.ubRepo.GetYesterdayDailyReward(ctx, day, recommendUserIds)
+	if nil != err {
+		return nil, err
+	}
+
+	for kRecommendUserId, vRecommendUserIds := range recommendAllUserIds {
+		if _, ok := rewards[kRecommendUserId]; !ok {
+			continue
 		}
 
-		if 2 <= len(tmpRecommendUserIds) {
+		var (
+			fee int64
+		)
+
+		for _, vReward := range rewards[kRecommendUserId] {
+			if "location" == vReward.Reason && "location" == vReward.Type {
+
+			} else if "recommend" == vReward.Reason && "location" == vReward.Type {
+
+			} else if "daily_recommend_area" == vReward.Reason {
+
+			} else if "recommend_vip_top" == vReward.Reason && "location" == vReward.Type {
+
+			} else {
+				continue
+			}
+			fee += vReward.Amount
+		}
+
+		if 0 >= fee {
+			continue
+		}
+
+		if 2 <= len(vRecommendUserIds) {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 				for i := 2; i <= 18; i++ {
 					// 有占位信息，推荐人推荐人的上一代
-					if len(tmpRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
+					if len(vRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
 						break
 					}
-					tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(tmpRecommendUserIds[len(tmpRecommendUserIds)-i], 10, 64) // 最后一位是直推人
+					tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(vRecommendUserIds[len(vRecommendUserIds)-i], 10, 64) // 最后一位是直推人
 
 					var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
 					if i >= 2 && i <= 4 {
@@ -2798,7 +2817,7 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 						}
 
 						if 0 < tmpMyTopUserRecommendUserLocationLastBalanceAmount { // 这次还能分红
-							_, err = uuc.ubRepo.NormalRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpMyTopUserRecommendUserLocationLastBalanceAmount, vUserLocations.ID, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
+							_, err = uuc.ubRepo.NormalRecommendTopReward(ctx, tmpMyTopUserRecommendUserId, tmpMyTopUserRecommendUserLocationLastBalanceAmount, 0, int64(i), tmpMyTopUserRecommendUserLocationLastStatus) // 直推人奖励
 							if nil != err {
 								return err
 							}

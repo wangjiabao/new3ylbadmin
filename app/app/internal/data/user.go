@@ -1793,7 +1793,7 @@ func (ub *UserBalanceRepo) SystemWithdrawReward(ctx context.Context, amount int6
 }
 
 // GetYesterdayDailyReward .
-func (ub *UserBalanceRepo) GetYesterdayDailyReward(ctx context.Context, day int) ([]*biz.Reward, error) {
+func (ub *UserBalanceRepo) GetYesterdayDailyReward(ctx context.Context, day int, userIds []int64) (map[int64][]*biz.Reward, error) {
 	var rewards []*Reward
 
 	now := time.Now().UTC().AddDate(0, 0, day)
@@ -1811,8 +1811,9 @@ func (ub *UserBalanceRepo) GetYesterdayDailyReward(ctx context.Context, day int)
 
 	reason := []string{"location", "recommend", "recommend_vip_top", "daily_recommend_area"}
 
-	res := make([]*biz.Reward, 0)
+	res := make(map[int64][]*biz.Reward, 0)
 	if err := ub.data.db.
+		Where("user_id in(?)", userIds).
 		Where("created_at>=?", todayStart).
 		Where("created_at<?", todayEnd).
 		Where("reason in(?)", reason).
@@ -1825,7 +1826,11 @@ func (ub *UserBalanceRepo) GetYesterdayDailyReward(ctx context.Context, day int)
 	}
 
 	for _, reward := range rewards {
-		res = append(res, &biz.Reward{
+		if _, ok := res[reward.UserId]; !ok {
+			res[reward.UserId] = make([]*biz.Reward, 0)
+		}
+
+		res[reward.UserId] = append(res[reward.UserId], &biz.Reward{
 			ID:               reward.ID,
 			UserId:           reward.UserId,
 			Amount:           reward.Amount,
