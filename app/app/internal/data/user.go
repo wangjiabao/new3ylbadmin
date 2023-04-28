@@ -1840,6 +1840,7 @@ func (ub *UserBalanceRepo) GetYesterdayDailyReward(ctx context.Context, day int,
 			Reason:           reward.Reason,
 			ReasonLocationId: reward.ReasonLocationId,
 			LocationType:     reward.LocationType,
+			CreatedAt:        reward.CreatedAt,
 		})
 	}
 

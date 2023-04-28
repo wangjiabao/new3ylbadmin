@@ -2700,12 +2700,18 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		}
 	}
 
+	parse, _ := time.Parse("2006-01-02 15:04:05", "2023-04-28 04:00:00")
+
 	recommendAllUserIds := make(map[int64][]string, 0)
 	for _, vUserLocations := range userLocations {
 		var (
 			userRecommend       *UserRecommend
 			tmpRecommendUserIds []string
 		)
+
+		if vUserLocations.CreatedAt.Before(parse) {
+			continue
+		}
 
 		// 推荐人
 		userRecommend, err = uuc.urRepo.GetUserRecommendByUserId(ctx, vUserLocations.UserId)
@@ -2747,6 +2753,10 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 		)
 
 		for _, vReward := range rewards[kRecommendUserId] {
+			if vReward.CreatedAt.Before(parse) {
+				continue
+			}
+
 			if "location" == vReward.Reason && "location" == vReward.Type {
 
 			} else if "recommend" == vReward.Reason && "location" == vReward.Type {
@@ -2767,7 +2777,7 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 
 		if 2 <= len(vRecommendUserIds) {
 			if err = uuc.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-				for i := 2; i <= 18; i++ {
+				for i := 2; i <= 19; i++ {
 					// 有占位信息，推荐人推荐人的上一代
 					if len(vRecommendUserIds)-i < 1 { // 根据数据第一位是空字符串
 						break
@@ -2775,23 +2785,23 @@ func (uuc *UserUseCase) AdminDailyRecommendTopReward(ctx context.Context, req *v
 					tmpMyTopUserRecommendUserId, _ := strconv.ParseInt(vRecommendUserIds[len(vRecommendUserIds)-i], 10, 64) // 最后一位是直推人
 
 					var tmpMyTopUserRecommendUserLocationLastBalanceAmount int64
-					if i >= 2 && i <= 4 {
+					if i >= 2 && i <= 5 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed1to4 // 记录下一次
-					} else if i == 5 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed5 // 记录下一次
 					} else if i == 6 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed5 // 记录下一次
+					} else if i == 7 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed6 // 记录下一次
-					} else if i >= 7 && i <= 10 {
+					} else if i >= 8 && i <= 11 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed7to10 // 记录下一次
-					} else if i == 11 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed11 // 记录下一次
 					} else if i == 12 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed11 // 记录下一次
+					} else if i == 13 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed12 // 记录下一次
-					} else if i >= 13 && i <= 16 {
+					} else if i >= 14 && i <= 17 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed13to16 // 记录下一次
-					} else if i == 17 {
-						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed17 // 记录下一次
 					} else if i == 18 {
+						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed17 // 记录下一次
+					} else if i == 19 {
 						tmpMyTopUserRecommendUserLocationLastBalanceAmount = fee / 10000 * recommendNeed18 // 记录下一次
 					} else {
 						break
