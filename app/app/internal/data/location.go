@@ -105,6 +105,7 @@ func (lr *LocationRepo) GetLocationDailyYesterday(ctx context.Context, day int) 
 			CurrentLevel: v.CurrentLevel,
 			Current:      v.Current,
 			CurrentMax:   v.CurrentMax,
+			CreatedAt:    v.CreatedAt,
 		})
 	}
 
